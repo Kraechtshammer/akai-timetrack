@@ -72,7 +72,8 @@ Principles:
 
 | Column | Type | Meaning |
 |---|---|---|
-| `id` | int PK | |
+| `id` | text PK (UUID v4) | Random, globally unique ID instead of an auto-increment number. A backup can then be restored or merged into an existing database without ID clashes (§14). Notification IDs use a separate small int column, `notifId`. |
+| `notifId` | int, unique, auto-increment | Only for notification IDs, which Android requires to be ints. Never leaves the device. |
 | `day` | text `yyyy-MM-dd` | Local date the shift belongs to (its start date). Used for week and month grouping. |
 | `type` | enum `lunch` / `evening` / `custom` | |
 | `plannedStart`, `plannedEnd` | DateTime (stored as UTC epoch ms) | |
@@ -94,6 +95,20 @@ Rules:
   - `running`: recording started, not stopped.
   - `recorded`: `actualStart` and `actualEnd` are both set.
 - **Hours** = `actualEnd − actualStart − breakMinutes` for recorded shifts, and `plannedEnd − plannedStart` for planned ones.
+
+### Conventions that keep the schema extendable
+
+These apply from v1 so that backup, tips and salary (§14) can be added later without reworking existing data:
+
+- **Schema versioning from day one.** Drift's `schemaVersion` starts at 1. Each change is a numbered migration that only adds things (new tables, new nullable columns) and never renames or reuses a column. Drift's schema snapshots are committed to the repo (`drift_schemas/`), and each migration gets a test that upgrades a snapshot of every older version.
+- **Stable IDs:** UUIDs for every record that may end up in a backup (shifts now; tips and wage rates later).
+- **Every record carries `createdAt` / `updatedAt`.** A restore or merge can then decide which copy is newer.
+- **Units:**
+  - money as **integer cents** (never floating point)
+  - instants as **UTC epoch ms**
+  - dates as **`yyyy-MM-dd`** text
+  - durations as **minutes**
+- **Device-specific data stays separate from user data.** Calendar event IDs, notification IDs and the chosen calendar ID only make sense on one phone. They are clearly marked and left out of backups (§14.1).
 
 ### Table `settings` (key-value)
 
@@ -195,12 +210,12 @@ Pure function `desiredNotifications(shifts, settings, now) → Set<ScheduledNoti
 **Pre-shift reminder**
 - For every `planned` shift whose `plannedStart − lead` is in the future, within the next 14 days (this stays far below Android's limit of 500 alarms).
 - Fires at `plannedStart − lead`.
-- ID `shiftId * 10 + 1`.
+- ID `notifId * 10 + 1`.
 
 **Overrun reminder**
 - For the running shift.
 - Fires at `plannedEnd + overrun`.
-- ID `shiftId * 10 + 2`.
+- ID `notifId * 10 + 2`.
 
 **Running notification**
 - ID `1`.
@@ -265,7 +280,9 @@ This bridge is also the part that has to be rewritten for iOS later (EventKit). 
   Geplant: 17:30–23:00
   Erfasst: 17:30–22:45 (5,25 h)
   Wird von AKAI Timetrack verwaltet – bitte in der App ändern.
+  Ref: 3f9c2a1b
   ```
+  The `Ref:` line is the first 8 characters of the shift's UUID. It's used to find the event again after a backup restore (§14.1).
   The "Erfasst" line appears only once the shift is recorded.
 
 ### 5.5 Sync algorithm (`CalendarSync.reconcile`)
@@ -442,7 +459,72 @@ akai_timetrack/
 | M5 | Settings, theming, i18n, onboarding | All settings working, EN translation, dark mode and system colour, onboarding incl. Xiaomi hints. |
 | M6 | Handover and field test | Release key created and backed up. Install on her Xiaomi and set it up together (onboarding incl. Autostart and battery). Run the Xiaomi checklist, then one real week of use, then fixes. |
 
-## 14. Open points (small, can be decided while building)
+## 14. Prepared for later (not in v1)
+
+### 14.1 Backup and restore
+
+**What v1 already has, with no work:** Android Auto Backup stores the database in her Google account's device backup. It's restored when she sets up a new phone or reinstalls the app. There's no manual "restore now" and no control over timing, but it covers a lost or replaced phone.
+
+**What a later backup feature would be built on:**
+
+- **Backup format:** a single versioned JSON file, e.g.
+  ```json
+  {
+    "format": "akai-timetrack-backup",
+    "formatVersion": 1,
+    "schemaVersion": 3,
+    "createdAt": "2027-03-01T20:15:00Z",
+    "settings": { "...": "only portable settings" },
+    "shifts": [ { "id": "uuid", "...": "..." } ],
+    "tips": [ ],
+    "wageRates": [ ]
+  }
+  ```
+  - Excluded: calendar event IDs, notification IDs and the chosen calendar ID (device-specific).
+  - The domain layer gets an `exportSnapshot()` / `importSnapshot()` pair so the format is independent of where the file is stored.
+- **Restore:**
+  - **Into an empty app:** import everything.
+  - **Into an app that already has data:** merge by UUID, where the newer `updatedAt` wins.
+  - **After a restore:** every shift is marked `dirty`, and she picks the calendar again.
+  - **Avoiding duplicate events:** so the app doesn't create duplicates of events that still exist, each app-created event carries a short reference line in its description (`Ref: <first 8 chars of the UUID>`). After a restore, the app first looks for events with matching references in the chosen calendar and reconnects to them. This line is written from v1 on, so old events can be found later.
+- **Where the file goes**, to be decided when the feature is built:
+  - **No account setup:** Android's system file picker (Storage Access Framework). She picks a folder once, e.g. in Google Drive. The app keeps write access to it and saves a backup automatically, say weekly. No Google Cloud project, no OAuth.
+  - **Invisible app storage on Google Drive:** Google Drive's hidden "app data" folder via the Drive API. Needs a Google Cloud project and Google sign-in in the app.
+  - **iOS:** the app's iCloud Drive container. Needs the Apple Developer Program.
+  - Recommendation for later: the system file picker on Android first, because it needs no accounts.
+
+### 14.2 Tips and salary
+
+**Tips** go in a new table rather than as a column on the shift, because there may be more than one entry per shift (cash, card share, pooled tips) and maybe tips without a shift:
+
+| Table `tips` | Type | Meaning |
+|---|---|---|
+| `id` | text UUID | |
+| `shiftId` | text?, FK → shifts | null = not tied to a shift (e.g. a monthly pool payout) |
+| `day` | text `yyyy-MM-dd` | for month grouping |
+| `amountCents` | int | |
+| `kind` | enum `cash` / `card` / `pool` / `other` | |
+| `note` | text? | |
+| `createdAt`, `updatedAt` | DateTime | |
+
+**Wage rates** are valid from a date, so a raise doesn't change past months:
+
+| Table `wage_rates` | Type | Meaning |
+|---|---|---|
+| `id` | text UUID | |
+| `validFrom` | text `yyyy-MM-dd` | |
+| `hourlyCents` | int | gross hourly wage |
+| `createdAt`, `updatedAt` | DateTime | |
+
+Possible later extension: a `surcharge_rules` table for Sunday, holiday and night surcharges, which are common in restaurants. Each rule would have a weekday or holiday flag, a time window and a percentage.
+
+**Salary calculation:** a pure domain function `salaryFor(month, shifts, wageRates, tips)` returning hours × the rate valid on each shift's day, tips, and the totals with and without tips. It's shown in a later "Lohn" tab, and could optionally go into the export text.
+
+**UI hooks:** the shift edit sheet gets a "Trinkgeld" field below "Pause", and the month card on Heute can gain a third figure. The concept layouts leave room for both.
+
+Nothing in v1 needs changing for this beyond the conventions in §3.
+
+## 15. Open points (small, can be decided while building)
 
 - App icon and the app name on the home screen ("AKAI Zeit"? "Schichten"?).
 - Exact text of the event description in English.
