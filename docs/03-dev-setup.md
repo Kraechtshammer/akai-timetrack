@@ -76,12 +76,12 @@ To check the token is not tracked: `git check-ignore -v .devcontainer/.env` shou
 | App logs | Task *Device: Show app logs* |
 | Analyze / test | Tasks *Flutter: Analyze*, *Flutter: Test* |
 
-The `dist/` folder is visible in Windows Explorer, so an APK can also be copied to a phone by hand. Opening it on the phone asks to allow installs from that source. Until there is a release signing key (milestone M6), release APKs are signed with the debug key; that's fine for testing.
+The `dist/` folder is visible in Windows Explorer, so an APK can also be copied to a phone by hand. Opening it on the phone asks to allow installs from that source. Release APKs are signed with the release key when `android/key.properties` exists, otherwise with the debug key (see section 9). A debug-signed APK can't update an app installed with the release key.
 
 **App icon variants.** The launcher entry is one of three activity aliases (Rund, Squircle, Squircle klein), chosen in the app's Settings. `flutter run` / F5 still works: `MainActivity` keeps a MAIN/LAUNCHER intent filter in the source manifest, and the build removes it from the installed app (`tools:node="remove"`). To start the app by hand:
 
 ```
-adb shell am start -n de.garten.akaitimetrack/.MainActivity
+adb shell am start -n de.gartenpa.timetrack/de.garten.akaitimetrack.MainActivity
 ```
 
 ## 6. Emulator
@@ -139,6 +139,34 @@ Options. Decided on 2026-11-04: the repo stays on `C:`, so builds stay slow; the
   ```
   Optionally add `processors=`. Then run `wsl --shutdown`. This stops the container and the emulator.
 - **Keep the emulator closed** while building when you don't need it.
+
+## 9. Releases
+
+Releases are built by GitHub Actions when a version tag is pushed. The repo is private: `github.com/Kraechtshammer/akai-timetrack`. Version 1.0.0 uses the package name `de.gartenpa.timetrack`; it installs as a new app, so uninstall the old test install first (its data is not carried over).
+
+**One-time setup: repository secrets.** The release workflow needs three secrets. Without them it fails.
+1. On GitHub open the repo → Settings → Secrets and variables → Actions → *New repository secret*.
+2. `ANDROID_KEYSTORE_BASE64`: paste the whole content of `android/timetrack-release.jks.base64`.
+3. `ANDROID_KEYSTORE_PASSWORD`: the `storePassword` value from `android/key.properties`.
+4. `ANDROID_KEY_ALIAS`: `timetrack`.
+5. Delete `android/timetrack-release.jks.base64` afterwards.
+
+**Make a release.**
+1. In `pubspec.yaml` set `version:` to the new name and a higher build number, e.g. `1.0.1+2`. The build number is Android's versionCode and must increase, or updates are refused.
+2. Commit and push to main. The CI workflow (`.github/workflows/ci.yml`) runs analyze and tests.
+3. Tag and push:
+   ```
+   git tag v1.0.1
+   git push origin v1.0.1
+   ```
+4. The release workflow (`.github/workflows/release.yml`) checks that the tag matches the pubspec version, runs analyze and tests, builds the signed APK and creates the release "TimeTrack 1.0.1" with `timetrack-1.0.1.apk` attached. It can also be started by hand in the Actions tab.
+5. On the phone, log in to GitHub (the repo is private), download the APK from the release page and install it over the old one.
+
+**Key files** (all git-ignored, in `android/`): `timetrack-release.jks` (the keystore, alias `timetrack`), `key.properties` (its settings) and `timetrack-release.jks.base64` (copy for GitHub; delete after use). Never commit or share them.
+
+**Back up the key.** Every update must be signed with the same key. Keep `timetrack-release.jks` and the password in a password manager plus an offline copy. If the key is lost, the app on her phone can only be replaced by uninstalling it, which deletes its data. The GitHub secret is not a backup: secrets can't be read back.
+
+**Local release builds.** `scripts/build-apk.sh release` and the task *Build: Release APK* also sign with the release key when `android/key.properties` is present, otherwise with the debug key.
 
 ## Troubleshooting
 

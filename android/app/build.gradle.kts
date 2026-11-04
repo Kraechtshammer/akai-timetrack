@@ -1,10 +1,21 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Release signing key, see docs/02-design.md §12. android/key.properties and the keystore are
+// git-ignored; GitHub Actions writes them from repository secrets (.github/workflows/release.yml).
+val releaseKey = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val hasReleaseKey = releaseKey.getProperty("storeFile") != null
+
 android {
+    // Kotlin package of MainActivity; independent of the applicationId below.
     namespace = "de.garten.akaitimetrack"
     // 37: required by permission_handler. minSdk stays 29.
     compileSdk = 37
@@ -18,8 +29,8 @@ android {
     }
 
     defaultConfig {
-        // Package name: provisional until handover, see docs/02-design.md §12.
-        applicationId = "de.garten.akaitimetrack"
+        // Package name on the phone. Final since 1.0.0: changing it makes a different app.
+        applicationId = "de.gartenpa.timetrack"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 29 // Android 10, see docs/01-research.md (Q9)
@@ -32,10 +43,22 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                storeFile = rootProject.file(releaseKey.getProperty("storeFile"))
+                storePassword = releaseKey.getProperty("storePassword")
+                keyAlias = releaseKey.getProperty("keyAlias")
+                keyPassword = releaseKey.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Signed with the debug key until there is a release key (milestone M6).
-            signingConfig = signingConfigs.getByName("debug")
+            // The release key when android/key.properties exists, otherwise the debug key
+            // (fine for local testing, but such an APK can't update one signed with the release key).
+            signingConfig = signingConfigs.getByName(if (hasReleaseKey) "release" else "debug")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }

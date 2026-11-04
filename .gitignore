@@ -53,3 +53,6 @@ app.*.map.json
 
 # Core dumps (e.g. from a crashed emulator)
 core.[0-9]*
+
+# Release signing key, base64 copy for the GitHub secret
+*.jks.base64

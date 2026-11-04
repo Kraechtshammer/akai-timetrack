@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-04 (evening). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-04 (evening); the version is now 1.0.0 (`1.0.0+1`). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -66,7 +66,12 @@ Automated checks:
    - light mode with the new AKAI-Rot, the Systemfarbe;
    - reboot (rescheduling; the progress alarm is not restored after a reboot until the app re-posts the notification on start);
    - the progress tick firing with the app killed (it fired on its own while the app was in the background: progress 24 → 59, next alarm set).
-3. **Before handover (M6):** release signing key, final app name and package name, test on her Xiaomi (checklist in `02-design.md` §11).
+3. **Before handover (M6):**
+   - Done: release signing key created, final package name `de.gartenpa.timetrack`, app name "TimeTrack" kept (see `02-design.md` §12).
+   - Still to do by the user: back up `android/timetrack-release.jks` and its password, and set the three GitHub secrets (`03-dev-setup.md` section 9).
+   - Pending: the first tagged release `v1.0.0`.
+   - Open: test on her Xiaomi (checklist in `02-design.md` §11).
+   - The package changed, so the old test install (`de.garten.akaitimetrack`) must be uninstalled; the new one starts with empty data.
 
 ## Code map
 
@@ -88,6 +93,10 @@ lib/
 packages/calendar_bridge/   Kotlin CalendarContract plugin (calendars incl. sync flag, event colours, events, enableSync, requestSync)
 packages/running_progress/  Kotlin plugin: moves the running notification's progress bar (Live Update on Android 16)
 test/                       unit tests (helpers.dart builds test shifts)
+.github/workflows/ci.yml       analyze + test on push to main and on pull requests
+.github/workflows/release.yml  on tag v*: signed release APK + GitHub release (needs the three secrets)
+android/key.properties, android/timetrack-release.jks, android/timetrack-release.jks.base64
+                            release signing key files; git-ignored, never commit or print them
 ```
 
 Key ideas:
@@ -101,4 +110,5 @@ Key ideas:
 - The bind mount is slow: `flutter analyze` takes about 5–7 minutes and a debug build about 2.
 - After changing ARB files run `flutter gen-l10n`; after changing tables run `dart run build_runner build -d`.
 - **Emulator:** the task *Emulator: Start*. It has no Google account, so there are no calendars. `scripts/emulator-test-calendar.sh` creates a local test calendar with two event colours. The user also tries the app in the emulator window, so don't drive the UI blindly.
+- **Releases:** bump `version:` in `pubspec.yaml`, push, then tag `v<version>`; GitHub Actions builds the APK (`03-dev-setup.md` section 9). Release builds use `android/key.properties` if present, otherwise the debug key.
 - **Commits:** use the repo-local GitHub noreply identity; never the global work address.
