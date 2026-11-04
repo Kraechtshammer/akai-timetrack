@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Resources the release build's resource shrinker must keep although no code references them
+     by resource ID: flutter_local_notifications looks up the notification icon by name
+     (AndroidInitializationSettings('ic_notification') in lib/platform/notification_service.dart).
+     Without this the release app hung on the splash screen (invalid_icon on start). -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_notification" />

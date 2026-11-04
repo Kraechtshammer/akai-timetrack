@@ -24,7 +24,7 @@ The v1 app is implemented and runs on the emulator (Android 16.0 / SDK 36.0, vir
 Automated checks:
 - `flutter analyze`: no issues.
 - `flutter test`: 40 tests pass (rounding, ISO weeks, export text DE/EN, month summary, reminder planning, planning rules against an in-memory database, new settings keys, notification progress maths, calendar sync with a fake bridge).
-- Debug APK builds. The release APK was last built before this round (64.5 MB, R8).
+- Debug and release APKs build. The first release APK of this round hung on the splash screen: the resource shrinker had removed `ic_notification`, which flutter_local_notifications looks up by name, so `main()` threw before `runApp`. Fixed with `android/app/src/main/res/raw/keep.xml`; `main()` now also starts the app if notification setup fails. Any other resource looked up by name must be added to `keep.xml`.
 
 ## Done in the second session (2026-11-04, from the user's feedback)
 
@@ -62,6 +62,7 @@ Automated checks:
    - notification buttons "Erfassung starten" and "Ende 23:00" with the app killed. "Beenden" works with the app killed: checked on the emulator, where Android starts the process for the button, the shift is recorded and the event updated;
    - the "Noch bei der Arbeit?" overrun question;
    - "Später" snooze;
+   - Settings: event title change and language switch (both should update all events);
    - light mode with the new AKAI-Rot, the Systemfarbe;
    - reboot (rescheduling; the progress alarm is not restored after a reboot until the app re-posts the notification on start);
    - the progress tick firing with the app killed (it fired on its own while the app was in the background: progress 24 → 59, next alarm set).
