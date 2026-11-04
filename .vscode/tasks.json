@@ -1,0 +1,102 @@
+{
+  // Run with Ctrl+Shift+P → "Tasks: Run Task". Ctrl+Shift+B runs the default build task.
+  // All tasks run inside the dev container. Device tasks need the adb server on Windows
+  // (scripts/windows/start-adb-server.cmd), see docs/03-dev-setup.md.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Flutter: Get packages",
+      "type": "shell",
+      "command": "flutter pub get",
+      "problemMatcher": []
+    },
+    {
+      "label": "Flutter: Analyze",
+      "type": "shell",
+      "command": "flutter analyze",
+      "problemMatcher": "$dart-flutter-analyze"
+    },
+    {
+      "label": "Flutter: Test",
+      "type": "shell",
+      "command": "flutter test",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build: Release APK",
+      "detail": "Builds the release APK and copies it to dist/",
+      "type": "shell",
+      "command": "bash scripts/build-apk.sh release",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build: Debug APK",
+      "detail": "Builds the debug APK and copies it to dist/",
+      "type": "shell",
+      "command": "bash scripts/build-apk.sh debug",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Device: Build and install release APK",
+      "detail": "Builds the release APK and installs it on the connected device (keeps app data)",
+      "type": "shell",
+      "command": "bash scripts/install-apk.sh release",
+      "dependsOn": "Build: Release APK",
+      "problemMatcher": []
+    },
+    {
+      "label": "Device: Install latest release APK",
+      "detail": "Installs the newest release APK from dist/ without rebuilding",
+      "type": "shell",
+      "command": "bash scripts/install-apk.sh release",
+      "problemMatcher": []
+    },
+    {
+      "label": "Device: List devices",
+      "type": "shell",
+      "command": "adb devices -l && echo && flutter devices",
+      "problemMatcher": []
+    },
+    {
+      "label": "Device: Pair wireless debugging",
+      "detail": "Phone: Developer options → Wireless debugging → Pair device with pairing code",
+      "type": "shell",
+      "command": "adb pair ${input:pairAddress} ${input:pairCode}",
+      "problemMatcher": []
+    },
+    {
+      "label": "Device: Connect wireless debugging",
+      "detail": "Phone: Developer options → Wireless debugging → IP address & Port",
+      "type": "shell",
+      "command": "adb connect ${input:connectAddress}",
+      "problemMatcher": []
+    },
+    {
+      "label": "Device: Show app logs",
+      "type": "shell",
+      "command": "flutter logs",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "pairAddress",
+      "type": "promptString",
+      "description": "Pairing address shown on the phone (IP:port), e.g. 192.168.1.23:37121"
+    },
+    {
+      "id": "pairCode",
+      "type": "promptString",
+      "description": "Six-digit pairing code shown on the phone"
+    },
+    {
+      "id": "connectAddress",
+      "type": "promptString",
+      "description": "Address under 'IP address & Port' on the phone, e.g. 192.168.1.23:41235"
+    }
+  ]
+}

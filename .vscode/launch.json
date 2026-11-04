@@ -1,0 +1,27 @@
+{
+  // F5 runs the app on the selected device (bottom-right in the status bar) with hot reload.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "TimeTrack (debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "TimeTrack (profile)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "TimeTrack (release)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "release"
+    }
+  ]
+}

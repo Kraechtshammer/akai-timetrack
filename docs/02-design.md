@@ -279,10 +279,8 @@ This bridge is also the part that has to be rewritten for iOS later (EventKit). 
   ```
   Geplant: 17:30–23:00
   Erfasst: 17:30–22:45 (5,25 h)
-  Wird von AKAI Timetrack verwaltet – bitte in der App ändern.
-  Ref: 3f9c2a1b
+  Wird von TimeTrack verwaltet – bitte in der App ändern.
   ```
-  The `Ref:` line is the first 8 characters of the shift's UUID. It's used to find the event again after a backup restore (§14.1).
   The "Erfasst" line appears only once the shift is recorded.
 
 ### 5.5 Sync algorithm (`CalendarSync.reconcile`)
@@ -445,7 +443,8 @@ akai_timetrack/
 
 - Builds are installed by USB (`flutter install`) or as an APK file.
 - **Create the release signing key once and back it up safely** (password manager plus an offline copy). Every update must be signed with the same key. If the key is lost, she has to uninstall the app, which deletes its data unless it's backed up.
-- When global developer verification arrives (2027), register the free limited-distribution account and register the app's package name. Proposed package name: `de.<yourname>.akaitimetrack`, to be fixed before the first install.
+- When global developer verification arrives (2027), register the free limited-distribution account and register the app's package name. Package name for now: `de.garten.akaitimetrack`. It may still change, but it must be final before the first install on her phone, because Android treats a new package name as a different app (no updates, separate data). It is set in one place, `android/app/build.gradle.kts` (`applicationId`).
+- App name on the home screen for now: **TimeTrack** (may still change), set in `android/app/src/main/AndroidManifest.xml` (`android:label`) and in the ARB files.
 
 ## 13. Implementation plan (milestones)
 
@@ -486,7 +485,10 @@ akai_timetrack/
   - **Into an empty app:** import everything.
   - **Into an app that already has data:** merge by UUID, where the newer `updatedAt` wins.
   - **After a restore:** every shift is marked `dirty`, and she picks the calendar again.
-  - **Avoiding duplicate events:** so the app doesn't create duplicates of events that still exist, each app-created event carries a short reference line in its description (`Ref: <first 8 chars of the UUID>`). After a restore, the app first looks for events with matching references in the chosen calendar and reconnects to them. This line is written from v1 on, so old events can be found later.
+  - **Avoiding duplicate events:** after a restore, before creating any events, the app looks in the chosen calendar for an existing event **on the same day, with the same start and end time and the event title from settings**. If one matches, the app reconnects the shift to it instead of creating a duplicate. Times are compared using the recorded times if the shift has them, otherwise the planned times.
+    - If several events match (e.g. two "Kellnern" events at the same time), the app takes one and leaves the others alone.
+    - An event edited by hand in Google Calendar, or created before the title setting was changed, won't match. The app then creates a new event, and the old one has to be deleted by hand.
+    - Nothing extra is written into the events for this, so they stay clean.
 - **Where the file goes**, to be decided when the feature is built:
   - **No account setup:** Android's system file picker (Storage Access Framework). She picks a folder once, e.g. in Google Drive. The app keeps write access to it and saves a backup automatically, say weekly. No Google Cloud project, no OAuth.
   - **Invisible app storage on Google Drive:** Google Drive's hidden "app data" folder via the Drive API. Needs a Google Cloud project and Google sign-in in the app.
@@ -526,6 +528,6 @@ Nothing in v1 needs changing for this beyond the conventions in §3.
 
 ## 15. Open points (small, can be decided while building)
 
-- App icon and the app name on the home screen ("AKAI Zeit"? "Schichten"?).
+- App icon. The app name is "TimeTrack" for now and the package name `de.garten.akaitimetrack`; both are to be confirmed before handover.
 - Exact text of the event description in English.
 - Whether "Später" on the pre-shift reminder needs a configurable delay (currently a fixed 10 min).
