@@ -75,6 +75,33 @@
       "problemMatcher": []
     },
     {
+      "label": "Emulator: Start",
+      "detail": "Opens the Android emulator window and waits until it has booted",
+      "type": "shell",
+      "command": "bash scripts/emulator.sh start",
+      "problemMatcher": []
+    },
+    {
+      "label": "Emulator: Stop",
+      "type": "shell",
+      "command": "bash scripts/emulator.sh stop",
+      "problemMatcher": []
+    },
+    {
+      "label": "Emulator: Set up (one time, ~3 GB download)",
+      "detail": "Downloads the emulator and an Android 16 image with Google Play, creates the virtual Pixel",
+      "type": "shell",
+      "command": "bash scripts/emulator.sh setup",
+      "problemMatcher": []
+    },
+    {
+      "label": "Emulator: Factory reset",
+      "detail": "Deletes all apps and data on the emulator, then starts it",
+      "type": "shell",
+      "command": "bash scripts/emulator.sh wipe",
+      "problemMatcher": []
+    },
+    {
       "label": "Device: Show app logs",
       "type": "shell",
       "command": "flutter logs",

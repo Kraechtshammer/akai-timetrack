@@ -11,7 +11,21 @@
   // wireless-debugging devices, emulators), otherwise its own server; see .devcontainer/adb-wrapper.sh
   // and docs/03-dev-setup.md. Host networking lets the container find Windows when Docker runs
   // inside WSL 2 (Windows is the WSL VM's default gateway). It works with Docker Desktop too.
-  "runArgs": ["--network=host"],
+  //
+  // Emulator (scripts/emulator.sh): KVM for speed and WSLg's display for the window. These need
+  // Docker in WSL 2; with Docker Desktop, remove the last five entries (see docs/03-dev-setup.md).
+  "runArgs": [
+    "--network=host",
+    "--device=/dev/kvm",
+    "-v", "/mnt/wslg:/mnt/wslg",
+    "-v", "/mnt/wslg/.X11-unix:/tmp/.X11-unix"
+  ],
+  // Reaps exited background processes (e.g. a stopped emulator) so they don't linger as zombies
+  "init": true,
+  // Emulator and Android image (~6-8 GB once set up), kept across container rebuilds
+  "mounts": [
+    "source=timetrack-emulator,target=/home/vscode/.android-emu,type=volume"
+  ],
 
   "customizations": {
     "vscode": {

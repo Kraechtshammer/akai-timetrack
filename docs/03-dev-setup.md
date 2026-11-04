@@ -9,12 +9,11 @@ VS Code (+ Dev Containers ext.)  ◄──────► Flutter, Android SDK, 
 Docker (Engine in WSL 2,                  Dart/Flutter + Claude Code extensions
         or Docker Desktop)
 adb server  (start-adb-server.cmd) ◄───── adb client (wrapper picks the server)
-  ├─ phone via USB
-  ├─ phone via wireless debugging
-  └─ emulator (optional, Android Studio)
+  ├─ phone via USB                        Android emulator (window via WSLg,
+  └─ phone via wireless debugging           KVM via WSL 2)
 ```
 
-Why adb runs on Windows: Docker can't pass USB devices into the container, and the Android emulator can't run inside it either (no hardware virtualization). Instead, the adb **client** in the container talks to an adb **server** on Windows, which sees every phone and emulator on the PC.
+Why adb runs on Windows: Docker can't pass USB devices into the container. Instead, the adb **client** in the container talks to an adb **server** on Windows, which sees every phone connected to the PC. The emulator runs inside the container (section 6).
 
 How the container finds Windows: `adb` in the container is a small wrapper (`.devcontainer/adb-wrapper.sh`). Each call checks whether the Windows adb server is reachable:
 - **Docker Engine in WSL 2:** at the WSL VM's default gateway. The container runs with host networking for this, and the address is looked up each time because it can change after a reboot.
@@ -79,16 +78,26 @@ To check the token is not tracked: `git check-ignore -v .devcontainer/.env` shou
 
 The `dist/` folder is visible in Windows Explorer, so an APK can also be copied to a phone by hand. Opening it on the phone asks to allow installs from that source. Until there is a release signing key (milestone M6), release APKs are signed with the debug key; that's fine for testing.
 
-## 6. Emulator (optional)
+## 6. Emulator
 
-**Windows Subsystem for Android no longer exists**; Microsoft discontinued it in March 2025. The Android Emulator on Windows still works next to Docker and WSL 2:
+The Android emulator runs **inside the dev container**. Its window appears on the Windows desktop through WSLg (WSL's built-in Linux GUI support), and it uses WSL 2's KVM for speed. No Android Studio is needed. (Windows Subsystem for Android, which you may have heard of, was discontinued by Microsoft in March 2025.)
 
-1. Install Android Studio on Windows: `winget install Google.AndroidStudio`. It's only needed for the emulator.
-2. Android Studio → Settings → Build, Execution, Deployment → Debugger → **Adb Server Lifecycle Management: "Use existing manually managed server"**, port 5037. Otherwise Android Studio may restart adb in a mode the container can't reach.
-3. Start `start-adb-server.cmd` first, then in Android Studio: *Device Manager* → create a device (e.g. Pixel 9, latest API, with Google Play so the Google Calendar app is available) → start it.
-4. The emulator shows up in the container as `emulator-5554` (task *Device: List devices*) and in VS Code's device picker.
+| Task | What it does |
+|---|---|
+| *Emulator: Set up (one time, ~3 GB download)* | Downloads the emulator and an **Android 16 image with Google Play**, and creates a virtual **Pixel 7 Pro**. Takes about 10 minutes. |
+| *Emulator: Start* | Opens the emulator window and waits until Android has booted: about 50 s the first time, about 25 s after that (quick-boot snapshot). Then pick it in VS Code's device picker and press F5, or use the install tasks. |
+| *Emulator: Stop* | Shuts it down; the next start resumes from a snapshot. |
+| *Emulator: Factory reset* | Deletes all apps, data and the Google sign-in, then starts it. |
 
-If the emulator complains about virtualization, enable the Windows feature **"Windows Hypervisor Platform"** and restart.
+Notes:
+- **Storage:** the emulator, the Android image and the virtual phone's data live in the Docker volume `timetrack-emulator` (about 7 GB after setup, growing with use). They survive container rebuilds. To remove everything, delete the volume (in WSL: `docker volume rm timetrack-emulator`) while the container is stopped.
+- **Google account:** the image has the Play Store, so you can sign in with a Google account and install Google Calendar there to test calendar sync. Use a test account if you prefer.
+- **adb:** the emulator works with both adb servers. If `start-adb-server.cmd` is running, the start task connects the Windows server to the emulator (it appears as `127.0.0.1:5555`); otherwise it's `emulator-5554` on the container's own server.
+- **Graphics** are rendered in software (SwiftShader). That's reliable and fast enough for this app; animations may be a little less smooth than on a real phone.
+- **Requirements:** Docker Engine in WSL 2 (as on this PC). The container gets `/dev/kvm` and WSLg's display through `runArgs` in `devcontainer.json`. With **Docker Desktop** instead, the emulator isn't available: remove the `--device=/dev/kvm` line and the two `/mnt/wslg` mounts there, and use a phone.
+- **Logs:** `~/.android-emu/emulator.log` in the container. If a start fails, the task prints the end of it.
+
+After changing `devcontainer.json` or the `Dockerfile` (e.g. when pulling these changes), run *Dev Containers: Rebuild Container* once.
 
 ## Troubleshooting
 

@@ -61,3 +61,18 @@ RUN cd /tmp \
 # `ip` (for finding Windows from Docker in WSL) comes with the base image.
 RUN mv "$ANDROID_HOME/platform-tools/adb" "$ANDROID_HOME/platform-tools/adb-real"
 COPY --chown=vscode:vscode --chmod=755 adb-wrapper.sh /opt/android-sdk/platform-tools/adb
+
+# Android emulator (scripts/emulator.sh): the libraries its window needs. The emulator itself and
+# the Android image are downloaded on demand into the volume at ~/.android-emu, not into the image.
+USER root
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      libpulse0 libgl1 libegl1 libnss3 libnspr4 libxcomposite1 libxcursor1 libxi6 libxtst6 \
+      libasound2t64 libxdamage1 libxrandr2 libxkbfile1 libxkbcommon0 libxkbcommon-x11-0 \
+      libx11-xcb1 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
+      libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libdbus-1-3 \
+      libfontconfig1 libbsd0 libsm6 libice6 \
+ && rm -rf /var/lib/apt/lists/*
+USER vscode
+# Created here so the Docker volume mounted on it starts out owned by vscode.
+RUN mkdir -p /home/vscode/.android-emu
