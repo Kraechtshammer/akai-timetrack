@@ -130,7 +130,7 @@ The real cause is file access. The project folder lives on `C:\` and is mounted 
 
 Memory is the other limit. The WSL VM gets about 15 GB by default (half the PC's RAM). The emulator takes about 6.5 GB. Gradle's and the Kotlin daemon's JVMs may each grow to 8 GB (`org.gradle.jvmargs` in `android/gradle.properties`).
 
-Options (nothing is decided yet):
+Options. Decided on 2026-11-04: the repo stays on `C:`, so builds stay slow; the other two options still apply:
 - **Clone the repo inside the WSL file system**, e.g. `~/code/akai-timetrack` in Ubuntu, and open that folder in VS Code through the WSL extension → *Reopen in Container*. File access then stays on native ext4, which typically makes analyze and builds several times faster. Windows tools can still reach it at `\\wsl$\Ubuntu\...`.
 - **Give WSL more memory** in `%UserProfile%\.wslconfig`:
   ```
