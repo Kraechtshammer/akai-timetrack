@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:calendar_bridge/calendar_bridge.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_ui/material_ui.dart';
+
+import '../material.dart';
 
 import '../../app/providers.dart';
 import '../../l10n/labels.dart';
@@ -9,7 +12,8 @@ import '../../platform/device_setup.dart';
 import '../common.dart';
 
 /// The phone's writable calendars, grouped by account. Asks for the
-/// calendar permission first if needed.
+/// calendar permission first if needed. Calendars that aren't synced to the
+/// phone yet are listed too; choosing one turns its sync on.
 class CalendarChooser extends ConsumerStatefulWidget {
   const CalendarChooser({
     super.key,
@@ -27,11 +31,49 @@ class CalendarChooser extends ConsumerStatefulWidget {
 class _CalendarChooserState extends ConsumerState<CalendarChooser> {
   bool? _permission;
   List<CalendarInfo> _calendars = const [];
+  var _refreshing = false;
+  Timer? _reloadLater;
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _reloadLater?.cancel();
+    super.dispose();
+  }
+
+  /// Asks Google to fetch the calendar list, then reads it again. A new
+  /// calendar can take a few seconds, so it reads once more a bit later.
+  Future<void> _refresh() async {
+    setState(() => _refreshing = true);
+    try {
+      await ref.services.calendar.bridge.requestSync();
+    } catch (_) {
+      // Reading the list again still helps.
+    }
+    await _load();
+    _reloadLater?.cancel();
+    _reloadLater = Timer(const Duration(seconds: 6), () async {
+      await _load();
+      if (mounted) setState(() => _refreshing = false);
+    });
+  }
+
+  Future<void> _choose(CalendarInfo calendar) async {
+    if (!calendar.synced) {
+      final bridge = ref.services.calendar.bridge;
+      try {
+        await bridge.enableSync(calendar.id);
+        await bridge.requestSync(calendar.id);
+      } catch (_) {
+        // Events are still written; they reach Google once sync is on.
+      }
+    }
+    widget.onSelected(calendar);
   }
 
   Future<void> _load() async {
@@ -62,11 +104,41 @@ class _CalendarChooserState extends ConsumerState<CalendarChooser> {
         spacing: 8,
         children: [
           Text(l10n.calendarAccessNeeded),
-          FilledButton(onPressed: _requestPermission, child: Text(l10n.allow)),
+          M3EButton(onPressed: _requestPermission, child: Text(l10n.allow)),
         ],
       );
     }
-    if (_calendars.isEmpty) return Text(l10n.noCalendars);
+    final refresh = Row(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              l10n.calendarMissingHint,
+              style: context.text.bodySmall,
+            ),
+          ),
+        ),
+        M3EButton.icon(
+          style: M3EButtonStyle.text,
+          onPressed: _refreshing ? null : _refresh,
+          icon: _refreshing
+              ? const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.refresh),
+          label: Text(l10n.calendarRefresh),
+        ),
+      ],
+    );
+    if (_calendars.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
+        children: [Text(l10n.noCalendars), refresh],
+      );
+    }
 
     final accounts = <String, List<CalendarInfo>>{};
     for (final calendar in _calendars) {
@@ -74,11 +146,11 @@ class _CalendarChooserState extends ConsumerState<CalendarChooser> {
     }
     return RadioGroup<String>(
       groupValue: widget.selectedId,
-      onChanged: (id) =>
-          widget.onSelected(_calendars.firstWhere((c) => c.id == id)),
+      onChanged: (id) => _choose(_calendars.firstWhere((c) => c.id == id)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          refresh,
           for (final MapEntry(key: account, value: calendars)
               in accounts.entries) ...[
             Padding(
@@ -94,6 +166,7 @@ class _CalendarChooserState extends ConsumerState<CalendarChooser> {
                   backgroundColor: Color(calendar.color),
                 ),
                 title: Text(calendar.name),
+                subtitle: calendar.synced ? null : Text(l10n.calendarNotSynced),
               ),
           ],
         ],
@@ -294,11 +367,12 @@ class _EventColorSheetState extends ConsumerState<_EventColorSheet> {
             mainAxisAlignment: MainAxisAlignment.end,
             spacing: 8,
             children: [
-              TextButton(
+              M3EButton(
+                style: M3EButtonStyle.text,
                 onPressed: () => Navigator.pop(context),
                 child: Text(l10n.cancel),
               ),
-              FilledButton(onPressed: _apply, child: Text(l10n.apply)),
+              M3EButton(onPressed: _apply, child: Text(l10n.apply)),
             ],
           ),
         ],

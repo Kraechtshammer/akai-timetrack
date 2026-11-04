@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- App icon "Squircle klein", foreground layer: the whole squircle sign from
+     branding/app-icon.svg (red frame, dark-red panel, lettering) on a transparent background,
+     small enough (half-size 29.5 of the 108 canvas) to stay whole under any launcher mask.
+     Launchers fill the rest of their shape themselves (Pixel: black).
+     Generated from the SVG (scale 0.590, offset 24.5). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#C62A30"
+        android:pathData="M83.50,54.00 L83.47,61.55 L83.38,64.66 L83.22,67.03 L82.99,69.01 L82.71,70.73 L82.36,72.25 L81.94,73.62 L81.45,74.86 L80.90,75.99 L80.28,77.02 L79.58,77.95 L78.80,78.80 L77.95,79.58 L77.02,80.28 L75.99,80.90 L74.86,81.45 L73.62,81.94 L72.25,82.36 L70.73,82.71 L69.01,82.99 L67.03,83.22 L64.66,83.38 L61.55,83.47 L54.00,83.50 L46.45,83.47 L43.34,83.38 L40.97,83.22 L38.99,82.99 L37.27,82.71 L35.75,82.36 L34.38,81.94 L33.14,81.45 L32.01,80.90 L30.98,80.28 L30.05,79.58 L29.20,78.80 L28.42,77.95 L27.72,77.02 L27.10,75.99 L26.55,74.86 L26.06,73.62 L25.64,72.25 L25.29,70.73 L25.01,69.01 L24.78,67.03 L24.62,64.66 L24.53,61.55 L24.50,54.00 L24.53,46.45 L24.62,43.34 L24.78,40.97 L25.01,38.99 L25.29,37.27 L25.64,35.75 L26.06,34.38 L26.55,33.14 L27.10,32.01 L27.72,30.98 L28.42,30.05 L29.20,29.20 L30.05,28.42 L30.98,27.72 L32.01,27.10 L33.14,26.55 L34.38,26.06 L35.75,25.64 L37.27,25.29 L38.99,25.01 L40.97,24.78 L43.34,24.62 L46.45,24.53 L54.00,24.50 L61.55,24.53 L64.66,24.62 L67.03,24.78 L69.01,25.01 L70.73,25.29 L72.25,25.64 L73.62,26.06 L74.86,26.55 L75.99,27.10 L77.02,27.72 L77.95,28.42 L78.80,29.20 L79.58,30.05 L80.28,30.98 L80.90,32.01 L81.45,33.14 L81.94,34.38 L82.36,35.75 L82.71,37.27 L82.99,38.99 L83.22,40.97 L83.38,43.34 L83.47,46.45 Z" />
+    <path android:pathData="M80.84,54.00 L80.82,60.87 L80.73,63.70 L80.59,65.85 L80.38,67.66 L80.13,69.22 L79.80,70.61 L79.42,71.85 L78.98,72.98 L78.48,74.01 L77.91,74.94 L77.27,75.80 L76.57,76.57 L75.80,77.27 L74.94,77.91 L74.01,78.48 L72.98,78.98 L71.85,79.42 L70.61,79.80 L69.22,80.13 L67.66,80.38 L65.85,80.59 L63.70,80.73 L60.87,80.82 L54.00,80.84 L47.13,80.82 L44.30,80.73 L42.15,80.59 L40.34,80.38 L38.78,80.13 L37.39,79.80 L36.15,79.42 L35.02,78.98 L33.99,78.48 L33.06,77.91 L32.20,77.27 L31.43,76.57 L30.73,75.80 L30.09,74.94 L29.52,74.01 L29.02,72.98 L28.58,71.85 L28.20,70.61 L27.87,69.22 L27.62,67.66 L27.41,65.85 L27.27,63.70 L27.18,60.87 L27.16,54.00 L27.18,47.13 L27.27,44.30 L27.41,42.15 L27.62,40.34 L27.87,38.78 L28.20,37.39 L28.58,36.15 L29.02,35.02 L29.52,33.99 L30.09,33.06 L30.73,32.20 L31.43,31.43 L32.20,30.73 L33.06,30.09 L33.99,29.52 L35.02,29.02 L36.15,28.58 L37.39,28.20 L38.78,27.87 L40.34,27.62 L42.15,27.41 L44.30,27.27 L47.13,27.18 L54.00,27.16 L60.87,27.18 L63.70,27.27 L65.85,27.41 L67.66,27.62 L69.22,27.87 L70.61,28.20 L71.85,28.58 L72.98,29.02 L74.01,29.52 L74.94,30.09 L75.80,30.73 L76.57,31.43 L77.27,32.20 L77.91,33.06 L78.48,33.99 L78.98,35.02 L79.42,36.15 L79.80,37.39 L80.13,38.78 L80.38,40.34 L80.59,42.15 L80.73,44.30 L80.82,47.13 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="54"
+                android:endY="80.84"
+                android:startX="54"
+                android:startY="27.16"
+                android:type="linear">
+                <item
+                    android:color="#FF6E191F"
+                    android:offset="0" />
+                <item
+                    android:color="#FF480E12"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <group
+        android:scaleX="0.14007"
+        android:scaleY="0.14007"
+        android:translateX="34.530"
+        android:translateY="48.985">
+        <path
+            android:fillColor="#F6F1EC"
+            android:fillType="evenOdd"
+            android:pathData="M29,0H43L72,180H52L45.5,140H26.5L20,180H0Z M36,80.7L42.3,120H29.7Z" />
+        <path
+            android:fillColor="#F6F1EC"
+            android:pathData="M90,0H110V78L128,0H150L126,92L150,180H128L110,112V180H90Z" />
+        <path
+            android:fillColor="#F6F1EC"
+            android:fillType="evenOdd"
+            android:pathData="M197,0H211L240,180H220L213.5,140H194.5L188,180H168Z M204,80.7L210.3,120H197.7Z" />
+        <path
+            android:fillColor="#F6F1EC"
+            android:pathData="M258,0H278V180H258Z" />
+    </group>
+</vector>

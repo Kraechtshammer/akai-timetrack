@@ -4,7 +4,8 @@ import '../data/app_settings.dart';
 
 /// Seed colors the user can choose. "AKAI-Rot" is the default.
 const seedColors = {
-  ThemeSeed.akaiRed: Color(0xFF8F4C38),
+  ThemeSeed.akaiRed: Color(0xFFC62828),
+  ThemeSeed.terracotta: Color(0xFF8F4C38),
   ThemeSeed.blue: Color(0xFF415F91),
   ThemeSeed.green: Color(0xFF4C662B),
   ThemeSeed.violet: Color(0xFF65558F),
@@ -21,6 +22,12 @@ ColorScheme schemeFor(
   return ColorScheme.fromSeed(
     seedColor: seedColors[seed] ?? seedColors[ThemeSeed.akaiRed]!,
     brightness: brightness,
+    // The default "tonal spot" scheme mutes the seed; AKAI-Rot should stay
+    // a clear red. "Vibrant" keeps it colorful but still gives calm dark
+    // containers and warm (not complementary) accents.
+    dynamicSchemeVariant: seed == ThemeSeed.akaiRed
+        ? DynamicSchemeVariant.vibrant
+        : DynamicSchemeVariant.tonalSpot,
   );
 }
 

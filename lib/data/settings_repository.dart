@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show mapEquals;
+
 import 'app_settings.dart';
 import 'database.dart';
 
@@ -6,13 +8,36 @@ class SettingsRepository {
 
   final AppDatabase _db;
 
+  /// When the calendar sync last finished without errors (device status,
+  /// not a setting, so changing it doesn't rebuild the app).
+  static const _lastCalendarSync = 'lastCalendarSync';
+
   Future<AppSettings> load() async =>
       AppSettings.fromMap(_toMap(await _db.select(_db.settings).get()));
 
   Stream<AppSettings> watch() => _db
       .select(_db.settings)
       .watch()
-      .map((rows) => AppSettings.fromMap(_toMap(rows)));
+      .map((rows) => _toMap(rows)..remove(_lastCalendarSync))
+      .distinct(mapEquals)
+      .map(AppSettings.fromMap);
+
+  Future<void> setLastCalendarSync(DateTime time) => _db
+      .into(_db.settings)
+      .insertOnConflictUpdate(
+        SettingsCompanion.insert(
+          key: _lastCalendarSync,
+          value: '${time.millisecondsSinceEpoch}',
+        ),
+      );
+
+  Stream<DateTime?> watchLastCalendarSync() =>
+      (_db.select(_db.settings)..where((s) => s.key.equals(_lastCalendarSync)))
+          .watchSingleOrNull()
+          .map((row) {
+            final ms = int.tryParse(row?.value ?? '');
+            return ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
+          });
 
   /// Applies [change] to the current settings and saves the result.
   Future<AppSettings> update(AppSettings Function(AppSettings) change) async {

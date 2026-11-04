@@ -1,4 +1,8 @@
+import 'dart:ui' show Color;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:running_progress/running_progress.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../core/time.dart';
@@ -20,6 +24,9 @@ abstract final class NotificationAction {
 const _remindersChannel = 'reminders';
 const _recordingChannel = 'recording';
 const _overrunChannel = 'overrun';
+
+/// Accent of the running notification and its progress bar (AKAI-Rot).
+const _accentColor = 0xFFC62828;
 
 /// Shows and schedules the app's notifications.
 class NotificationService {
@@ -113,6 +120,7 @@ class NotificationService {
       await _plugin.cancel(id: notificationId(running, ReminderKind.snooze));
     } else {
       await _plugin.cancel(id: runningNotificationId);
+      await _stopProgress();
     }
   }
 
@@ -188,35 +196,90 @@ class NotificationService {
   }
 
   /// The ongoing "Erfassung läuft" notification. Android draws the running
-  /// timer itself from the start time, so the app doesn't need to run.
-  Future<void> _showRunning(Shift shift, AppLocalizations l10n) => _plugin.show(
-    id: runningNotificationId,
-    title: l10n.recordingRunning,
-    body: l10n.notifRunningBody(
-      shiftTypeLabel(shift.type, l10n),
-      hhmm(shift.rawStart!),
-      hhmm(shift.plannedEnd),
-    ),
-    payload: shift.id,
-    notificationDetails: NotificationDetails(
-      android: AndroidNotificationDetails(
-        _recordingChannel,
-        l10n.channelRecording,
-        importance: Importance.low,
-        priority: Priority.low,
-        ongoing: true,
-        autoCancel: false,
-        onlyAlertOnce: true,
-        silent: true,
-        usesChronometer: true,
-        when: shift.rawStart!.millisecondsSinceEpoch,
-        category: AndroidNotificationCategory.stopwatch,
-        actions: [
-          AndroidNotificationAction(NotificationAction.stop, l10n.actionStop),
-        ],
-      ),
-    ),
-  );
+  /// timer itself from the start time, so the app doesn't need to run. The
+  /// progress bar (from the start to the planned end) is moved forward by
+  /// the running_progress plugin; on Android 16 it becomes a Live Update.
+  Future<void> _showRunning(Shift shift, AppLocalizations l10n) async {
+    final start = shift.rawStart!;
+    final end = shift.plannedEnd.isAfter(start)
+        ? shift.plannedEnd
+        : start.add(const Duration(hours: 1));
+    await _postRunning(
+      shift,
+      l10n,
+      runningProgress(start, end, DateTime.now()),
+    );
+    try {
+      await RunningProgress.start(
+        notificationId: runningNotificationId,
+        start: start,
+        end: end,
+        color: _accentColor,
+      );
+    } catch (e) {
+      // The notification still shows the bar from the moment it was posted.
+      debugPrint('Running progress failed: $e');
+    }
+  }
+
+  Future<void> _stopProgress() async {
+    try {
+      await RunningProgress.stop();
+    } catch (e) {
+      debugPrint('Running progress stop failed: $e');
+    }
+  }
+
+  Future<void> _postRunning(Shift shift, AppLocalizations l10n, int progress) =>
+      _plugin.show(
+        id: runningNotificationId,
+        title: l10n.recordingRunning,
+        body: l10n.notifRunningBody(
+          shiftTypeLabel(shift.type, l10n),
+          hhmm(shift.rawStart!),
+          hhmm(shift.plannedEnd),
+        ),
+        payload: shift.id,
+        notificationDetails: NotificationDetails(
+          android: AndroidNotificationDetails(
+            _recordingChannel,
+            l10n.channelRecording,
+            importance: Importance.low,
+            priority: Priority.low,
+            ongoing: true,
+            autoCancel: false,
+            onlyAlertOnce: true,
+            silent: true,
+            usesChronometer: true,
+            when: shift.rawStart!.millisecondsSinceEpoch,
+            category: AndroidNotificationCategory.stopwatch,
+            color: const Color(_accentColor),
+            showProgress: true,
+            maxProgress: runningProgressSteps,
+            progress: progress,
+            actions: [
+              AndroidNotificationAction(
+                NotificationAction.stop,
+                l10n.actionStop,
+              ),
+            ],
+          ),
+        ),
+      );
+
+  /// Progress of [now] between [start] and [end], in [runningProgressSteps].
+  @visibleForTesting
+  static int runningProgress(DateTime start, DateTime end, DateTime now) {
+    final total = end.difference(start).inMilliseconds;
+    if (total <= 0) return runningProgressSteps;
+    final done = now.difference(start).inMilliseconds;
+    return (done * runningProgressSteps ~/ total).clamp(
+      0,
+      runningProgressSteps,
+    );
+  }
+
+  static const runningProgressSteps = 1000;
 
   NotificationDetails _details(
     String channel,

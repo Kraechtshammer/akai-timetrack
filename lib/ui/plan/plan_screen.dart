@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:material_ui/material_ui.dart';
+
+import '../material.dart';
 
 import '../../app/providers.dart';
 import '../../core/format.dart';
@@ -43,7 +44,8 @@ class PlanScreen extends ConsumerWidget {
           title: l10n.tabPlan,
           subtitle: l10n.planSubtitle,
           actions: [
-            IconButton(
+            M3EIconButton(
+              variant: M3EIconButtonVariant.standard,
               tooltip: l10n.currentWeek,
               icon: const Icon(Icons.today_outlined),
               onPressed: () => onWeekChanged(weekStart(now)),
@@ -120,12 +122,13 @@ class _DayCard extends ConsumerWidget {
     Widget toggleButton(ShiftType type, String label) {
       final on = shifts.any((s) => s.type == type);
       return on
-          ? FilledButton.icon(
+          ? M3EButton.icon(
               onPressed: () => toggle(type),
               icon: const Icon(Icons.check, size: 18),
               label: Text(label),
             )
-          : FilledButton.tonal(
+          : M3EButton(
+              style: M3EButtonStyle.tonal,
               onPressed: () => toggle(type),
               child: Text(label),
             );
@@ -171,7 +174,8 @@ class _DayCard extends ConsumerWidget {
               ),
               toggleButton(ShiftType.lunch, l10n.shiftLunch),
               toggleButton(ShiftType.evening, l10n.shiftEvening),
-              IconButton.outlined(
+              M3EIconButton(
+                variant: M3EIconButtonVariant.outlined,
                 tooltip: l10n.addCustomShift,
                 icon: const Icon(Icons.add),
                 onPressed: () => showShiftSheet(context, day: day),
@@ -280,11 +284,12 @@ Future<bool> deleteWithUndo(
         title: Text(l10n.deleteRecordedTitle),
         content: Text(l10n.deleteRecordedBody),
         actions: [
-          TextButton(
+          M3EButton(
+            style: M3EButtonStyle.text,
             onPressed: () => Navigator.pop(context, false),
             child: Text(l10n.cancel),
           ),
-          FilledButton(
+          M3EButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(l10n.delete),
           ),

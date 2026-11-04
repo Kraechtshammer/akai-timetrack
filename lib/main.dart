@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'app/app.dart';
 import 'app/providers.dart';
 import 'app/services.dart';
+import 'platform/app_icon.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,7 @@ Future<void> main() async {
     onBackgroundResponse: onNotificationActionInBackground,
     l10n: await services.l10n(),
   );
+  unawaited(AppIcons.chooseDefaultOnce(services.settings));
   // Catch up on reminders and the calendar (e.g. after a reboot).
   unawaited(services.syncAll());
 

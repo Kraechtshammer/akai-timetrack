@@ -1,7 +1,8 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:material_ui/material_ui.dart';
+
+import 'material.dart';
 
 import '../app/providers.dart';
 import '../core/format.dart';
@@ -136,11 +137,12 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
           decoration: const InputDecoration(suffixText: 'min'),
         ),
         actions: [
-          TextButton(
+          M3EButton(
+            style: M3EButtonStyle.text,
             onPressed: () => Navigator.pop(context),
             child: Text(context.l10n.cancel),
           ),
-          FilledButton(
+          M3EButton(
             onPressed: () =>
                 Navigator.pop(context, int.tryParse(controller.text)),
             child: Text(context.l10n.ok),
@@ -197,9 +199,12 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
                   ),
                 ),
                 if (!_isNew)
-                  IconButton(
+                  M3EIconButton(
+                    variant: M3EIconButtonVariant.standard,
                     tooltip: l10n.delete,
-                    color: colors.error,
+                    decoration: M3EIconButtonDecoration(
+                      foregroundColor: WidgetStatePropertyAll(colors.error),
+                    ),
                     icon: const Icon(Icons.delete_outline),
                     onPressed: _delete,
                   ),
@@ -247,7 +252,8 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
                 ),
               Align(
                 alignment: Alignment.centerLeft,
-                child: TextButton.icon(
+                child: M3EButton.icon(
+                  style: M3EButtonStyle.text,
                   onPressed: () =>
                       setState(() => _actualStart = _actualEnd = null),
                   icon: const Icon(Icons.close),
@@ -255,7 +261,8 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
                 ),
               ),
             ] else
-              OutlinedButton.icon(
+              M3EButton.icon(
+                style: M3EButtonStyle.outlined,
                 onPressed: () => setState(() {
                   _actualStart = _plannedStart;
                   _actualEnd = _plannedEnd;
@@ -329,11 +336,12 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
               mainAxisAlignment: MainAxisAlignment.end,
               spacing: 8,
               children: [
-                TextButton(
+                M3EButton(
+                  style: M3EButtonStyle.text,
                   onPressed: () => Navigator.pop(context),
                   child: Text(l10n.cancel),
                 ),
-                FilledButton(onPressed: _save, child: Text(l10n.save)),
+                M3EButton(onPressed: _save, child: Text(l10n.save)),
               ],
             ),
           ],

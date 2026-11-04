@@ -1,9 +1,12 @@
 import '../core/time.dart';
 import '../domain/rounding.dart';
 
-enum ThemeSeed { system, akaiRed, blue, green, violet }
+enum ThemeSeed { system, akaiRed, terracotta, blue, green, violet }
 
 enum AppThemeMode { system, light, dark }
+
+/// How the week strip on Heute marks lunch and evening shifts.
+enum WeekMarkStyle { icons, bars }
 
 /// Default start and end of a shift type, in minutes after midnight.
 class ShiftTimes {
@@ -48,9 +51,11 @@ class AppSettings {
     this.exportMonthTotals = true,
     this.themeSeed = ThemeSeed.akaiRed,
     this.themeMode = AppThemeMode.system,
+    this.weekMarks = WeekMarkStyle.icons,
     this.locale,
     this.onboardingDone = false,
     this.autostartConfirmed = false,
+    this.appIconChosen = false,
   });
 
   final ShiftTimes lunch;
@@ -73,6 +78,7 @@ class AppSettings {
   final bool exportMonthTotals;
   final ThemeSeed themeSeed;
   final AppThemeMode themeMode;
+  final WeekMarkStyle weekMarks;
 
   /// `de`, `en` or null for the phone's language.
   final String? locale;
@@ -80,6 +86,10 @@ class AppSettings {
 
   /// Xiaomi: the user said Autostart is allowed (Android can't tell us).
   final bool autostartConfirmed;
+
+  /// The launcher icon was set once (Xiaomi: squircle). The chosen variant
+  /// itself lives in Android's package manager, see AppIcons.
+  final bool appIconChosen;
 
   /// Reads settings from the stored key-value pairs. Unknown or broken
   /// values fall back to the defaults.
@@ -105,9 +115,11 @@ class AppSettings {
       exportMonthTotals: m['exportMonthTotals'] != 'false',
       themeSeed: pick(ThemeSeed.values, 'themeSeed', d.themeSeed),
       themeMode: pick(AppThemeMode.values, 'themeMode', d.themeMode),
+      weekMarks: pick(WeekMarkStyle.values, 'weekMarks', d.weekMarks),
       locale: m['locale'],
       onboardingDone: m['onboardingDone'] == 'true',
       autostartConfirmed: m['autostartConfirmed'] == 'true',
+      appIconChosen: m['appIconChosen'] == 'true',
     );
   }
 
@@ -127,9 +139,11 @@ class AppSettings {
     'exportMonthTotals': '$exportMonthTotals',
     'themeSeed': themeSeed.name,
     'themeMode': themeMode.name,
+    'weekMarks': weekMarks.name,
     'locale': locale,
     'onboardingDone': '$onboardingDone',
     'autostartConfirmed': '$autostartConfirmed',
+    'appIconChosen': '$appIconChosen',
   };
 
   /// Copy with some values changed. Nullable values are wrapped in a
@@ -149,9 +163,11 @@ class AppSettings {
     bool? exportMonthTotals,
     ThemeSeed? themeSeed,
     AppThemeMode? themeMode,
+    WeekMarkStyle? weekMarks,
     String? Function()? locale,
     bool? onboardingDone,
     bool? autostartConfirmed,
+    bool? appIconChosen,
   }) => AppSettings(
     lunch: lunch ?? this.lunch,
     lunchBeforeEvening: lunchBeforeEvening ?? this.lunchBeforeEvening,
@@ -167,8 +183,10 @@ class AppSettings {
     exportMonthTotals: exportMonthTotals ?? this.exportMonthTotals,
     themeSeed: themeSeed ?? this.themeSeed,
     themeMode: themeMode ?? this.themeMode,
+    weekMarks: weekMarks ?? this.weekMarks,
     locale: locale != null ? locale() : this.locale,
     onboardingDone: onboardingDone ?? this.onboardingDone,
     autostartConfirmed: autostartConfirmed ?? this.autostartConfirmed,
+    appIconChosen: appIconChosen ?? this.appIconChosen,
   );
 }

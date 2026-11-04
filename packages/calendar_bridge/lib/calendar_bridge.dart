@@ -11,6 +11,7 @@ class CalendarInfo {
     required this.accountName,
     required this.accountType,
     required this.color,
+    this.synced = true,
   });
 
   final String id;
@@ -18,6 +19,10 @@ class CalendarInfo {
   final String accountName;
   final String accountType;
   final int color;
+
+  /// False if the calendar isn't synced to this phone (switched off in
+  /// Google Calendar). Events written to it wouldn't reach Google.
+  final bool synced;
 
   bool get isGoogle => accountType == 'com.google';
 }
@@ -105,6 +110,15 @@ class CalendarBridge {
   Future<bool> eventExists(String eventId) async =>
       await _call<bool>('eventExists', {'eventId': eventId}) ?? false;
 
+  /// Turns on syncing for a calendar that isn't synced to this phone yet.
+  Future<void> enableSync(String calendarId) =>
+      _call<void>('enableSync', {'calendarId': calendarId});
+
+  /// Asks Android to sync now: the calendar's account, or without
+  /// [calendarId] all accounts (to find newly created calendars).
+  Future<void> requestSync([String? calendarId]) =>
+      _call<void>('requestSync', {'calendarId': calendarId});
+
   Future<T?> _call<T>(String method, [Map<String, Object?>? args]) async {
     try {
       return await _channel.invokeMethod<T>(method, args);
@@ -120,5 +134,6 @@ class CalendarBridge {
     accountName: map['accountName'] as String? ?? '',
     accountType: map['accountType'] as String? ?? '',
     color: map['color'] as int? ?? 0,
+    synced: map['synced'] as bool? ?? true,
   );
 }

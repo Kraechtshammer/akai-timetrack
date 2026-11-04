@@ -1,7 +1,9 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:material_ui/material_ui.dart';
+
+import '../material.dart';
+
 import 'package:share_plus/share_plus.dart';
 
 import '../../app/providers.dart';
@@ -164,8 +166,10 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                 spacing: 8,
                 children: [
                   Expanded(
-                    child: FilledButton.tonalIcon(
-                      style: FilledButton.styleFrom(
+                    child: M3EButton.icon(
+                      style: M3EButtonStyle.tonal,
+                      size: M3EButtonSize.md,
+                      decoration: M3EButtonDecoration.styleFrom(
                         minimumSize: const Size.fromHeight(56),
                       ),
                       onPressed: () async {
@@ -177,8 +181,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                     ),
                   ),
                   Expanded(
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
+                    child: M3EButton.icon(
+                      size: M3EButtonSize.md,
+                      decoration: M3EButtonDecoration.styleFrom(
                         minimumSize: const Size.fromHeight(56),
                       ),
                       onPressed: () =>

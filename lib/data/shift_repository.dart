@@ -35,6 +35,16 @@ class ShiftRepository {
     _db.shifts,
   )..where((s) => s.syncState.equalsValue(SyncState.synced).not())).get();
 
+  /// How many shifts still wait for the calendar sync.
+  Stream<int> watchPendingSyncCount() {
+    final count = _db.shifts.id.count();
+    return (_db.selectOnly(_db.shifts)
+          ..addColumns([count])
+          ..where(_db.shifts.syncState.equalsValue(SyncState.synced).not()))
+        .map((row) => row.read(count) ?? 0)
+        .watchSingle();
+  }
+
   /// Shifts that have a calendar event.
   Future<List<Shift>> withEvents() => (_db.select(
     _db.shifts,

@@ -1,6 +1,7 @@
 import '../data/app_settings.dart';
 import '../data/database.dart';
 import '../domain/rounding.dart';
+import '../platform/app_icon.dart';
 import 'app_localizations.dart';
 
 /// Translated names for enum values.
@@ -18,9 +19,22 @@ String roundingLabel(RoundingMode mode, AppLocalizations l10n) =>
       RoundingMode.strict => l10n.roundingStrict,
     };
 
+String appIconLabel(AppIcon icon, AppLocalizations l10n) => switch (icon) {
+  AppIcon.round => l10n.appIconRound,
+  AppIcon.squircle => l10n.appIconSquircle,
+  AppIcon.small => l10n.appIconSmall,
+};
+
+String weekMarksLabel(WeekMarkStyle style, AppLocalizations l10n) =>
+    switch (style) {
+      WeekMarkStyle.icons => l10n.weekMarksIcons,
+      WeekMarkStyle.bars => l10n.weekMarksBars,
+    };
+
 String themeSeedLabel(ThemeSeed seed, AppLocalizations l10n) => switch (seed) {
   ThemeSeed.system => l10n.colorSystem,
   ThemeSeed.akaiRed => l10n.colorAkai,
+  ThemeSeed.terracotta => l10n.colorTerracotta,
   ThemeSeed.blue => l10n.colorBlue,
   ThemeSeed.green => l10n.colorGreen,
   ThemeSeed.violet => l10n.colorViolet,

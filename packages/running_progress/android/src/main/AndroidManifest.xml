@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Android 16: lets the running notification be shown as a Live Update. -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
+
+    <application>
+        <receiver
+            android:name="de.garten.running_progress.ProgressTickReceiver"
+            android:exported="false" />
+    </application>
+</manifest>

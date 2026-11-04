@@ -1,6 +1,6 @@
 # AKAI Timetrack – Design
 
-Status: design step. As of 2026-11-04.
+Status: v1 implemented. As of 2026-11-04. Where the implementation differs from the original design, §16 says how; the sections above are updated where noted.
 Inputs: [01-research.md](01-research.md) (features F1–F9, decisions Q1–Q10) and the approved concept screens in [concepts/](concepts/) ([canvas](https://claude.ai/artifact/7grRC9FNyoFRhYCEw6QmzV)).
 
 ## 1. Scope of v1
@@ -22,7 +22,6 @@ Out of scope for v1:
 - Pause button in the live notification.
 - Backend or accounts.
 - Play Store release.
-- Lock-screen "Live Updates" (Android 16).
 
 ## 2. Architecture
 
@@ -57,9 +56,11 @@ Principles:
 |---|---|---|
 | Database | `drift` + `sqlite3_flutter_libs` | Type-safe SQL with reactive streams. WAL mode so the background isolate can write. |
 | State | `flutter_riverpod` | Providers wrap drift streams. |
-| Navigation | `go_router` | 3 tabs (StatefulShellRoute), settings, onboarding, and deep links from notification taps. |
+| Navigation | none (plain `Navigator`) | 3 tabs in an `IndexedStack`, settings pushed. See §16. |
 | Notifications | `flutter_local_notifications` + `timezone` + `flutter_timezone` | Exact scheduling, action buttons with a background handler, chronometer. Re-schedules after reboot by itself. |
-| Calendar | **own Kotlin bridge via `pigeon`** | See §5. |
+| Calendar | **own Kotlin plugin** (`packages/calendar_bridge`, MethodChannel) | See §5 and §16. |
+| Notification progress | **own Kotlin plugin** (`packages/running_progress`) | Moves the running notification's progress bar; Live Update on Android 16. See §6. |
+| UI library | `material_ui` | Flutter's Material library as a separate package. See §16. |
 | Colour | `dynamic_color` | System colour (Android 12+). |
 | i18n | `flutter_localizations`, `intl`, gen-l10n (ARB) | `app_de.arb` (template), `app_en.arb`. |
 | Sharing | `share_plus` | Android share sheet. Copying uses `Clipboard` from `services`. |
@@ -126,7 +127,8 @@ Settings live in the database so the notification background isolate can read th
 | `eventTitle` | "Kellnern" |
 | `eventColorKey` | null, meaning the calendar's own colour |
 | `exportMonthTotals` | true |
-| `themeSeed` | `akaiRed` / `system` / `blue` / `green` / `violet` |
+| `themeSeed` | `akaiRed` / `terracotta` / `system` / `blue` / `green` / `violet` |
+| `weekMarks` | `icons` / `bars` (week strip on Heute) |
 | `themeMode` | `system` / `light` / `dark` |
 | `locale` | `system` / `de` / `en` |
 | `onboardingDone` | false |
@@ -255,11 +257,13 @@ This bridge is also the part that has to be rewritten for iOS later (EventKit). 
 
 ### 5.2 Calendar selection
 
-- The list shows only calendars with access level ≥ `CAL_ACCESS_CONTRIBUTOR`, grouped by account (the Google address) and marked with their colour.
+- The list shows calendars with access level ≥ `CAL_ACCESS_CONTRIBUTOR`, grouped by account (the Google address) and marked with their colour.
+- **Calendars not synced to the phone** (`SYNC_EVENTS = 0`; Google adds newly created calendars switched off) are listed too, with a hint. Choosing one turns its sync on (`SYNC_EVENTS = 1`, `VISIBLE = 1`) and asks Android to sync the account.
+- **"Aktualisieren"** asks Android to sync all calendar accounts (so a calendar just created on calendar.google.com shows up) and reads the list again, once right away and once after a few seconds.
 - Above the list is a hint: "Lege bei Bedarf einmalig einen eigenen Kalender auf calendar.google.com an und teile ihn". A link opens the browser.
 - Any calendar works, including the shared one or her main one. The app only touches events whose IDs it has stored. Other events in the calendar (yours, or hers made by hand) are never read as shifts, changed or deleted.
 - **Changing the calendar later:** asks "Bestehende Termine in den neuen Kalender verschieben?" — on Yes, the app deletes the events from the old calendar and creates them in the new one; on No, it removes the old ones only.
-- **"Kein Kalender"** turns sync off. Existing events stay where they are; the app then forgets their IDs.
+- **"Kein Kalender"** turns sync off and deletes the app's events from the old calendar (as implemented; see §16).
 
 ### 5.3 Event colour (new)
 
@@ -299,6 +303,10 @@ for shift in synced shifts from the current week onward:
 
 The last loop is limited to the current week onward, so old shifts she deliberately cleaned up in the past aren't recreated on every start.
 
+**Sync status and "Jetzt synchronisieren".** Settings › Kalender shows the status: "N Änderungen noch nicht im Kalender" while shifts are marked, otherwise "Alles aktuell · zuletzt 17:04" (the time of the last run without errors, stored as `lastCalendarSync` in the settings table but kept out of `AppSettings`). The button runs the sync and then asks Android to upload the account's changes to Google right away (`ContentResolver.requestSync`, expedited). Automatic sync is unchanged.
+
+**Language.** The event description is written in the app's language; changing the language marks all events for an update, like a title or colour change.
+
 **Edits made in Google Calendar** to app events are overwritten the next time that shift changes in the app (one-way, as decided). The event description warns about this.
 
 ## 6. Notifications in detail
@@ -316,8 +324,10 @@ The last loop is limited to the current week onward, so old shifts she deliberat
 | Notification | Content | Actions (background, no UI) | Tap |
 |---|---|---|---|
 | Pre-shift reminder | "Schicht beginnt in 15 min" · "Abend · 17:30 – 23:00" | **Erfassung starten** → `start(shiftId)`; **Später** → re-schedule in 10 min (once) | Opens Heute |
-| Running | "Erfassung läuft" · "Abend · seit 17:30 · geplant bis 23:00". `usesChronometer` + `when = rawStart` (the system draws the timer). Progress bar from planned start to planned end. | **Beenden** → `stop()` | Opens Heute |
+| Running | "Erfassung läuft" · "Abend · seit 17:30 · geplant bis 23:00". `usesChronometer` + `when = rawStart` (the system draws the timer). Progress bar from the recorded start to the planned end (see below). | **Beenden** → `stop()` | Opens Heute |
 | Overrun | "Noch bei der Arbeit?" · "Geplantes Ende war 23:00." | **Ende 23:00** → `stopAt(plannedEnd)`; **Jetzt beenden** → `stop()`; **Weiter** → overrun again in 30 min | Opens Heute |
+
+**Progress bar of the running notification.** flutter_local_notifications posts the notification (with its button and the progress at that moment). The local plugin `running_progress` then keeps the bar moving without Flutter: an exact alarm every 5 minutes wakes a `BroadcastReceiver`, which rebuilds the shown notification with `Notification.Builder.recoverBuilder` (so the buttons stay), sets the new progress and re-posts it, until the planned end. If the notification is gone (stopped), it stops. On **Android 16** the rebuilt notification uses `Notification.ProgressStyle` and `setRequestPromotedOngoing(true)` (permission `POST_PROMOTED_NOTIFICATIONS`), so it shows as a **Live Update** (status-bar chip, prominent on the lock screen); before Android 16 it uses the classic `setProgress`. Each re-post through the app (reconcile) restarts the plugin.
 
 **Background handler.** This is a top-level `@pragma('vm:entry-point')` function. It initialises bindings, opens the database (drift, WAL), runs the `RecordingService` command, reconciles notifications, and tries the calendar sync.
 
@@ -334,7 +344,7 @@ All screens follow the concept canvas. Behaviour that isn't visible in the mocku
 - **When there's no plan:** "Keine Schicht geplant" with a "Trotzdem starten" button.
 - **Missed shifts:** if a past shift wasn't recorded, a chip "1 Schicht nicht erfasst" opens it.
 - **Month card:** wavy progress bar, recorded vs expected. Uses Flutter's indicator if it ships a wavy variant, otherwise a `CustomPainter`.
-- **Week strip:** tap a day → Plan tab at that week.
+- **Week strip:** tap a day → Plan tab at that week. Under each day, lunch and evening shifts are marked either with icons (sun, moon, clock for custom; the default) or with two bars (left lunch, right evening; custom shifts by start time). Grey = planned, coloured = recorded. Chosen in Settings › Darstellung › Wochenübersicht.
 
 ### Plan
 - **Week navigation:** arrows, swipe, and a "today" button.
@@ -382,10 +392,10 @@ All screens follow the concept canvas. Behaviour that isn't visible in the mocku
 ## 8. Theming (F9)
 
 - `ColorScheme.fromSeed(seed, brightness)` builds the light and dark schemes.
-- **Presets:** AKAI-Rot `#8F4C38`, Blau `#415F91`, Grün `#4C662B`, Violett `#65558F`.
-- **"Systemfarbe"** uses the `dynamic_color` palette. It's hidden on Android < 12.
+- **Presets:** AKAI-Rot `#C62828` (default; built with the `vibrant` scheme variant so it stays a clear red), Terrakotta `#8F4C38` (the former AKAI-Rot), Blau `#415F91`, Grün `#4C662B`, Violett `#65558F`.
+- **"Systemfarbe"** uses the `dynamic_color` palette. On Android < 12 it's still shown and falls back to AKAI-Rot.
 - **Dark mode** follows `ThemeMode` from the setting.
-- **Fonts:** Roboto Flex is bundled as an asset rather than fetched at runtime (offline, no Google Fonts call). Icons are Material Symbols Rounded, also bundled.
+- **Fonts:** Roboto and Material Icons, which ship with Flutter; nothing extra is bundled, and nothing is fetched at runtime.
 - **Large numbers** (timer, hours) use tabular figures.
 
 ## 9. Localization
@@ -528,6 +538,21 @@ Nothing in v1 needs changing for this beyond the conventions in §3.
 
 ## 15. Open points (small, can be decided while building)
 
-- App icon. The app name is "TimeTrack" for now and the package name `de.garten.akaitimetrack`; both are to be confirmed before handover.
+- The app name is "TimeTrack" for now and the package name `de.garten.akaitimetrack`; both are to be confirmed before handover.
 - Exact text of the event description in English.
 - Whether "Später" on the pre-shift reminder needs a configurable delay (currently a fixed 10 min).
+
+## 16. Changes made during implementation
+
+- **UI library:** `package:material_ui` (Flutter's Material library, now a separate package) instead of `package:flutter/material.dart`; `dynamic_color` already requires it. Never import both in the same file.
+- **Navigation:** no go_router. Three tabs in an `IndexedStack` (`lib/ui/home_shell.dart`), Settings pushed with `Navigator`. A tap on a notification just opens the app.
+- **Calendar bridge:** a plain `MethodChannel` local plugin (`packages/calendar_bridge`) instead of Pigeon. It has to be a plugin package (not code in MainActivity) so it's also available in the notification background isolate. The same goes for `packages/running_progress`.
+- **compileSdk 37:** required by `permission_handler`. minSdk stays 29.
+- **"Kein Kalender":** choosing it deletes the app's events from the old calendar. Switching calendars always moves all events (no question).
+- **Export texts:** neutral, with no mention of the boss.
+- **App icon:** three adaptive variants, selectable in Settings › Darstellung › App-Symbol, because the launcher decides the mask shape:
+  - "Rund": red ring and dark-red disc, for circular masks; the default.
+  - "Squircle": the original sign, for squircle masks; the default on Xiaomi.
+  - "Squircle klein": the whole sign scaled down.
+  Each variant is an `activity-alias`; the app enables exactly one. Switching closes the app once. Themed icons (monochrome layer) are the same for all three.
+- **Database:** no drift schema snapshots yet (`drift_schemas/`). Create one before the first schema change: `dart run drift_dev make-migrations`.

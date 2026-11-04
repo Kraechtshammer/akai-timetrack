@@ -1,16 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- App icon, foreground layer: AKAI lettering, placed in the lower part of the panel like on the
-     restaurant sign. Glyphs are drawn in a 278x180 box. -->
+<!-- App icon "Rund" (default except on Xiaomi), foreground layer: dark-red disc with the AKAI
+     lettering, centred. On the red background layer and under a circular launcher mask (Pixel)
+     this gives a red ring around a dark-red circle. The disc (radius 32) stays inside the
+     visible circle (radius 36 of the 108 canvas), so the ring is about 4 units wide.
+     The squircle variant (Xiaomi) is ic_launcher_squircle_*.xml; see mipmap-anydpi-v26. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <path android:pathData="M22,54 A32,32 0 1,0 86,54 A32,32 0 1,0 22,54 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="54"
+                android:endY="86"
+                android:startX="54"
+                android:startY="22"
+                android:type="linear">
+                <item
+                    android:color="#FF6E191F"
+                    android:offset="0" />
+                <item
+                    android:color="#FF480E12"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Lettering: glyphs drawn in a 278x180 box, scaled to 44 units wide and centred. -->
     <group
-        android:scaleX="0.1556"
-        android:scaleY="0.1556"
-        android:translateX="32.4"
-        android:translateY="47">
+        android:scaleX="0.1583"
+        android:scaleY="0.1583"
+        android:translateX="32"
+        android:translateY="39.75">
         <path
             android:fillColor="#F6F1EC"
             android:fillType="evenOdd"

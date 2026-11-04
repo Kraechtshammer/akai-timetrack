@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Notifications: reminders, running timer, "still working?" -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
@@ -31,11 +32,50 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
-            <intent-filter>
+            <!-- Only for the Flutter tool, which looks for the launch activity here (not in
+                 activity aliases). tools:node="remove" drops it from the built app, so the
+                 launcher only shows the icon aliases below. -->
+            <intent-filter tools:node="remove">
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Launcher entries, one per app icon variant (Settings › App-Symbol). Exactly one is
+             enabled; the app switches them in MainActivity.kt. "Rund" is enabled by default,
+             the app picks "Squircle" on its first start on Xiaomi phones. -->
+        <activity-alias
+            android:name=".IconRound"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconSquircle"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_squircle"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconSmall"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_small"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
         <!-- flutter_local_notifications: scheduled notifications, rescheduling after a reboot,
              and the buttons in notifications -->
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />

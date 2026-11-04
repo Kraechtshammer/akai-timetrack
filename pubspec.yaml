@@ -50,6 +50,9 @@ dependencies:
   material_ui: ^1.10.0
   calendar_bridge:
     path: packages/calendar_bridge
+  running_progress:
+    path: packages/running_progress
+  material_3_expressive: ^1.2.0
 
 dev_dependencies:
   flutter_test:

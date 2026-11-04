@@ -1,11 +1,14 @@
 package de.garten.calendar_bridge
 
+import android.accounts.Account
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.CalendarContract
 import android.provider.CalendarContract.Calendars
 import android.provider.CalendarContract.Colors
 import android.provider.CalendarContract.Events
@@ -48,6 +51,8 @@ class CalendarBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     "updateEvent" -> { updateEvent(call.argument<String>("eventId")!!, call.argument("event")!!); null }
                     "deleteEvent" -> { deleteEvent(call.argument<String>("eventId")!!); null }
                     "eventExists" -> eventExists(call.argument<String>("eventId")!!)
+                    "enableSync" -> { enableSync(call.argument<String>("calendarId")!!); null }
+                    "requestSync" -> { requestSync(call.argument<String>("calendarId")); null }
                     else -> {
                         mainThread.post { result.notImplemented() }
                         return@execute
@@ -64,16 +69,20 @@ class CalendarBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
 
     private val resolver: ContentResolver get() = context.contentResolver
 
-    /** Calendars the app may add events to, sorted by account. */
+    /**
+     * Calendars the app may add events to, sorted by account. Includes
+     * calendars that aren't synced to this phone yet (`synced` = false):
+     * Google adds new calendars switched off until they're turned on.
+     */
     private fun writableCalendars(): List<Map<String, Any?>> {
         val calendars = mutableListOf<Map<String, Any?>>()
         resolver.query(
             Calendars.CONTENT_URI,
             arrayOf(
                 Calendars._ID, Calendars.CALENDAR_DISPLAY_NAME, Calendars.ACCOUNT_NAME,
-                Calendars.ACCOUNT_TYPE, Calendars.CALENDAR_COLOR,
+                Calendars.ACCOUNT_TYPE, Calendars.CALENDAR_COLOR, Calendars.SYNC_EVENTS,
             ),
-            "${Calendars.CALENDAR_ACCESS_LEVEL} >= ? AND ${Calendars.SYNC_EVENTS} = 1",
+            "${Calendars.CALENDAR_ACCESS_LEVEL} >= ?",
             arrayOf(Calendars.CAL_ACCESS_CONTRIBUTOR.toString()),
             "${Calendars.ACCOUNT_NAME}, ${Calendars.CALENDAR_DISPLAY_NAME}",
         )?.use { c ->
@@ -84,6 +93,7 @@ class CalendarBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     "accountName" to c.getString(2),
                     "accountType" to c.getString(3),
                     "color" to c.getInt(4),
+                    "synced" to (c.getInt(5) == 1),
                 )
             }
         }
@@ -106,6 +116,45 @@ class CalendarBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             }
         }
         return colors
+    }
+
+    /** Turns on syncing (and showing) a calendar, as its sync switch in Google Calendar does. */
+    private fun enableSync(calendarId: String) {
+        val values = ContentValues().apply {
+            put(Calendars.SYNC_EVENTS, 1)
+            put(Calendars.VISIBLE, 1)
+        }
+        resolver.update(
+            ContentUris.withAppendedId(Calendars.CONTENT_URI, calendarId.toLong()),
+            values, null, null,
+        )
+    }
+
+    /**
+     * Asks Android to sync the calendar's account now (e.g. upload changes to
+     * Google). Without a calendar: every account that has calendars, so new
+     * calendars show up.
+     */
+    private fun requestSync(calendarId: String?) {
+        val accounts = if (calendarId != null) {
+            listOfNotNull(account(calendarId))
+        } else {
+            val all = mutableSetOf<Pair<String, String>>()
+            resolver.query(
+                Calendars.CONTENT_URI,
+                arrayOf(Calendars.ACCOUNT_NAME, Calendars.ACCOUNT_TYPE),
+                null, null, null,
+            )?.use { c -> while (c.moveToNext()) all += c.getString(0) to c.getString(1) }
+            all.toList()
+        }
+        val extras = Bundle().apply {
+            putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true)
+            putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true)
+        }
+        for ((name, type) in accounts) {
+            if (type == CalendarContract.ACCOUNT_TYPE_LOCAL) continue // nothing to sync with
+            ContentResolver.requestSync(Account(name, type), CalendarContract.AUTHORITY, extras)
+        }
     }
 
     private fun account(calendarId: String): Pair<String, String>? {

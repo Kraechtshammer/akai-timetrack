@@ -1,11 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:intl/intl.dart';
+
+import '../material.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../core/time.dart';
 import '../../data/app_settings.dart';
 import '../../domain/rounding.dart';
+import '../../platform/app_icon.dart';
+import '../../platform/calendar_sync.dart';
 import '../../l10n/labels.dart';
 import '../common.dart';
 import 'calendar_pickers.dart';
@@ -42,11 +46,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         title: Text(l10n.eventTitle),
         content: TextField(controller: controller, autofocus: true),
         actions: [
-          TextButton(
+          M3EButton(
+            style: M3EButtonStyle.text,
             onPressed: () => Navigator.pop(context),
             child: Text(l10n.cancel),
           ),
-          FilledButton(
+          M3EButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
             child: Text(l10n.save),
           ),
@@ -59,7 +64,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _changeLanguage(String? locale) async {
-    await _update((s) => s.copyWith(locale: () => locale));
+    // The event descriptions are written in the app's language, too.
+    await _update(
+      (s) => s.copyWith(locale: () => locale),
+      calendarEvents: true,
+    );
     final services = ref.services;
     // Notification channel names and texts follow the language.
     await services.notifications.createChannels(await services.l10n());
@@ -147,6 +156,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                 onTap: () => showEventColorPicker(context, ref),
               ),
+            if (calendarSet) const _SyncNowTile(),
           ]),
           _Section(l10n.sectionDefaultTimes, const [DefaultTimesTiles()]),
           _Section(l10n.sectionReminders, [
@@ -230,6 +240,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(72, 0, 16, 12),
               child: SegmentedButton<AppThemeMode>(
+                showSelectedIcon: false,
                 segments: [
                   for (final mode in [
                     AppThemeMode.light,
@@ -245,6 +256,67 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onSelectionChanged: (modes) =>
                     _update((s) => s.copyWith(themeMode: modes.single)),
               ),
+            ),
+            _Tile(
+              icon: Icons.apps,
+              title: l10n.appIcon,
+              value: switch (ref.watch(appIconProvider).value) {
+                null => '',
+                final icon => appIconLabel(icon, l10n),
+              },
+              onTap: () async {
+                final current = ref.read(appIconProvider).value;
+                final icon = await pickOption(
+                  context,
+                  title: l10n.appIcon,
+                  options: AppIcon.values,
+                  selected: current ?? AppIcon.round,
+                  label: (i) => appIconLabel(i, l10n),
+                );
+                if (icon == null || icon == current || !context.mounted) {
+                  return;
+                }
+                // Android closes the app when the launcher entry it was
+                // started from is switched off, so say so first.
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(appIconLabel(icon, l10n)),
+                    content: Text(l10n.appIconHint),
+                    actions: [
+                      M3EButton(
+                        style: M3EButtonStyle.text,
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(l10n.cancel),
+                      ),
+                      M3EButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(l10n.appIconApply),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed != true) return;
+                await AppIcons.set(icon);
+                ref.invalidate(appIconProvider);
+              },
+            ),
+            _Tile(
+              icon: Icons.view_week_outlined,
+              title: l10n.weekMarks,
+              value: weekMarksLabel(s.weekMarks, l10n),
+              onTap: () async {
+                final style = await pickOption(
+                  context,
+                  title: l10n.weekMarks,
+                  options: WeekMarkStyle.values,
+                  selected: s.weekMarks,
+                  label: (m) => weekMarksLabel(m, l10n),
+                );
+                if (style != null) {
+                  await _update((s) => s.copyWith(weekMarks: style));
+                }
+              },
             ),
             _Tile(
               icon: Icons.language,
@@ -329,6 +401,67 @@ class DefaultTimesTiles extends ConsumerWidget {
   }
 }
 
+/// "Jetzt synchronisieren", with the sync status as subtitle.
+class _SyncNowTile extends ConsumerStatefulWidget {
+  const _SyncNowTile();
+
+  @override
+  ConsumerState<_SyncNowTile> createState() => _SyncNowTileState();
+}
+
+class _SyncNowTileState extends ConsumerState<_SyncNowTile> {
+  var _syncing = false;
+
+  Future<void> _syncNow() async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _syncing = true);
+    final result = await ref.services.syncNow();
+    if (!mounted) return;
+    setState(() => _syncing = false);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(switch (result) {
+          CalendarSyncResult.done || CalendarSyncResult.off => l10n.syncDone,
+          CalendarSyncResult.noPermission => l10n.calendarPermissionMissing,
+          CalendarSyncResult.failed => l10n.syncFailed,
+        }),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final pending = ref.watch(pendingSyncCountProvider).value ?? 0;
+    final last = ref.watch(lastCalendarSyncProvider).value;
+    final String status;
+    if (pending > 0) {
+      status = l10n.syncPending(pending);
+    } else if (last == null) {
+      status = l10n.syncNever;
+    } else {
+      final today = dateOnly(ref.now) == dateOnly(last);
+      final format = today
+          ? DateFormat.Hm(context.locale)
+          : DateFormat('E d. MMM, HH:mm', context.locale);
+      status = l10n.syncUpToDate(format.format(last));
+    }
+    return _Tile(
+      icon: Icons.sync,
+      title: l10n.syncNow,
+      value: status,
+      trailing: _syncing
+          ? const SizedBox.square(
+              dimension: 24,
+              child: CircularProgressIndicator(strokeWidth: 3),
+            )
+          : null,
+      onTap: _syncing ? null : _syncNow,
+    );
+  }
+}
+
 class _Section extends StatelessWidget {
   const _Section(this.title, this.children);
 
@@ -370,7 +503,7 @@ class _Tile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String value;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Widget? trailing;
 
   @override

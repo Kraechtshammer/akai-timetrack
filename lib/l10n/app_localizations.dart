@@ -410,24 +410,6 @@ abstract class AppLocalizations {
   /// **'Zum Plan'**
   String get toPlan;
 
-  /// No description provided for @weekLegend.
-  ///
-  /// In de, this message translates to:
-  /// **'M Mittag · A Abend · gefüllt = erfasst'**
-  String get weekLegend;
-
-  /// No description provided for @lunchLetter.
-  ///
-  /// In de, this message translates to:
-  /// **'M'**
-  String get lunchLetter;
-
-  /// No description provided for @eveningLetter.
-  ///
-  /// In de, this message translates to:
-  /// **'A'**
-  String get eveningLetter;
-
   /// No description provided for @dayOff.
   ///
   /// In de, this message translates to:
@@ -1309,6 +1291,132 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Tomate'**
   String get gcolTomato;
+
+  /// No description provided for @colorTerracotta.
+  ///
+  /// In de, this message translates to:
+  /// **'Terrakotta'**
+  String get colorTerracotta;
+
+  /// No description provided for @calendarRefresh.
+  ///
+  /// In de, this message translates to:
+  /// **'Aktualisieren'**
+  String get calendarRefresh;
+
+  /// No description provided for @calendarMissingHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Ein neuer Kalender fehlt? Google braucht dafür manchmal ein paar Minuten. Tippe dann auf „Aktualisieren“.'**
+  String get calendarMissingHint;
+
+  /// No description provided for @calendarNotSynced.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch nicht auf diesem Handy synchronisiert. Die App schaltet das beim Auswählen ein.'**
+  String get calendarNotSynced;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In de, this message translates to:
+  /// **'Jetzt synchronisieren'**
+  String get syncNow;
+
+  /// No description provided for @syncPending.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Änderung noch nicht im Kalender} other{{count} Änderungen noch nicht im Kalender}}'**
+  String syncPending(int count);
+
+  /// No description provided for @syncUpToDate.
+  ///
+  /// In de, this message translates to:
+  /// **'Alles aktuell · zuletzt {time}'**
+  String syncUpToDate(String time);
+
+  /// No description provided for @syncNever.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch nicht synchronisiert'**
+  String get syncNever;
+
+  /// No description provided for @syncDone.
+  ///
+  /// In de, this message translates to:
+  /// **'Kalender ist aktuell. Google überträgt die Änderungen gleich.'**
+  String get syncDone;
+
+  /// No description provided for @syncFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Das hat nicht geklappt. Die App versucht es später noch einmal.'**
+  String get syncFailed;
+
+  /// No description provided for @weekLegendRecorded.
+  ///
+  /// In de, this message translates to:
+  /// **'farbig = erfasst'**
+  String get weekLegendRecorded;
+
+  /// No description provided for @weekLegendBars.
+  ///
+  /// In de, this message translates to:
+  /// **'links Mittag · rechts Abend · farbig = erfasst'**
+  String get weekLegendBars;
+
+  /// No description provided for @weekMarks.
+  ///
+  /// In de, this message translates to:
+  /// **'Wochenübersicht'**
+  String get weekMarks;
+
+  /// No description provided for @weekMarksIcons.
+  ///
+  /// In de, this message translates to:
+  /// **'Symbole'**
+  String get weekMarksIcons;
+
+  /// No description provided for @weekMarksBars.
+  ///
+  /// In de, this message translates to:
+  /// **'Balken'**
+  String get weekMarksBars;
+
+  /// No description provided for @appIcon.
+  ///
+  /// In de, this message translates to:
+  /// **'App-Symbol'**
+  String get appIcon;
+
+  /// No description provided for @appIconRound.
+  ///
+  /// In de, this message translates to:
+  /// **'Rund'**
+  String get appIconRound;
+
+  /// No description provided for @appIconSquircle.
+  ///
+  /// In de, this message translates to:
+  /// **'Squircle'**
+  String get appIconSquircle;
+
+  /// No description provided for @appIconSmall.
+  ///
+  /// In de, this message translates to:
+  /// **'Squircle klein'**
+  String get appIconSmall;
+
+  /// No description provided for @appIconHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Die App schließt sich dabei kurz. Das neue Symbol erscheint nach ein paar Sekunden; auf dem Startbildschirm musst du es eventuell neu ablegen.'**
+  String get appIconHint;
+
+  /// No description provided for @appIconApply.
+  ///
+  /// In de, this message translates to:
+  /// **'Ändern'**
+  String get appIconApply;
 }
 
 class _AppLocalizationsDelegate

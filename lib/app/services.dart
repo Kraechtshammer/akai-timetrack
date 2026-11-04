@@ -67,6 +67,18 @@ class AppServices {
 
   Future<void> _lastSync = Future.value();
 
+  /// How the last calendar sync in this isolate ended.
+  CalendarSyncResult? lastCalendarResult;
+
+  /// The "Jetzt synchronisieren" button: syncs everything and asks Android
+  /// to upload the calendar to Google right away.
+  Future<CalendarSyncResult> syncNow() async {
+    await syncAll();
+    final result = lastCalendarResult ?? CalendarSyncResult.failed;
+    if (result == CalendarSyncResult.done) await calendar.requestUpload();
+    return result;
+  }
+
   /// Updates notifications and the calendar after a change. Runs one at a
   /// time, so quick changes don't sync in parallel.
   Future<void> syncAll() => _lastSync = _lastSync.then((_) => _sync());
@@ -82,8 +94,9 @@ class AppServices {
         l10n: l10n,
         now: now,
       );
-      await calendar.run(l10n);
+      lastCalendarResult = await calendar.run(l10n);
     } catch (e, stack) {
+      lastCalendarResult = CalendarSyncResult.failed;
       debugPrint('Sync failed: $e\n$stack');
     }
   }

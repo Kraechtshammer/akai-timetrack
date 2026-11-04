@@ -1,6 +1,4 @@
-import 'dart:math' as math;
-
-import 'package:material_ui/material_ui.dart';
+import 'material.dart';
 
 import '../core/time.dart';
 import '../l10n/app_localizations.dart';
@@ -58,7 +56,8 @@ class PageHeader extends StatelessWidget {
           ),
         ),
         ...actions,
-        IconButton(
+        M3EIconButton(
+          variant: M3EIconButtonVariant.standard,
           tooltip: context.l10n.settings,
           icon: const Icon(Icons.settings_outlined),
           onPressed: () => Navigator.of(context).push(
@@ -118,7 +117,8 @@ class WeekSwitcher extends StatelessWidget {
     color: context.colors.surfaceContainer,
     child: Row(
       children: [
-        IconButton(
+        M3EIconButton(
+          variant: M3EIconButtonVariant.standard,
           tooltip: context.l10n.previousWeek,
           icon: const Icon(Icons.chevron_left),
           onPressed: onPrevious,
@@ -131,7 +131,8 @@ class WeekSwitcher extends StatelessWidget {
             ],
           ),
         ),
-        IconButton(
+        M3EIconButton(
+          variant: M3EIconButtonVariant.standard,
           tooltip: context.l10n.nextWeek,
           icon: const Icon(Icons.chevron_right),
           onPressed: onNext,
@@ -141,8 +142,7 @@ class WeekSwitcher extends StatelessWidget {
   );
 }
 
-/// Progress bar with a wavy filled part (Material 3 Expressive style).
-/// Flutter doesn't have one yet, so it's drawn here.
+/// Progress bar with a wavy filled part (Material 3 Expressive).
 class WavyProgress extends StatelessWidget {
   const WavyProgress({super.key, required this.value});
 
@@ -150,63 +150,11 @@ class WavyProgress extends StatelessWidget {
   final double value;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 12,
-    width: double.infinity,
-    child: CustomPaint(
-      painter: _WavyPainter(
-        value: value.clamp(0, 1),
-        active: context.colors.primary,
-        track: context.colors.secondaryContainer,
-      ),
-    ),
+  Widget build(BuildContext context) => M3EProgressIndicator.linearWavy(
+    value: value.clamp(0, 1),
+    color: context.colors.primary,
+    trackColor: context.colors.secondaryContainer,
   );
-}
-
-class _WavyPainter extends CustomPainter {
-  _WavyPainter({
-    required this.value,
-    required this.active,
-    required this.track,
-  });
-
-  final double value;
-  final Color active;
-  final Color track;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const stroke = 4.0, gap = 6.0, wavelength = 20.0, amplitude = 3.0;
-    final mid = size.height / 2;
-    final end = size.width * value;
-    final paint = Paint()
-      ..strokeWidth = stroke
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-
-    if (end > stroke) {
-      final wave = Path()..moveTo(stroke / 2, mid);
-      for (var x = stroke / 2; x <= end; x += 1) {
-        wave.lineTo(
-          x,
-          mid + amplitude * math.sin(x / wavelength * 2 * math.pi),
-        );
-      }
-      canvas.drawPath(wave, paint..color = active);
-    }
-    final trackStart = end > stroke ? end + gap : stroke / 2;
-    if (trackStart < size.width - stroke) {
-      canvas.drawLine(
-        Offset(trackStart, mid),
-        Offset(size.width - stroke / 2, mid),
-        paint..color = track,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_WavyPainter old) =>
-      old.value != value || old.active != active || old.track != track;
 }
 
 /// Lets the user pick a time (24 h). Returns minutes after midnight.

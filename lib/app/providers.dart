@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/app_settings.dart';
 import '../data/database.dart';
+import '../platform/app_icon.dart';
 import 'services.dart';
 
 /// Set in main() with the services created at start.
@@ -25,6 +26,19 @@ final shiftsProvider = StreamProvider.family<List<Shift>, DayRange>(
 final runningShiftProvider = StreamProvider<Shift?>(
   (ref) => ref.watch(servicesProvider).shifts.watchRunning(),
 );
+
+/// When the calendar sync last finished without errors.
+final lastCalendarSyncProvider = StreamProvider<DateTime?>(
+  (ref) => ref.watch(servicesProvider).settings.watchLastCalendarSync(),
+);
+
+/// How many shifts still wait for the calendar sync.
+final pendingSyncCountProvider = StreamProvider<int>(
+  (ref) => ref.watch(servicesProvider).shifts.watchPendingSyncCount(),
+);
+
+/// The launcher icon variant (read from Android). Invalidate after a change.
+final appIconProvider = FutureProvider<AppIcon>((ref) => AppIcons.current());
 
 /// The current time, updated every 20 seconds (for countdowns and "today").
 final nowProvider = StreamProvider<DateTime>((ref) async* {

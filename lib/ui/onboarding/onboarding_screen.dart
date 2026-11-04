@@ -1,6 +1,7 @@
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_ui/material_ui.dart';
+
+import '../material.dart';
 
 import '../../app/providers.dart';
 import '../../l10n/labels.dart';
@@ -84,14 +85,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   children: [
                     if (canSkip)
                       Expanded(
-                        child: TextButton(
+                        child: M3EButton(
+                          style: M3EButtonStyle.text,
                           onPressed: _next,
                           child: Text(l10n.skip),
                         ),
                       ),
                     Expanded(
-                      child: FilledButton(
-                        style: FilledButton.styleFrom(
+                      child: M3EButton(
+                        size: M3EButtonSize.md,
+                        decoration: M3EButtonDecoration.styleFrom(
                           minimumSize: const Size.fromHeight(56),
                         ),
                         onPressed: _next,
@@ -262,7 +265,8 @@ class _Calendar extends ConsumerWidget {
                   Expanded(child: Text(l10n.calendarTip)),
                 ],
               ),
-              TextButton.icon(
+              M3EButton.icon(
+                style: M3EButtonStyle.text,
                 onPressed: () => const AndroidIntent(
                   action: 'action_view',
                   data: 'https://calendar.google.com',

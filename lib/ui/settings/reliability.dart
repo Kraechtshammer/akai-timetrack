@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_ui/material_ui.dart';
+
+import '../material.dart';
 
 import '../../app/providers.dart';
 import '../../platform/device_setup.dart';
@@ -141,7 +142,8 @@ class _ReliabilityChecklistState extends ConsumerState<ReliabilityChecklist>
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
+                      M3EIconButton(
+                        variant: M3EIconButtonVariant.standard,
                         tooltip: l10n.open,
                         icon: const Icon(Icons.open_in_new),
                         onPressed: () => _fix(item),
@@ -154,7 +156,7 @@ class _ReliabilityChecklistState extends ConsumerState<ReliabilityChecklist>
                   )
                 : status.done[item]!
                 ? Icon(Icons.check_circle, color: context.colors.primary)
-                : FilledButton(
+                : M3EButton(
                     onPressed: () => _fix(item),
                     child: Text(l10n.allow),
                   ),

@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:material_ui/material_ui.dart';
+
+import '../material.dart';
 
 import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/time.dart';
+import '../../data/app_settings.dart';
 import '../../data/database.dart';
 import '../../domain/month_summary.dart';
 import '../../domain/recording.dart';
@@ -79,6 +81,7 @@ class TodayScreen extends ConsumerWidget {
                 ),
               _MonthCard(summary: summary, now: now, running: running != null),
               _WeekStrip(
+                style: ref.settings.weekMarks,
                 week: week,
                 shifts: weekShifts,
                 now: now,
@@ -132,7 +135,8 @@ class _NextShiftCard extends ConsumerWidget {
               style: TextStyle(color: colors.onSurfaceVariant),
             ),
             const SizedBox(height: 8),
-            FilledButton.tonalIcon(
+            M3EButton.icon(
+              style: M3EButtonStyle.tonal,
               onPressed: start,
               icon: const Icon(Icons.play_arrow),
               label: Text(l10n.startAnyway),
@@ -190,8 +194,9 @@ class _NextShiftCard extends ConsumerWidget {
                 ],
               ),
             const SizedBox(height: 16),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
+            M3EButton.icon(
+              size: M3EButtonSize.md,
+              decoration: M3EButtonDecoration.styleFrom(
                 minimumSize: const Size.fromHeight(64),
                 textStyle: context.text.titleMedium,
               ),
@@ -310,8 +315,9 @@ class _RunningCardState extends ConsumerState<_RunningCard> {
                 ),
                 Text(l10n.plannedEndAt(hhmm(shift.plannedEnd))),
                 const SizedBox(height: 20),
-                FilledButton.icon(
-                  style: FilledButton.styleFrom(
+                M3EButton.icon(
+                  size: M3EButtonSize.md,
+                  decoration: M3EButtonDecoration.styleFrom(
                     minimumSize: const Size.fromHeight(64),
                     backgroundColor: colors.surface,
                     foregroundColor: colors.primary,
@@ -322,8 +328,9 @@ class _RunningCardState extends ConsumerState<_RunningCard> {
                   label: Text(l10n.stopRecording),
                 ),
                 const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
+                M3EButton.icon(
+                  style: M3EButtonStyle.outlined,
+                  decoration: M3EButtonDecoration.styleFrom(
                     foregroundColor: colors.onPrimary,
                     side: BorderSide(color: colors.primaryContainer),
                   ),
@@ -462,15 +469,18 @@ class _MonthCard extends StatelessWidget {
   }
 }
 
-/// Seven small day circles for the current week.
+/// Seven small day circles for the current week. Lunch and evening shifts
+/// are marked under each day as icons or as two bars ([WeekMarkStyle]).
 class _WeekStrip extends StatelessWidget {
   const _WeekStrip({
+    required this.style,
     required this.week,
     required this.shifts,
     required this.now,
     required this.onOpenPlan,
   });
 
+  final WeekMarkStyle style;
   final DateTime week;
   final List<Shift> shifts;
   final DateTime now;
@@ -480,6 +490,13 @@ class _WeekStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final colors = context.colors;
+    final legendStyle = context.text.bodySmall;
+    final legendIconSize = (legendStyle?.fontSize ?? 12) + 2;
+    WidgetSpan icon(IconData data) => WidgetSpan(
+      alignment: PlaceholderAlignment.middle,
+      child: Icon(data, size: legendIconSize, color: colors.onSurfaceVariant),
+    );
+
     return Panel(
       color: colors.surfaceContainerLow,
       padding: const EdgeInsets.fromLTRB(16, 4, 8, 16),
@@ -493,7 +510,11 @@ class _WeekStrip extends StatelessWidget {
                   style: context.text.titleSmall,
                 ),
               ),
-              TextButton(onPressed: onOpenPlan, child: Text(l10n.toPlan)),
+              M3EButton(
+                style: M3EButtonStyle.text,
+                onPressed: onOpenPlan,
+                child: Text(l10n.toPlan),
+              ),
             ],
           ),
           Row(
@@ -503,7 +524,23 @@ class _WeekStrip extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(l10n.weekLegend, style: context.text.bodySmall),
+          Text.rich(
+            switch (style) {
+              WeekMarkStyle.icons => TextSpan(
+                children: [
+                  icon(Icons.light_mode),
+                  TextSpan(text: ' ${l10n.shiftLunch} · '),
+                  icon(Icons.dark_mode),
+                  TextSpan(
+                    text: ' ${l10n.shiftEvening} · ${l10n.weekLegendRecorded}',
+                  ),
+                ],
+              ),
+              WeekMarkStyle.bars => TextSpan(text: l10n.weekLegendBars),
+            },
+            style: legendStyle,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -517,13 +554,6 @@ class _WeekStrip extends StatelessWidget {
         .where((s) => s.isRecorded)
         .fold(0, (sum, s) => sum + s.workedMinutes!);
     final isToday = day == dateOnly(now);
-    final letters = ofDay.map(
-      (s) => switch (s.type) {
-        ShiftType.lunch => l10n.lunchLetter,
-        ShiftType.evening => l10n.eveningLetter,
-        ShiftType.custom => '+',
-      },
-    );
 
     final (Color? fill, Color text) = recordedMinutes > 0
         ? (colors.primary, colors.onPrimary)
@@ -551,17 +581,69 @@ class _WeekStrip extends StatelessWidget {
             style: TextStyle(color: text, fontWeight: FontWeight.w600),
           ),
         ),
+        SizedBox(height: 16, child: _marks(context, ofDay)),
         Text(
           recordedMinutes > 0
               ? l10n.hours(formatHours(recordedMinutes, context.locale))
               : ofDay.isEmpty
               ? l10n.dayOff
-              : letters.join(' + '),
+              : '',
           style: context.text.labelSmall,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
       ],
     );
+  }
+
+  /// Custom shifts count as lunch if they start before 15:00.
+  static bool _isLunchSlot(Shift s) =>
+      s.type == ShiftType.lunch ||
+      (s.type == ShiftType.custom && s.plannedStart.hour < 15);
+
+  Widget _marks(BuildContext context, List<Shift> ofDay) {
+    final colors = context.colors;
+    Color markColor(bool recorded) =>
+        recorded ? colors.primary : colors.outline;
+
+    switch (style) {
+      case WeekMarkStyle.icons:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (final s in ofDay)
+              Icon(
+                switch (s.type) {
+                  ShiftType.lunch => Icons.light_mode,
+                  ShiftType.evening => Icons.dark_mode,
+                  ShiftType.custom => Icons.schedule,
+                },
+                size: 15,
+                color: markColor(s.isRecorded),
+              ),
+          ],
+        );
+      case WeekMarkStyle.bars:
+        // One slot per shift time; a slot counts as recorded if any of its
+        // shifts is.
+        Widget bar(Iterable<Shift> slot) => Container(
+          width: 13,
+          height: 5,
+          margin: const EdgeInsets.symmetric(horizontal: 1.5),
+          decoration: BoxDecoration(
+            color: slot.isEmpty
+                ? colors.surfaceContainerHighest
+                : markColor(slot.any((s) => s.isRecorded)),
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            bar(ofDay.where(_isLunchSlot)),
+            bar(ofDay.where((s) => !_isLunchSlot(s))),
+          ],
+        );
+    }
   }
 }

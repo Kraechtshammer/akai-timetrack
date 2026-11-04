@@ -199,15 +199,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get toPlan => 'Zum Plan';
 
   @override
-  String get weekLegend => 'M Mittag · A Abend · gefüllt = erfasst';
-
-  @override
-  String get lunchLetter => 'M';
-
-  @override
-  String get eveningLetter => 'A';
-
-  @override
   String get dayOff => 'frei';
 
   @override
@@ -724,4 +715,82 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get gcolTomato => 'Tomate';
+
+  @override
+  String get colorTerracotta => 'Terrakotta';
+
+  @override
+  String get calendarRefresh => 'Aktualisieren';
+
+  @override
+  String get calendarMissingHint =>
+      'Ein neuer Kalender fehlt? Google braucht dafür manchmal ein paar Minuten. Tippe dann auf „Aktualisieren“.';
+
+  @override
+  String get calendarNotSynced =>
+      'Noch nicht auf diesem Handy synchronisiert. Die App schaltet das beim Auswählen ein.';
+
+  @override
+  String get syncNow => 'Jetzt synchronisieren';
+
+  @override
+  String syncPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Änderungen noch nicht im Kalender',
+      one: '1 Änderung noch nicht im Kalender',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncUpToDate(String time) {
+    return 'Alles aktuell · zuletzt $time';
+  }
+
+  @override
+  String get syncNever => 'Noch nicht synchronisiert';
+
+  @override
+  String get syncDone =>
+      'Kalender ist aktuell. Google überträgt die Änderungen gleich.';
+
+  @override
+  String get syncFailed =>
+      'Das hat nicht geklappt. Die App versucht es später noch einmal.';
+
+  @override
+  String get weekLegendRecorded => 'farbig = erfasst';
+
+  @override
+  String get weekLegendBars => 'links Mittag · rechts Abend · farbig = erfasst';
+
+  @override
+  String get weekMarks => 'Wochenübersicht';
+
+  @override
+  String get weekMarksIcons => 'Symbole';
+
+  @override
+  String get weekMarksBars => 'Balken';
+
+  @override
+  String get appIcon => 'App-Symbol';
+
+  @override
+  String get appIconRound => 'Rund';
+
+  @override
+  String get appIconSquircle => 'Squircle';
+
+  @override
+  String get appIconSmall => 'Squircle klein';
+
+  @override
+  String get appIconHint =>
+      'Die App schließt sich dabei kurz. Das neue Symbol erscheint nach ein paar Sekunden; auf dem Startbildschirm musst du es eventuell neu ablegen.';
+
+  @override
+  String get appIconApply => 'Ändern';
 }

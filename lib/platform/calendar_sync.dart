@@ -12,6 +12,21 @@ import '../data/shift_repository.dart';
 import '../domain/shift_info.dart';
 import '../l10n/app_localizations.dart';
 
+/// How a calendar sync run ended.
+enum CalendarSyncResult {
+  /// Everything pending was written.
+  done,
+
+  /// No calendar chosen.
+  off,
+
+  /// The calendar permission is missing.
+  noPermission,
+
+  /// Something failed; the shifts stay marked and are retried next time.
+  failed,
+}
+
 /// Mirrors shifts into the chosen calendar. One way only: the app's
 /// database is the truth, the calendar is a copy. See docs/02-design.md §5.
 class CalendarSync {
@@ -32,24 +47,40 @@ class CalendarSync {
 
   /// Writes all pending changes into the calendar. Failures are left for the
   /// next run (the shifts stay marked).
-  Future<void> run(AppLocalizations l10n) async {
+  Future<CalendarSyncResult> run(AppLocalizations l10n) async {
     final settings = await _settings.load();
     final calendarId = settings.calendarId;
     if (calendarId == null) {
       await _shifts.purgeDeleted();
-      return;
+      return CalendarSyncResult.off;
     }
-    if (!await hasPermission()) return;
+    if (!await hasPermission()) return CalendarSyncResult.noPermission;
 
     try {
       for (final shift in await _shifts.needingSync()) {
         await _syncShift(shift, calendarId, settings, l10n);
       }
       await _recreateDeletedEvents(calendarId, settings, l10n);
+      await _settings.setLastCalendarSync(DateTime.now());
+      return CalendarSyncResult.done;
     } on CalendarPermissionException {
       // Permission was taken away; try again next time.
+      return CalendarSyncResult.noPermission;
     } catch (e) {
       debugPrint('Calendar sync failed: $e');
+      return CalendarSyncResult.failed;
+    }
+  }
+
+  /// Asks Android to upload the calendar's changes to Google right away
+  /// (normally Google syncs on its own within a few minutes).
+  Future<void> requestUpload() async {
+    final calendarId = (await _settings.load()).calendarId;
+    if (calendarId == null || !await hasPermission()) return;
+    try {
+      await _bridge.requestSync(calendarId);
+    } catch (e) {
+      debugPrint('Sync request failed: $e');
     }
   }
 
