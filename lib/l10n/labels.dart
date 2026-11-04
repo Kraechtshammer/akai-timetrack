@@ -1,0 +1,51 @@
+import '../data/app_settings.dart';
+import '../data/database.dart';
+import '../domain/rounding.dart';
+import 'app_localizations.dart';
+
+/// Translated names for enum values.
+
+String shiftTypeLabel(ShiftType type, AppLocalizations l10n) => switch (type) {
+  ShiftType.lunch => l10n.shiftLunch,
+  ShiftType.evening => l10n.shiftEvening,
+  ShiftType.custom => l10n.shiftCustom,
+};
+
+String roundingLabel(RoundingMode mode, AppLocalizations l10n) =>
+    switch (mode) {
+      RoundingMode.nearestQuarter => l10n.roundingNearest,
+      RoundingMode.inFavour => l10n.roundingInFavour,
+      RoundingMode.strict => l10n.roundingStrict,
+    };
+
+String themeSeedLabel(ThemeSeed seed, AppLocalizations l10n) => switch (seed) {
+  ThemeSeed.system => l10n.colorSystem,
+  ThemeSeed.akaiRed => l10n.colorAkai,
+  ThemeSeed.blue => l10n.colorBlue,
+  ThemeSeed.green => l10n.colorGreen,
+  ThemeSeed.violet => l10n.colorViolet,
+};
+
+String themeModeLabel(AppThemeMode mode, AppLocalizations l10n) =>
+    switch (mode) {
+      AppThemeMode.system => l10n.themeSystem,
+      AppThemeMode.light => l10n.themeLight,
+      AppThemeMode.dark => l10n.themeDark,
+    };
+
+/// Names of Google Calendar's event colors by their key ("1".."11").
+String? googleEventColorName(String key, AppLocalizations l10n) =>
+    switch (key) {
+      '1' => l10n.gcolLavender,
+      '2' => l10n.gcolSage,
+      '3' => l10n.gcolGrape,
+      '4' => l10n.gcolFlamingo,
+      '5' => l10n.gcolBanana,
+      '6' => l10n.gcolTangerine,
+      '7' => l10n.gcolPeacock,
+      '8' => l10n.gcolGraphite,
+      '9' => l10n.gcolBlueberry,
+      '10' => l10n.gcolBasil,
+      '11' => l10n.gcolTomato,
+      _ => null,
+    };

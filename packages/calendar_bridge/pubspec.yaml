@@ -1,0 +1,22 @@
+name: calendar_bridge
+description: "Small bridge to the Android calendar (CalendarContract): list calendars, event colors, write events."
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.13.7
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: de.garten.calendar_bridge
+        pluginClass: CalendarBridgePlugin
