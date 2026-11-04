@@ -78,6 +78,12 @@ To check the token is not tracked: `git check-ignore -v .devcontainer/.env` shou
 
 The `dist/` folder is visible in Windows Explorer, so an APK can also be copied to a phone by hand. Opening it on the phone asks to allow installs from that source. Until there is a release signing key (milestone M6), release APKs are signed with the debug key; that's fine for testing.
 
+**App icon variants.** The launcher entry is one of three activity aliases (Rund, Squircle, Squircle klein), chosen in the app's Settings. `flutter run` / F5 still works: `MainActivity` keeps a MAIN/LAUNCHER intent filter in the source manifest, and the build removes it from the installed app (`tools:node="remove"`). To start the app by hand:
+
+```
+adb shell am start -n de.garten.akaitimetrack/.MainActivity
+```
+
 ## 6. Emulator
 
 The Android emulator runs **inside the dev container**. Its window appears on the Windows desktop through WSLg (WSL's built-in Linux GUI support), and it uses WSL 2's KVM for speed. No Android Studio is needed. (Windows Subsystem for Android, which you may have heard of, was discontinued by Microsoft in March 2025.)
@@ -99,8 +105,44 @@ Notes:
 
 After changing `devcontainer.json` or the `Dockerfile` (e.g. when pulling these changes), run *Dev Containers: Rebuild Container* once.
 
+## 7. Using the container from Windows without VS Code
+
+Useful for scripts and for Claude Code running on Windows. Docker Engine runs inside the WSL 2 Ubuntu, so call it through `wsl.exe`:
+
+```
+wsl.exe -e docker ps
+wsl.exe -e docker exec <name> bash -lc 'cd /workspaces/akai-timetrack && flutter test'
+```
+
+`docker ps` shows the container name. Inside the container the repo is at `/workspaces/akai-timetrack`.
+
+To capture the emulator screen, run this in the container (`build/` is git-ignored):
+
+```
+adb exec-out screencap -p > build/shot.png
+```
+
+## 8. Why builds are slow
+
+There is no CPU limit. Windows, the WSL VM and the container all see every core, and the container has no cgroup CPU quota (`cat /sys/fs/cgroup/cpu.max` shows `max`).
+
+The real cause is file access. The project folder lives on `C:\` and is mounted into the container over 9p (`mount | grep workspaces` shows `type 9p ... aname=drvfs`), so every file read crosses the Windows/WSL boundary. `flutter analyze` takes about 5–7 minutes and a debug APK about 2 minutes, with the CPU mostly idle.
+
+Memory is the other limit. The WSL VM gets about 15 GB by default (half the PC's RAM). The emulator takes about 6.5 GB. Gradle's and the Kotlin daemon's JVMs may each grow to 8 GB (`org.gradle.jvmargs` in `android/gradle.properties`).
+
+Options (nothing is decided yet):
+- **Clone the repo inside the WSL file system**, e.g. `~/code/akai-timetrack` in Ubuntu, and open that folder in VS Code through the WSL extension → *Reopen in Container*. File access then stays on native ext4, which typically makes analyze and builds several times faster. Windows tools can still reach it at `\\wsl$\Ubuntu\...`.
+- **Give WSL more memory** in `%UserProfile%\.wslconfig`:
+  ```
+  [wsl2]
+  memory=24GB
+  ```
+  Optionally add `processors=`. Then run `wsl --shutdown`. This stops the container and the emulator.
+- **Keep the emulator closed** while building when you don't need it.
+
 ## Troubleshooting
 
+- **Builds or `flutter analyze` are very slow** although the CPU is idle: see section 8 (9p file access, memory).
 - **Phone or emulator not listed** although it's connected on Windows:
   - Check that `start-adb-server.cmd` is running.
   - In the container (Docker in WSL), `ip route | grep default` shows the address the wrapper tries. On Windows, `netstat -ano | findstr :5037` should show `0.0.0.0:5037 LISTENING`.
