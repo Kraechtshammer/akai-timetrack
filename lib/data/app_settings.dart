@@ -48,7 +48,6 @@ class AppSettings {
     this.eventTitle = 'Kellnern',
     this.eventColorKey,
     this.eventColor,
-    this.exportMonthTotals = true,
     this.themeSeed = ThemeSeed.akaiRed,
     this.themeMode = AppThemeMode.system,
     this.weekMarks = WeekMarkStyle.icons,
@@ -75,7 +74,6 @@ class AppSettings {
   /// null = the calendar's own color.
   final String? eventColorKey;
   final int? eventColor;
-  final bool exportMonthTotals;
   final ThemeSeed themeSeed;
   final AppThemeMode themeMode;
   final WeekMarkStyle weekMarks;
@@ -112,7 +110,6 @@ class AppSettings {
       eventTitle: m['eventTitle'] ?? d.eventTitle,
       eventColorKey: m['eventColorKey'],
       eventColor: int.tryParse(m['eventColor'] ?? ''),
-      exportMonthTotals: m['exportMonthTotals'] != 'false',
       themeSeed: pick(ThemeSeed.values, 'themeSeed', d.themeSeed),
       themeMode: pick(AppThemeMode.values, 'themeMode', d.themeMode),
       weekMarks: pick(WeekMarkStyle.values, 'weekMarks', d.weekMarks),
@@ -136,7 +133,6 @@ class AppSettings {
     'eventTitle': eventTitle,
     'eventColorKey': eventColorKey,
     'eventColor': eventColor?.toString(),
-    'exportMonthTotals': '$exportMonthTotals',
     'themeSeed': themeSeed.name,
     'themeMode': themeMode.name,
     'weekMarks': weekMarks.name,
@@ -160,7 +156,6 @@ class AppSettings {
     String? eventTitle,
     String? Function()? eventColorKey,
     int? Function()? eventColor,
-    bool? exportMonthTotals,
     ThemeSeed? themeSeed,
     AppThemeMode? themeMode,
     WeekMarkStyle? weekMarks,
@@ -180,7 +175,6 @@ class AppSettings {
     eventTitle: eventTitle ?? this.eventTitle,
     eventColorKey: eventColorKey != null ? eventColorKey() : this.eventColorKey,
     eventColor: eventColor != null ? eventColor() : this.eventColor,
-    exportMonthTotals: exportMonthTotals ?? this.exportMonthTotals,
     themeSeed: themeSeed ?? this.themeSeed,
     themeMode: themeMode ?? this.themeMode,
     weekMarks: weekMarks ?? this.weekMarks,

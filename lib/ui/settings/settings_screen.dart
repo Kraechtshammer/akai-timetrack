@@ -203,14 +203,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 }
               },
             ),
-            SwitchListTile(
-              secondary: const _TileIcon(Icons.functions),
-              title: Text(l10n.monthTotalsInExport),
-              subtitle: Text(l10n.monthTotalsHint),
-              value: s.exportMonthTotals,
-              onChanged: (on) =>
-                  _update((s) => s.copyWith(exportMonthTotals: on)),
-            ),
           ]),
           _Section(l10n.sectionAppearance, [
             ListTile(

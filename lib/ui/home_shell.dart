@@ -23,7 +23,7 @@ class _HomeShellState extends ConsumerState<HomeShell>
   var _planWeek = weekStart(DateTime.now());
 
   /// Counts visits to the Export tab. Each visit starts a fresh Export
-  /// screen, so it always opens on the current week.
+  /// screen, so it always opens on the current month.
   var _exportVisits = 0;
 
   @override

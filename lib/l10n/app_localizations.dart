@@ -452,6 +452,18 @@ abstract class AppLocalizations {
   /// **'Nächste Woche'**
   String get nextWeek;
 
+  /// No description provided for @previousMonth.
+  ///
+  /// In de, this message translates to:
+  /// **'Vorheriger Monat'**
+  String get previousMonth;
+
+  /// No description provided for @nextMonth.
+  ///
+  /// In de, this message translates to:
+  /// **'Nächster Monat'**
+  String get nextMonth;
+
   /// No description provided for @currentWeek.
   ///
   /// In de, this message translates to:
@@ -599,14 +611,14 @@ abstract class AppLocalizations {
   /// No description provided for @exportSubtitle.
   ///
   /// In de, this message translates to:
-  /// **'Arbeitszeiten der Woche als Text'**
+  /// **'Arbeitszeiten des Monats als Text'**
   String get exportSubtitle;
 
-  /// No description provided for @weekTotalLabel.
+  /// No description provided for @monthTotalLabel.
   ///
   /// In de, this message translates to:
-  /// **'Woche gesamt'**
-  String get weekTotalLabel;
+  /// **'Monat gesamt'**
+  String get monthTotalLabel;
 
   /// No description provided for @shiftsCount.
   ///
@@ -625,18 +637,6 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Vorschau'**
   String get preview;
-
-  /// No description provided for @appendMonthTotals.
-  ///
-  /// In de, this message translates to:
-  /// **'Monatssummen anhängen'**
-  String get appendMonthTotals;
-
-  /// No description provided for @weekSpansMonths.
-  ///
-  /// In de, this message translates to:
-  /// **'Die Woche umfasst {first} und {second}'**
-  String weekSpansMonths(String first, String second);
 
   /// No description provided for @copy.
   ///
@@ -665,20 +665,20 @@ abstract class AppLocalizations {
   /// No description provided for @exportHeader.
   ///
   /// In de, this message translates to:
-  /// **'Arbeitszeiten KW {week} ({from}–{to})'**
-  String exportHeader(int week, String from, String to);
+  /// **'Arbeitszeiten {month}'**
+  String exportHeader(String month);
+
+  /// No description provided for @exportWeekHeader.
+  ///
+  /// In de, this message translates to:
+  /// **'KW {week} ({from}–{to})'**
+  String exportWeekHeader(int week, String from, String to);
 
   /// No description provided for @exportDayPattern.
   ///
   /// In de, this message translates to:
   /// **'dd.MM.'**
   String get exportDayPattern;
-
-  /// No description provided for @exportDateWithYearPattern.
-  ///
-  /// In de, this message translates to:
-  /// **'dd.MM.yyyy'**
-  String get exportDateWithYearPattern;
 
   /// No description provided for @exportBreak.
   ///
@@ -908,18 +908,6 @@ abstract class AppLocalizations {
   /// **'Beginn auf-, Ende abrunden'**
   String get roundingStrict;
 
-  /// No description provided for @monthTotalsInExport.
-  ///
-  /// In de, this message translates to:
-  /// **'Monatssummen im Export'**
-  String get monthTotalsInExport;
-
-  /// No description provided for @monthTotalsHint.
-  ///
-  /// In de, this message translates to:
-  /// **'Hängt die Monatsstunden an'**
-  String get monthTotalsHint;
-
   /// No description provided for @sectionAppearance.
   ///
   /// In de, this message translates to:
@@ -1019,7 +1007,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeBody.
   ///
   /// In de, this message translates to:
-  /// **'Schichten planen, Arbeitszeit mit einem Tipp erfassen und die Stunden der Woche als Text teilen.'**
+  /// **'Schichten planen, Arbeitszeit mit einem Tipp erfassen und die Stunden des Monats als Text teilen.'**
   String get welcomeBody;
 
   /// No description provided for @letsGo.

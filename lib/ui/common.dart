@@ -108,12 +108,18 @@ class WeekSwitcher extends StatelessWidget {
     required this.subtitle,
     required this.onPrevious,
     required this.onNext,
+    this.previousTooltip,
+    this.nextTooltip,
   });
 
   final String title;
   final String subtitle;
   final VoidCallback onPrevious;
   final VoidCallback onNext;
+
+  /// Default to "previous/next week"; the Export tab switches months.
+  final String? previousTooltip;
+  final String? nextTooltip;
 
   @override
   Widget build(BuildContext context) => Panel(
@@ -124,7 +130,7 @@ class WeekSwitcher extends StatelessWidget {
       children: [
         M3EIconButton(
           variant: M3EIconButtonVariant.standard,
-          tooltip: context.l10n.previousWeek,
+          tooltip: previousTooltip ?? context.l10n.previousWeek,
           icon: const Icon(Icons.chevron_left),
           onPressed: onPrevious,
         ),
@@ -138,7 +144,7 @@ class WeekSwitcher extends StatelessWidget {
         ),
         M3EIconButton(
           variant: M3EIconButtonVariant.standard,
-          tooltip: context.l10n.nextWeek,
+          tooltip: nextTooltip ?? context.l10n.nextWeek,
           icon: const Icon(Icons.chevron_right),
           onPressed: onNext,
         ),

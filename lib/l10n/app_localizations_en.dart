@@ -226,6 +226,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nextWeek => 'Next week';
 
   @override
+  String get previousMonth => 'Previous month';
+
+  @override
+  String get nextMonth => 'Next month';
+
+  @override
   String get currentWeek => 'Go to this week';
 
   @override
@@ -303,10 +309,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startMustBeBeforeEnd => 'The end must be after the start.';
 
   @override
-  String get exportSubtitle => 'The week\'s working hours as text';
+  String get exportSubtitle => 'The month\'s working hours as text';
 
   @override
-  String get weekTotalLabel => 'Week total';
+  String get monthTotalLabel => 'Month total';
 
   @override
   String shiftsCount(int count) {
@@ -334,14 +340,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preview => 'Preview';
 
   @override
-  String get appendMonthTotals => 'Add month totals';
-
-  @override
-  String weekSpansMonths(String first, String second) {
-    return 'This week covers $first and $second';
-  }
-
-  @override
   String get copy => 'Copy';
 
   @override
@@ -355,15 +353,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Shifts that weren\'t recorded are missing from the text.';
 
   @override
-  String exportHeader(int week, String from, String to) {
-    return 'Working hours CW $week ($from–$to)';
+  String exportHeader(String month) {
+    return 'Working hours $month';
+  }
+
+  @override
+  String exportWeekHeader(int week, String from, String to) {
+    return 'CW $week ($from–$to)';
   }
 
   @override
   String get exportDayPattern => 'dd/MM';
-
-  @override
-  String get exportDateWithYearPattern => 'dd/MM/yyyy';
 
   @override
   String exportBreak(int minutes) {
@@ -498,12 +498,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roundingStrict => 'Start up, end down';
 
   @override
-  String get monthTotalsInExport => 'Month totals in the export';
-
-  @override
-  String get monthTotalsHint => 'Adds the month\'s hours';
-
-  @override
   String get sectionAppearance => 'Appearance & language';
 
   @override
@@ -553,7 +547,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeBody =>
-      'Plan your shifts, record your working time with one tap and share the week\'s hours as text.';
+      'Plan your shifts, record your working time with one tap and share the month\'s hours as text.';
 
   @override
   String get letsGo => 'Let\'s go';

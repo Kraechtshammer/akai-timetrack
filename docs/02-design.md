@@ -10,7 +10,7 @@ In scope:
 - **Recording:** record time from the app or from notifications.
 - **Editing:** correct shift times by hand, including breaks.
 - **Calendar sync:** one-way sync to a chosen Google calendar, with a selectable event colour.
-- **Export:** weekly text with optional month totals.
+- **Export:** monthly text, grouped by week (was: weekly text with optional month totals; see §16).
 - **Overview:** month figures in the app.
 - **Appearance:** language DE/EN, selectable colour including system colour, light/dark/system.
 - **Onboarding:** permissions, calendar choice, Xiaomi hints.
@@ -126,7 +126,6 @@ Settings live in the database so the notification background isolate can read th
 | `calendarId` | null, meaning sync is off |
 | `eventTitle` | "Kellnern" |
 | `eventColorKey` | null, meaning the calendar's own colour |
-| `exportMonthTotals` | true |
 | `themeSeed` | `akaiRed` / `terracotta` / `system` / `blue` / `green` / `violet` |
 | `weekMarks` | `icons` / `bars` (week strip on Heute) |
 | `themeMode` | `system` / `light` / `dark` |
@@ -186,24 +185,31 @@ For the month of the selected or current date:
 
 ### 4.5 Export text (F6)
 
-Pure function `buildExport(week, shifts, settings, locale)`:
+Pure function `buildExportText(month, shifts, now, l10n)` in `lib/domain/export_text.dart`. She sends her hours once a month, so the text covers a whole month, grouped by week (user decision 2026-11-04; it was a weekly text before):
 
 ```
-Arbeitszeiten KW 44 (26.10.–01.11.2026)
+Arbeitszeiten Oktober 2026
+
+KW 40 (01.10.–04.10.)
+Do 01.10.: 12:00–16:00 (4,0 h)
+Woche gesamt: 4,0 h
+
+KW 44 (26.10.–31.10.)
 Mo 26.10.: 12:00–16:00 (4,0 h)
 Fr 30.10.: 12:00–15:30 (3,5 h), 17:30–23:00, 30 min Pause (5,0 h)
-Woche gesamt: 29,0 h
-Oktober gesamt: 86,25 h
-November bisher: 5,5 h
+Woche gesamt: 12,5 h
+
+Oktober gesamt: 16,5 h
 ```
 
-- **Week:** ISO week (Mon–Sun), with its ISO week number (KW).
+- **Month:** calendar month. Planning stays weekly; only the export is monthly.
+- **Weeks:** ISO weeks (Mon–Sun) with their week number (KW). A week that crosses the month's start or end is cut to the days inside the month; its other days are in the neighbouring month's export. Weeks without recorded shifts are left out.
 - **What's listed:** only `recorded` shifts, in time order. Days without recorded shifts are left out.
 - **Per shift:** `start–end`, then `, N min Pause` if there is a break, then `(net h)`.
 - **Hour format:** at most 2 decimals, always at least one (`4,0`), with a locale decimal separator (`,` in DE, `.` in EN).
-- **Month lines** (if `exportMonthTotals` is on): one line for each month the week overlaps, summing recorded hours in that month up to the week's end. The label is "<Monat> gesamt" if the month ends within the week, otherwise "<Monat> bisher".
-- **Warning:** if the week has `missed` or `running` shifts, the Export screen shows "1 Schicht nicht erfasst" above the preview. They are not included in the text.
-- **English version:** "Working hours CW 44…", "Week total", "October total", "November so far".
+- **Last line:** "<Monat> gesamt" once the month is over, "<Monat> bisher" while it is still running.
+- **Warning:** if the month has `missed` or `running` shifts, the Export screen shows "1 Schicht nicht erfasst" above the preview. They are not included in the text.
+- **English version:** "Working hours October 2026", "CW 40 (01/10–04/10)", "Week total", "October total", "November so far".
 
 ### 4.6 Reminder planning (`ReminderPlanner`)
 
@@ -363,9 +369,9 @@ All screens follow the concept canvas. Behaviour that isn't visible in the mocku
 - **Delete:** asks for confirmation only if the shift is recorded.
 
 ### Export
-- **Week picker:** always opens on the **current week**, also when coming back to the tab (user decision 2026-11-04; the earlier "last week on Mon–Wed" rule was dropped). Earlier weeks are one tap back.
+- **Month picker:** always opens on the **current month**, also when coming back to the tab (user decision 2026-11-04). Earlier months are one tap back.
+- **Summary card:** "Monat gesamt" with the hours, shifts and days of the month.
 - **Copy** puts the text on the clipboard. **Share** opens the share sheet (WhatsApp etc.).
-- **The month switch here** only applies to this export; the default comes from settings.
 
 ### Einstellungen
 - **Sections:**
@@ -436,7 +442,7 @@ akai_timetrack/
   - rounding (all modes, edge :07:30)
   - lunch/evening default logic
   - month summary (month boundaries, missed shifts)
-  - export text (DE/EN, breaks, weeks spanning two months, empty week)
+  - export text (DE/EN, breaks, weeks cut at the month's edges, empty month, "gesamt"/"bisher")
   - ReminderPlanner (lead time, 14-day window, running shift)
   - sync state transitions (gateway faked)
 - **Widget tests:** Plan toggles, edit sheet validation, export preview.
@@ -564,6 +570,7 @@ Nothing in v1 needs changing for this beyond the conventions in §3.
 - **compileSdk 37:** required by `permission_handler`. minSdk stays 29.
 - **"Kein Kalender":** choosing it deletes the app's events from the old calendar. Switching calendars always moves all events (no question).
 - **Export texts:** neutral, with no mention of the boss.
+- **Monthly export** (2026-11-04): she sends her hours monthly, so the export covers a month, grouped by week (§4.5). The `exportMonthTotals` setting, its switch in Settings and the switch on the Export screen were removed, because the month total is now always the last line. An old stored `exportMonthTotals` value is ignored.
 - **App icon:** three adaptive variants, selectable in Settings › Darstellung › App-Symbol, because the launcher decides the mask shape:
   - "Rund": red ring and dark-red disc, for circular masks; the default.
   - "Squircle": the original sign, for squircle masks; the default on Xiaomi.

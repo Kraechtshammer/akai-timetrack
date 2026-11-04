@@ -13,7 +13,8 @@ import '../../domain/export_text.dart';
 import '../../domain/shift_info.dart';
 import '../common.dart';
 
-/// "Export": the weekly text for the boss, to copy or share.
+/// "Export": the month's hours as text for the boss, grouped by week, to copy
+/// or share.
 class ExportScreen extends ConsumerStatefulWidget {
   const ExportScreen({super.key});
 
@@ -22,15 +23,12 @@ class ExportScreen extends ConsumerStatefulWidget {
 }
 
 class _ExportScreenState extends ConsumerState<ExportScreen> {
-  /// Always starts on the current week; earlier weeks are one tap back.
-  var _week = weekStart(DateTime.now());
-
-  /// null = use the setting.
-  bool? _monthTotals;
+  /// Always starts on the current month; earlier months are one tap back.
+  var _month = monthStart(DateTime.now());
   var _copied = false;
 
-  void _changeWeek(int days) => setState(() {
-    _week = addDays(_week, days);
+  void _changeMonth(int months) => setState(() {
+    _month = DateTime(_month.year, _month.month + months);
     _copied = false;
   });
 
@@ -40,16 +38,13 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     final colors = context.colors;
     final locale = context.locale;
     final now = ref.now;
-    final weekEnd = addDays(_week, 7);
-    // From the month start, so the month totals are complete.
+    final monthEnd = nextMonthStart(_month);
     final shifts =
-        ref.watch(shiftsProvider((monthStart(_week), weekEnd))).value ??
-        const [];
-    final ofWeek = shifts.where((s) => !s.dayDate.isBefore(_week)).toList();
-    final recorded = ofWeek.where((s) => s.isRecorded).toList();
+        ref.watch(shiftsProvider((_month, monthEnd))).value ?? const [];
+    final recorded = shifts.where((s) => s.isRecorded).toList();
     final minutes = recorded.fold(0, (sum, s) => sum + s.workedMinutes!);
     final days = recorded.map((s) => s.day).toSet().length;
-    final missing = ofWeek
+    final missing = shifts
         .where(
           (s) => const [
             ShiftStatus.missed,
@@ -57,13 +52,10 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           ].contains(s.statusAt(now)),
         )
         .length;
-    final lastDay = addDays(weekEnd, -1);
-    final spansMonths = _week.month != lastDay.month;
-    final monthTotals = _monthTotals ?? ref.settings.exportMonthTotals;
     final text = buildExportText(
-      week: _week,
+      month: _month,
       shifts: shifts,
-      includeMonthTotals: monthTotals,
+      now: now,
       l10n: l10n,
     );
     final dates = DateFormat.MMMd(locale);
@@ -79,10 +71,14 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             spacing: 12,
             children: [
               WeekSwitcher(
-                title: l10n.weekLabel(isoWeekNumber(_week)),
-                subtitle: '${dates.format(_week)} – ${dates.format(lastDay)}',
-                onPrevious: () => _changeWeek(-7),
-                onNext: () => _changeWeek(7),
+                title: DateFormat.yMMMM(locale).format(_month),
+                subtitle:
+                    '${dates.format(_month)} – '
+                    '${dates.format(addDays(monthEnd, -1))}',
+                onPrevious: () => _changeMonth(-1),
+                onNext: () => _changeMonth(1),
+                previousTooltip: l10n.previousMonth,
+                nextTooltip: l10n.nextMonth,
               ),
               Panel(
                 color: colors.primaryContainer,
@@ -97,7 +93,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            l10n.weekTotalLabel,
+                            l10n.monthTotalLabel,
                             style: TextStyle(color: colors.onPrimaryContainer),
                           ),
                           Text(
@@ -140,23 +136,6 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                   text,
                   style: const TextStyle(height: 1.5),
                 ),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.appendMonthTotals),
-                subtitle: spansMonths
-                    ? Text(
-                        l10n.weekSpansMonths(
-                          DateFormat.MMMM(locale).format(_week),
-                          DateFormat.MMMM(locale).format(lastDay),
-                        ),
-                      )
-                    : null,
-                value: monthTotals,
-                onChanged: (on) => setState(() {
-                  _monthTotals = on;
-                  _copied = false;
-                }),
               ),
               Row(
                 spacing: 8,

@@ -226,6 +226,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get nextWeek => 'Nächste Woche';
 
   @override
+  String get previousMonth => 'Vorheriger Monat';
+
+  @override
+  String get nextMonth => 'Nächster Monat';
+
+  @override
   String get currentWeek => 'Zur aktuellen Woche';
 
   @override
@@ -304,10 +310,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get startMustBeBeforeEnd => 'Das Ende muss nach dem Beginn liegen.';
 
   @override
-  String get exportSubtitle => 'Arbeitszeiten der Woche als Text';
+  String get exportSubtitle => 'Arbeitszeiten des Monats als Text';
 
   @override
-  String get weekTotalLabel => 'Woche gesamt';
+  String get monthTotalLabel => 'Monat gesamt';
 
   @override
   String shiftsCount(int count) {
@@ -335,14 +341,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get preview => 'Vorschau';
 
   @override
-  String get appendMonthTotals => 'Monatssummen anhängen';
-
-  @override
-  String weekSpansMonths(String first, String second) {
-    return 'Die Woche umfasst $first und $second';
-  }
-
-  @override
   String get copy => 'Kopieren';
 
   @override
@@ -355,15 +353,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get missedNotExported => 'Nicht erfasste Schichten fehlen im Text.';
 
   @override
-  String exportHeader(int week, String from, String to) {
-    return 'Arbeitszeiten KW $week ($from–$to)';
+  String exportHeader(String month) {
+    return 'Arbeitszeiten $month';
+  }
+
+  @override
+  String exportWeekHeader(int week, String from, String to) {
+    return 'KW $week ($from–$to)';
   }
 
   @override
   String get exportDayPattern => 'dd.MM.';
-
-  @override
-  String get exportDateWithYearPattern => 'dd.MM.yyyy';
 
   @override
   String exportBreak(int minutes) {
@@ -499,12 +499,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get roundingStrict => 'Beginn auf-, Ende abrunden';
 
   @override
-  String get monthTotalsInExport => 'Monatssummen im Export';
-
-  @override
-  String get monthTotalsHint => 'Hängt die Monatsstunden an';
-
-  @override
   String get sectionAppearance => 'Darstellung & Sprache';
 
   @override
@@ -554,7 +548,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get welcomeBody =>
-      'Schichten planen, Arbeitszeit mit einem Tipp erfassen und die Stunden der Woche als Text teilen.';
+      'Schichten planen, Arbeitszeit mit einem Tipp erfassen und die Stunden des Monats als Text teilen.';
 
   @override
   String get letsGo => 'Los geht’s';
