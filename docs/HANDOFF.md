@@ -13,6 +13,7 @@ The v1 app is implemented and runs on the emulator (Android 16.0 / SDK 36.0, vir
   - week strip with sun/moon icons (or bars, see Settings).
 - **Plan:** Mittag/Abend toggles, lunch automatically 12:00–15:30 when there is an evening shift, shift sheet.
 - **Export:** always opens on the current week (also when switching back to the tab), month-total switch.
+- **"Schicht gelöscht" snack bar** closes on its own again. Snack bars with an action (here "Rückgängig") default to `persist: true` in the current `material_ui`, so they stayed until tapped. `persist: false` is now set there and in `context.showSnack`. Keep it on any new snack bar with an action.
 - **Calendar sync** into a local test calendar:
   - events titled "Kellnern" in the chosen colour (Tomate = key 11), without a calendar reminder;
   - events are updated when a shift changes and deleted when it's removed;

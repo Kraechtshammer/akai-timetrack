@@ -10,10 +10,15 @@ extension ContextHelpers on BuildContext {
   TextTheme get text => Theme.of(this).textTheme;
   String get locale => l10n.localeName;
 
-  void showSnack(String message, {SnackBarAction? action}) =>
-      ScaffoldMessenger.of(this)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(message), action: action));
+  void showSnack(
+    String message, {
+    SnackBarAction? action,
+  }) => ScaffoldMessenger.of(this)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      // A snack bar with an action stays until dismissed unless told not to.
+      SnackBar(content: Text(message), action: action, persist: false),
+    );
 }
 
 /// Big title at the top of a tab, with optional buttons on the right.

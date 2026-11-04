@@ -80,3 +80,4 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 - `main()` must never let a failing setup step block `runApp`. Wrap new start-up work in try/catch like the notification setup.
 - Don't add anything to the notification-action path that needs a `BuildContext`, a provider, or `MethodChannel`s from MainActivity.
 - Generated files (`database.g.dart`, `app_localizations*.dart`) are committed. Regenerate, don't hand-edit.
+- A `SnackBar` with an `action` defaults to `persist: true` and never closes on its own. Set `persist: false` (as `context.showSnack` does).

@@ -306,6 +306,8 @@ Future<bool> deleteWithUndo(
     ..showSnackBar(
       SnackBar(
         content: Text(l10n.shiftDeleted),
+        // A snack bar with an action stays until dismissed unless told not to.
+        persist: false,
         action: SnackBarAction(
           label: l10n.undo,
           onPressed: () => planning.restore(shift),
