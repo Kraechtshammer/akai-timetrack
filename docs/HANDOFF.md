@@ -12,7 +12,7 @@ The v1 app is implemented and runs on the emulator (Android 16.0 / SDK 36.0, vir
   - month card with the Expressive wavy progress bar;
   - week strip with sun/moon icons (or bars, see Settings).
 - **Plan:** Mittag/Abend toggles, lunch automatically 12:00–15:30 when there is an evening shift, shift sheet.
-- **Export:** defaults to last week on Mon–Wed, month-total switch.
+- **Export:** always opens on the current week (also when switching back to the tab), month-total switch.
 - **Calendar sync** into a local test calendar:
   - events titled "Kellnern" in the chosen colour (Tomate = key 11), without a calendar reminder;
   - events are updated when a shift changes and deleted when it's removed;

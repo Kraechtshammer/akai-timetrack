@@ -22,6 +22,10 @@ class _HomeShellState extends ConsumerState<HomeShell>
   var _tab = 0;
   var _planWeek = weekStart(DateTime.now());
 
+  /// Counts visits to the Export tab. Each visit starts a fresh Export
+  /// screen, so it always opens on the current week.
+  var _exportVisits = 0;
+
   @override
   void initState() {
     super.initState();
@@ -60,13 +64,16 @@ class _HomeShellState extends ConsumerState<HomeShell>
               week: _planWeek,
               onWeekChanged: (week) => setState(() => _planWeek = week),
             ),
-            const ExportScreen(),
+            ExportScreen(key: ValueKey(_exportVisits)),
           ],
         ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
-        onDestinationSelected: (tab) => setState(() => _tab = tab),
+        onDestinationSelected: (tab) => setState(() {
+          if (tab == 2 && _tab != 2) _exportVisits++;
+          _tab = tab;
+        }),
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.today_outlined),

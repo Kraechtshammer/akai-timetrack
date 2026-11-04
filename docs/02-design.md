@@ -363,7 +363,7 @@ All screens follow the concept canvas. Behaviour that isn't visible in the mocku
 - **Delete:** asks for confirmation only if the shift is recorded.
 
 ### Export
-- **Week picker:** defaults to the **last completed week** if today is Mon–Wed, otherwise the current week.
+- **Week picker:** always opens on the **current week**, also when coming back to the tab (user decision 2026-11-04; the earlier "last week on Mon–Wed" rule was dropped). Earlier weeks are one tap back.
 - **Copy** puts the text on the clipboard. **Share** opens the share sheet (WhatsApp etc.).
 - **The month switch here** only applies to this export; the default comes from settings.
 

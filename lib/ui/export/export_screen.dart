@@ -22,12 +22,8 @@ class ExportScreen extends ConsumerStatefulWidget {
 }
 
 class _ExportScreenState extends ConsumerState<ExportScreen> {
-  /// Mon–Wed: last week is usually the one to send; later: this week.
-  late DateTime _week = () {
-    final now = DateTime.now();
-    final thisWeek = weekStart(now);
-    return now.weekday <= DateTime.wednesday ? addDays(thisWeek, -7) : thisWeek;
-  }();
+  /// Always starts on the current week; earlier weeks are one tap back.
+  var _week = weekStart(DateTime.now());
 
   /// null = use the setting.
   bool? _monthTotals;
