@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- App icon, monochrome layer for Android 13+ themed icons: lettering only, tinted by the system. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.1556"
+        android:scaleY="0.1556"
+        android:translateX="32.4"
+        android:translateY="47">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M29,0H43L72,180H52L45.5,140H26.5L20,180H0Z M36,80.7L42.3,120H29.7Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M90,0H110V78L128,0H150L126,92L150,180H128L110,112V180H90Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M197,0H211L240,180H220L213.5,140H194.5L188,180H168Z M204,80.7L210.3,120H197.7Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M258,0H278V180H258Z" />
+    </group>
+</vector>
