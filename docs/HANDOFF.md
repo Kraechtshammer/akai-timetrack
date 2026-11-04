@@ -37,7 +37,7 @@ Automated checks:
    - **Squircle:** the original sign, made for squircle masks. It's the default on Xiaomi/Redmi/POCO, set once on the first start.
    - **Squircle klein:** the whole squircle scaled down on a transparent background. The Pixel launcher fills the rest of its circle with black; the user likes this one too.
    - How it works: one `activity-alias` per variant in `AndroidManifest.xml`, of which exactly one is enabled (`MainActivity.kt`, channel `de.garten.akaitimetrack/app_icon`; Dart: `lib/platform/app_icon.dart`).
-   - MainActivity's own MAIN/LAUNCHER filter stays in the source manifest, because the Flutter tool only looks for `<activity>`. It's marked `tools:node="remove"`, so the built app has only the aliases. Check: `adb shell cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER de.garten.akaitimetrack`.
+   - MainActivity's own MAIN/LAUNCHER filter stays in the source manifest, because the Flutter tool only looks for `<activity>`. It's marked `tools:node="remove"`, so the built app has only the aliases. Check: `adb shell cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER de.gartenpa.timetrack`.
    - Switching closes the app (Android finishes a task whose launcher alias is disabled), so the app asks first. The home-screen shortcut may have to be added again.
    - Checked on the emulator: Rund and Squircle klein in the app drawer, and switching from Settings.
    - A non-adaptive squircle icon was tried; Pixel wraps it in a white circle.
