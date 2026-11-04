@@ -23,7 +23,7 @@ The v1 app is implemented and runs on the emulator (Android 16.0 / SDK 36.0, vir
 
 Automated checks:
 - `flutter analyze`: no issues.
-- `flutter test`: 27 tests pass (rounding, ISO weeks, export text DE/EN, month summary, reminder planning, planning rules against an in-memory database, new settings keys, notification progress maths).
+- `flutter test`: 40 tests pass (rounding, ISO weeks, export text DE/EN, month summary, reminder planning, planning rules against an in-memory database, new settings keys, notification progress maths, calendar sync with a fake bridge).
 - Debug APK builds. The release APK was last built before this round (64.5 MB, R8).
 
 ## Done in the second session (2026-11-04, from the user's feedback)
@@ -59,12 +59,12 @@ Automated checks:
 
 1. **Check on the Pixel 7 Pro:** Live Update promotion, launcher icon shape, release APK.
 2. **Not tested yet:**
-   - notification buttons (Start/Stop/"Ende 23:00") with the app killed (background isolate);
+   - notification buttons "Erfassung starten" and "Ende 23:00" with the app killed. "Beenden" works with the app killed: checked on the emulator, where Android starts the process for the button, the shift is recorded and the event updated;
    - the "Noch bei der Arbeit?" overrun question;
    - "Später" snooze;
    - light mode with the new AKAI-Rot, the Systemfarbe;
    - reboot (rescheduling; the progress alarm is not restored after a reboot until the app re-posts the notification on start);
-   - the progress tick firing with the app killed (the alarm was verified as scheduled, see below).
+   - the progress tick firing with the app killed (it fired on its own while the app was in the background: progress 24 → 59, next alarm set).
 3. **Before handover (M6):** release signing key, final app name and package name, test on her Xiaomi (checklist in `02-design.md` §11).
 
 ## Code map
