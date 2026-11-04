@@ -34,11 +34,15 @@ class CalendarSync {
     this._shifts,
     this._settings, [
     this._bridge = const CalendarBridge(),
-  ]);
+    Future<bool> Function()? permission,
+  ]) : _permission = permission ?? hasPermission;
 
   final ShiftRepository _shifts;
   final SettingsRepository _settings;
   final CalendarBridge _bridge;
+
+  /// Checks the calendar permission (replaceable in tests).
+  final Future<bool> Function() _permission;
 
   CalendarBridge get bridge => _bridge;
 
@@ -54,7 +58,7 @@ class CalendarSync {
       await _shifts.purgeDeleted();
       return CalendarSyncResult.off;
     }
-    if (!await hasPermission()) return CalendarSyncResult.noPermission;
+    if (!await _permission()) return CalendarSyncResult.noPermission;
 
     try {
       for (final shift in await _shifts.needingSync()) {
@@ -76,7 +80,7 @@ class CalendarSync {
   /// (normally Google syncs on its own within a few minutes).
   Future<void> requestUpload() async {
     final calendarId = (await _settings.load()).calendarId;
-    if (calendarId == null || !await hasPermission()) return;
+    if (calendarId == null || !await _permission()) return;
     try {
       await _bridge.requestSync(calendarId);
     } catch (e) {
@@ -87,7 +91,7 @@ class CalendarSync {
   /// Uses a different calendar from now on. Events in the old calendar are
   /// removed and created again in the new one.
   Future<void> switchCalendar(CalendarInfo? calendar) async {
-    if (await hasPermission()) {
+    if (await _permission()) {
       for (final shift in await _shifts.withEvents()) {
         try {
           await _bridge.deleteEvent(shift.calendarEventId!);
