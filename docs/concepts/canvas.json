@@ -1,0 +1,31 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-11-04T12:00:00Z"},
+  "title": "AKAI Timetrack Concepts",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 412, "h": 915, "title": "Heute", "is_interactive": true, "radius": 28},
+    "HeuteAktiv.dc.html": {"x": 492, "y": 0, "w": 412, "h": 915, "title": "Heute – Erfassung läuft", "is_interactive": true, "radius": 28},
+    "Plan.dc.html": {"x": 984, "y": 0, "w": 412, "h": 1240, "title": "Plan (Woche)", "is_interactive": true, "radius": 28},
+    "ShiftSheet.dc.html": {"x": 1476, "y": 0, "w": 412, "h": 915, "title": "Schicht bearbeiten", "is_interactive": true, "radius": 28},
+    "Export.dc.html": {"x": 0, "y": 1540, "w": 412, "h": 915, "title": "Export", "is_interactive": true, "radius": 28},
+    "Settings.dc.html": {"x": 492, "y": 1540, "w": 412, "h": 1530, "title": "Einstellungen", "is_interactive": true, "radius": 28},
+    "Notifications.dc.html": {"x": 984, "y": 1540, "w": 412, "h": 720, "title": "Benachrichtigungen", "radius": 28},
+    "OnbWelcome.dc.html": {"x": 0, "y": 3500, "w": 412, "h": 915, "title": "Einrichtung 1 – Willkommen", "is_interactive": true, "radius": 28},
+    "OnbReminders.dc.html": {"x": 492, "y": 3500, "w": 412, "h": 915, "title": "Einrichtung 2 – Erinnerungen", "is_interactive": true, "radius": 28},
+    "OnbCalendar.dc.html": {"x": 984, "y": 3500, "w": 412, "h": 915, "title": "Einrichtung 3 – Kalender wählen", "is_interactive": true, "radius": 28},
+    "OnbXiaomi.dc.html": {"x": 1476, "y": 3500, "w": 412, "h": 915, "title": "Einrichtung 4 – Xiaomi", "is_interactive": true, "radius": 28},
+    "ColorPicker.dc.html": {"x": 0, "y": 4835, "w": 412, "h": 915, "title": "Termin-Farbe", "is_interactive": true, "radius": 28},
+    "HeuteDark.dc.html": {"x": 492, "y": 4835, "w": 412, "h": 915, "title": "Heute – dunkel", "is_interactive": true, "radius": 28},
+    "PlanDark.dc.html": {"x": 984, "y": 4835, "w": 412, "h": 1240, "title": "Plan – dunkel", "is_interactive": true, "radius": 28}
+  },
+  "order": ["Main.dc.html", "HeuteAktiv.dc.html", "Plan.dc.html", "ShiftSheet.dc.html", "Export.dc.html", "Settings.dc.html", "Notifications.dc.html", "OnbWelcome.dc.html", "OnbReminders.dc.html", "OnbCalendar.dc.html", "OnbXiaomi.dc.html", "ColorPicker.dc.html", "HeuteDark.dc.html", "PlanDark.dc.html"],
+  "notes": {
+    "row1": {"x": 0, "y": -300, "text": "Heute & Plan", "kind": "title1", "maxW": 1888},
+    "row2": {"x": 0, "y": 1240, "text": "Export, Einstellungen & Benachrichtigungen", "kind": "title1", "maxW": 1888},
+    "row3": {"x": 0, "y": 3200, "text": "Ersteinrichtung", "kind": "title1", "maxW": 1888},
+    "row4": {"x": 0, "y": 4535, "text": "Termin-Farbe & Dunkelmodus", "kind": "title1", "maxW": 1888}
+  },
+  "designSystems": []
+}

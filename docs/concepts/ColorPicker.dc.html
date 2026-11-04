@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Termin-Farbe</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&amp;display=block">
+<style>
+body{margin:0}
+a{color:#8F4C38}a:hover{color:#723523}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;white-space:nowrap;letter-spacing:normal;text-transform:none;font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+button{font-family:inherit}
+.tn{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="position: relative; width: 412px; height: 915px; box-sizing: border-box; background: #FCEAE5; color: #231917; font-family: 'Roboto Flex', Roboto, sans-serif; overflow: hidden;">
+  <div aria-hidden="true" style="padding: 48px 16px 0; display: flex; flex-direction: column; gap: 12px;">
+    <span style="font-size: 22px; line-height: 28px; font-weight: 650; padding-left: 44px;">Einstellungen</span>
+    <span style="height: 68px; border-radius: 24px 24px 4px 4px; background: #FFF8F6;"></span>
+    <span style="height: 68px; border-radius: 4px; background: #FFF8F6;"></span>
+    <span style="height: 68px; border-radius: 4px 4px 24px 24px; background: #FFF8F6;"></span>
+  </div>
+  <div aria-hidden="true" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(35, 25, 23, 0.4);"></div>
+
+  <section role="dialog" aria-label="Termin-Farbe" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFF1ED; border-radius: 28px 28px 0 0; padding: 8px 20px 24px; display: flex; flex-direction: column; gap: 16px;">
+    <span aria-hidden="true" style="align-self: center; width: 32px; height: 4px; border-radius: 2px; background: #A08C87; margin: 8px 0 4px;"></span>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <h2 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 700;">Termin-Farbe</h2>
+      <p style="margin: 0; font-size: 14px; line-height: 20px; color: #53433F;">Gilt für alle Schichten im Kalender „AKAI Schichten“. Auch dein Partner sieht diese Farbe.</p>
+    </div>
+
+    <div role="radiogroup" aria-label="Farben" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 4px;">
+      <sc-for list="{{colors}}" as="c" hint-placeholder-count="12">
+        <button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0; border: none; background: transparent; color: #231917; cursor: pointer;">
+          <sc-if value="{{c.on}}" hint-placeholder-val="{{false}}">
+            <span style="width: 48px; height: 48px; box-sizing: border-box; border-radius: 24px; border: 3px solid #FFF1ED; outline: 2px solid #231917; background: {{c.hex}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center;"><span class="ms" aria-hidden="true" style="font-size: 22px;">check</span></span>
+          </sc-if>
+          <sc-if value="{{c.off}}" hint-placeholder-val="{{true}}">
+            <span style="width: 48px; height: 48px; border-radius: 24px; background: {{c.hex}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center;"><sc-if value="{{c.isCal}}" hint-placeholder-val="{{false}}"><span class="ms" aria-hidden="true" style="font-size: 22px;">event</span></sc-if></span>
+          </sc-if>
+          <span style="font-size: 12px; line-height: 16px; font-weight: {{c.weight}}; text-align: center;">{{c.name}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span style="font-size: 14px; line-height: 20px; font-weight: 650; color: #53433F;">Vorschau im Kalender</span>
+      <div aria-hidden="true" style="display: flex; gap: 12px; align-items: stretch; background: #FFFFFF; border-radius: 16px; padding: 12px;">
+        <span class="tn" style="font-size: 12px; line-height: 16px; color: #53433F; width: 40px; padding-top: 2px;">Fr<br>6.</span>
+        <span style="flex-grow: 1; border-radius: 8px; background: {{current}}; color: #FFFFFF; padding: 8px 10px; display: flex; flex-direction: column;">
+          <span style="font-size: 14px; line-height: 20px; font-weight: 650;">Kellnern</span>
+          <span class="tn" style="font-size: 12px; line-height: 16px;">17:30 – 23:00</span>
+        </span>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+      <a href="Settings.dc.html" style="height: 48px; padding: 0 20px; border-radius: 24px; display: flex; align-items: center; text-decoration: none; color: #8F4C38; font-size: 14px; font-weight: 650;">Abbrechen</a>
+      <a href="Settings.dc.html" style="height: 48px; padding: 0 24px; border-radius: 24px; display: flex; align-items: center; text-decoration: none; background: #8F4C38; color: #FFFFFF; font-size: 14px; font-weight: 650;">Übernehmen</a>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: 'tomate' };
+  }
+  renderVals() {
+    const defs = [
+      { id: 'cal', name: 'Kalenderfarbe', hex: '#7986CB', isCal: true },
+      { id: 'tomate', name: 'Tomate', hex: '#D50000' },
+      { id: 'flamingo', name: 'Flamingo', hex: '#E67C73' },
+      { id: 'mandarine', name: 'Mandarine', hex: '#F4511E' },
+      { id: 'banane', name: 'Banane', hex: '#F6BF26' },
+      { id: 'salbei', name: 'Salbei', hex: '#33B679' },
+      { id: 'basilikum', name: 'Basilikum', hex: '#0B8043' },
+      { id: 'pfau', name: 'Pfau', hex: '#039BE5' },
+      { id: 'heidelbeere', name: 'Heidelbeere', hex: '#3F51B5' },
+      { id: 'lavendel', name: 'Lavendel', hex: '#7986CB' },
+      { id: 'weintraube', name: 'Weintraube', hex: '#8E24AA' },
+      { id: 'graphit', name: 'Graphit', hex: '#616161' }
+    ];
+    let current = '#D50000';
+    const colors = defs.map((c) => {
+      const on = this.state.sel === c.id;
+      if (on) current = c.hex;
+      return Object.assign({ isCal: false }, c, {
+        on: on, off: !on,
+        checked: on ? 'true' : 'false',
+        weight: on ? 700 : 500,
+        pick: () => this.setState({ sel: c.id })
+      });
+    });
+    return { colors: colors, current: current };
+  }
+}
+</script>
+</body>
+</html>

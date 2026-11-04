@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Einrichtung – Kalender wählen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&amp;display=block">
+<style>
+body{margin:0}
+a{color:#8F4C38}a:hover{color:#723523}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;white-space:nowrap;letter-spacing:normal;text-transform:none;font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 412px; height: 915px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFF8F6; color: #231917; font-family: 'Roboto Flex', Roboto, sans-serif; overflow: hidden; padding: 40px 24px 32px;">
+  <div style="display: flex; align-items: center; margin: 0 0 0 -12px;">
+    <a href="OnbReminders.dc.html" aria-label="Zurück" style="width: 48px; height: 48px; border-radius: 24px; display: flex; align-items: center; justify-content: center; color: #231917; text-decoration: none;"><span class="ms" aria-hidden="true">arrow_back</span></a>
+  </div>
+  <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 16px; padding-top: 8px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <h1 style="margin: 0; font-size: 30px; line-height: 38px; font-weight: 750;">Welcher Kalender?</h1>
+      <p style="margin: 0; font-size: 16px; line-height: 24px; color: #53433F;">Deine Schichten erscheinen dort als Termine. Andere Termine im Kalender bleiben unberührt.</p>
+    </div>
+
+    <div style="display: flex; gap: 12px; background: #FCEAE5; border-radius: 20px; padding: 14px 16px;">
+      <span class="ms" aria-hidden="true" style="color: #723523; flex-shrink: 0;">lightbulb</span>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <span style="font-size: 14px; line-height: 20px; color: #53433F;">Neue Google-Kalender lassen sich nur im Browser anlegen und teilen.</span>
+        <a href="https://calendar.google.com" style="font-size: 14px; line-height: 20px; font-weight: 650; min-height: 32px; display: flex; align-items: center; gap: 4px;">calendar.google.com öffnen<span class="ms" aria-hidden="true" style="font-size: 18px;">open_in_new</span></a>
+      </div>
+    </div>
+
+    <div role="radiogroup" aria-label="Kalender" style="display: flex; flex-direction: column; gap: 2px;">
+      <span style="font-size: 12px; line-height: 16px; font-weight: 650; color: #53433F; padding: 4px 16px 6px;">name@gmail.com</span>
+      <sc-for list="{{cals}}" as="c" hint-placeholder-count="3">
+        <button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="display: flex; align-items: center; gap: 16px; min-height: 60px; padding: 8px 16px; border: none; border-radius: {{c.radius}}; background: {{c.bg}}; color: #231917; text-align: left; cursor: pointer;">
+          <span aria-hidden="true" style="width: 16px; height: 16px; border-radius: 8px; background: {{c.color}}; flex-shrink: 0;"></span>
+          <span style="display: flex; flex-direction: column; flex-grow: 1;"><span style="font-size: 16px; line-height: 24px;">{{c.name}}</span><span style="font-size: 12px; line-height: 16px; color: #53433F;">{{c.sub}}</span></span>
+          <sc-if value="{{c.on}}" hint-placeholder-val="{{false}}">
+            <span aria-hidden="true" style="width: 20px; height: 20px; box-sizing: border-box; border-radius: 10px; border: 2px solid #8F4C38; display: flex; align-items: center; justify-content: center;"><span style="width: 10px; height: 10px; border-radius: 5px; background: #8F4C38;"></span></span>
+          </sc-if>
+          <sc-if value="{{c.off}}" hint-placeholder-val="{{true}}">
+            <span aria-hidden="true" style="width: 20px; height: 20px; box-sizing: border-box; border-radius: 10px; border: 2px solid #53433F;"></span>
+          </sc-if>
+        </button>
+      </sc-for>
+    </div>
+    <a href="OnbXiaomi.dc.html" style="align-self: flex-start; min-height: 44px; display: flex; align-items: center; font-size: 14px; font-weight: 650; text-decoration: none;">Ohne Kalender fortfahren</a>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+    <div aria-label="Schritt 3 von 5" style="display: flex; justify-content: center; gap: 6px;">
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #8F4C38;"></span>
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #8F4C38;"></span>
+      <span style="width: 24px; height: 8px; border-radius: 4px; background: #8F4C38;"></span>
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #D8C2BC;"></span>
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #D8C2BC;"></span>
+    </div>
+    <a href="ColorPicker.dc.html" style="height: 56px; border-radius: 28px; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 16px; font-weight: 650;">Weiter: Termin-Farbe</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: 'akai' };
+  }
+  renderVals() {
+    const list = [
+      { id: 'main', name: 'name@gmail.com', sub: 'Hauptkalender', color: '#039BE5' },
+      { id: 'akai', name: 'AKAI Schichten', sub: 'Geteilt mit 1 Person', color: '#D50000' },
+      { id: 'wir', name: 'Wir zwei', sub: 'Geteilt mit 1 Person', color: '#33B679' }
+    ];
+    const n = list.length;
+    const cals = list.map((c, i) => {
+      const on = this.state.sel === c.id;
+      const radius = i === 0 ? '20px 20px 4px 4px' : (i === n - 1 ? '4px 4px 20px 20px' : '4px');
+      return Object.assign({}, c, {
+        on: on, off: !on, checked: on ? 'true' : 'false',
+        bg: on ? '#FFDBD1' : '#FCEAE5',
+        radius: radius,
+        pick: () => this.setState({ sel: c.id })
+      });
+    });
+    return { cals: cals };
+  }
+}
+</script>
+</body>
+</html>

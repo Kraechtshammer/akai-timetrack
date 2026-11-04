@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Einrichtung – Willkommen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&amp;display=block">
+<style>
+body{margin:0}
+a{color:#8F4C38}a:hover{color:#723523}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;white-space:nowrap;letter-spacing:normal;text-transform:none;font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 412px; height: 915px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFF8F6; color: #231917; font-family: 'Roboto Flex', Roboto, sans-serif; overflow: hidden; padding: 56px 24px 32px;">
+  <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 28px;">
+    <div aria-hidden="true" style="position: relative; width: 168px; height: 168px; align-self: center;">
+      <span style="position: absolute; top: 0; left: 0; width: 168px; height: 168px; border-radius: 56px; background: #FFDBD1; transform: rotate(12deg);"></span>
+      <span style="position: absolute; top: 24px; left: 24px; width: 120px; height: 120px; border-radius: 60px; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; justify-content: center;"><span class="ms f" style="font-size: 64px;">schedule</span></span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 12px; text-align: center;">
+      <h1 style="margin: 0; font-size: 36px; line-height: 44px; font-weight: 750; letter-spacing: -0.5px;">Willkommen bei<br>AKAI Timetrack</h1>
+      <p style="margin: 0; font-size: 16px; line-height: 24px; color: #53433F;">Schichten planen, Arbeitszeit mit einem Tipp erfassen und die Stunden der Woche direkt an den Chef schicken.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px; background: #FCEAE5; border-radius: 24px; padding: 16px;">
+      <span id="lang" style="font-size: 14px; line-height: 20px; font-weight: 650; color: #53433F;">Sprache</span>
+      <div role="radiogroup" aria-labelledby="lang" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); height: 44px; border: 1px solid #85736E; border-radius: 22px; overflow: hidden;">
+        <sc-if value="{{de}}" hint-placeholder-val="{{true}}">
+          <button type="button" role="radio" aria-checked="true" onClick="{{pickDe}}" style="border: none; border-right: 1px solid #85736E; background: #FFDBD1; color: #5D4037; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;"><span class="ms" aria-hidden="true" style="font-size: 18px;">check</span>Deutsch</button>
+          <button type="button" role="radio" aria-checked="false" onClick="{{pickEn}}" style="border: none; background: transparent; color: #231917; font-size: 14px; font-weight: 600; cursor: pointer;">English</button>
+        </sc-if>
+        <sc-if value="{{en}}" hint-placeholder-val="{{false}}">
+          <button type="button" role="radio" aria-checked="false" onClick="{{pickDe}}" style="border: none; border-right: 1px solid #85736E; background: transparent; color: #231917; font-size: 14px; font-weight: 600; cursor: pointer;">Deutsch</button>
+          <button type="button" role="radio" aria-checked="true" onClick="{{pickEn}}" style="border: none; background: #FFDBD1; color: #5D4037; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;"><span class="ms" aria-hidden="true" style="font-size: 18px;">check</span>English</button>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+    <div aria-label="Schritt 1 von 5" style="display: flex; justify-content: center; gap: 6px;">
+      <span style="width: 24px; height: 8px; border-radius: 4px; background: #8F4C38;"></span>
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #D8C2BC;"></span>
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #D8C2BC;"></span>
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #D8C2BC;"></span>
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #D8C2BC;"></span>
+    </div>
+    <a href="OnbReminders.dc.html" style="height: 56px; border-radius: 28px; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 16px; font-weight: 650;">Los geht’s<span class="ms" aria-hidden="true" style="font-size: 20px;">arrow_forward</span></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { lang: 'de' };
+  }
+  renderVals() {
+    return {
+      de: this.state.lang === 'de',
+      en: this.state.lang === 'en',
+      pickDe: () => this.setState({ lang: 'de' }),
+      pickEn: () => this.setState({ lang: 'en' })
+    };
+  }
+}
+</script>
+</body>
+</html>

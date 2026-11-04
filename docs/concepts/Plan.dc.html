@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Plan – Woche</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&amp;display=block">
+<style>
+body{margin:0}
+a{color:#8F4C38}a:hover{color:#723523}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;white-space:nowrap;letter-spacing:normal;text-transform:none;font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+button{font-family:inherit}
+.tn{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 412px; height: 1240px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFF8F6; color: #231917; font-family: 'Roboto Flex', Roboto, sans-serif; overflow: hidden;">
+  <header style="display: flex; align-items: flex-start; justify-content: space-between; padding: 32px 8px 0 20px;">
+    <div style="display: flex; flex-direction: column; gap: 2px; padding-top: 16px;">
+      <h1 style="margin: 0; font-size: 34px; line-height: 40px; font-weight: 700; letter-spacing: -0.3px;">Plan</h1>
+      <p style="margin: 0; font-size: 16px; line-height: 24px; color: #53433F;">Tippe Mittag oder Abend zum Planen</p>
+    </div>
+    <div style="display: flex;">
+      <button type="button" aria-label="Zur aktuellen Woche" style="width: 48px; height: 48px; border-radius: 24px; border: none; background: transparent; color: #53433F; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span class="ms" aria-hidden="true">today</span></button>
+      <a href="Settings.dc.html" aria-label="Einstellungen" style="width: 48px; height: 48px; border-radius: 24px; display: flex; align-items: center; justify-content: center; color: #53433F; text-decoration: none;"><span class="ms" aria-hidden="true">settings</span></a>
+    </div>
+  </header>
+
+  <div style="margin: 16px 16px 0; height: 56px; border-radius: 28px; background: #FCEAE5; display: flex; align-items: center; justify-content: space-between; padding: 0 4px;">
+    <button type="button" aria-label="Vorherige Woche" style="width: 48px; height: 48px; border-radius: 24px; border: none; background: transparent; color: #53433F; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span class="ms" aria-hidden="true">chevron_left</span></button>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <span style="font-size: 16px; line-height: 22px; font-weight: 650;">KW 45</span>
+      <span style="font-size: 12px; line-height: 16px; color: #53433F;">2. – 8. November</span>
+    </div>
+    <button type="button" aria-label="Nächste Woche" style="width: 48px; height: 48px; border-radius: 24px; border: none; background: transparent; color: #53433F; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span class="ms" aria-hidden="true">chevron_right</span></button>
+  </div>
+
+  <div style="display: flex; gap: 8px; padding: 12px 16px 4px;">
+    <span class="tn" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 8px; background: #8F4C38; color: #FFFFFF; font-size: 14px; font-weight: 600;"><span class="ms f" aria-hidden="true" style="font-size: 18px;">check_circle</span>{{recText}} erfasst</span>
+    <span class="tn" style="display: flex; align-items: center; gap: 6px; height: 32px; box-sizing: border-box; padding: 0 12px; border-radius: 8px; border: 1px solid #85736E; color: #53433F; font-size: 14px; font-weight: 600;"><span class="ms" aria-hidden="true" style="font-size: 18px;">schedule</span>Woche: {{totalText}}</span>
+  </div>
+
+  <main style="flex-grow: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 8px 16px 16px;">
+    <sc-for list="{{days}}" as="d" hint-placeholder-count="7">
+      <section style="position: relative; background: #FFF1ED; border-radius: 20px; padding: 12px 12px 8px 16px; display: flex; flex-direction: column; gap: 4px;">
+        <sc-if value="{{d.today}}" hint-placeholder-val="{{false}}">
+          <div aria-hidden="true" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; border: 2px solid #8F4C38; border-radius: 20px; pointer-events: none;"></div>
+        </sc-if>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; flex-direction: column; flex-grow: 1;">
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 16px; line-height: 22px; font-weight: 650;">{{d.wd}}<sc-if value="{{d.today}}" hint-placeholder-val="{{false}}"><span style="font-size: 11px; line-height: 16px; font-weight: 650; color: #FFFFFF; background: #8F4C38; padding: 1px 8px; border-radius: 999px;">Heute</span></sc-if></span>
+            <span class="tn" style="font-size: 12px; line-height: 16px; color: #53433F;">{{d.date}}</span>
+          </div>
+          <div role="group" aria-label="Schichten am {{d.date}}" style="display: flex; gap: 2px;">
+            <sc-if value="{{d.m}}" hint-placeholder-val="{{false}}">
+              <button type="button" aria-pressed="true" onClick="{{d.toggleM}}" style="height: 44px; padding: 0 14px 0 10px; border: none; border-radius: 22px; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; cursor: pointer;"><span class="ms" aria-hidden="true" style="font-size: 18px;">check</span>Mittag</button>
+            </sc-if>
+            <sc-if value="{{d.mOff}}" hint-placeholder-val="{{true}}">
+              <button type="button" aria-pressed="false" onClick="{{d.toggleM}}" style="height: 44px; padding: 0 16px; border: none; border-radius: 22px 6px 6px 22px; background: #F1DFDA; color: #53433F; font-size: 14px; font-weight: 600; cursor: pointer;">Mittag</button>
+            </sc-if>
+            <sc-if value="{{d.a}}" hint-placeholder-val="{{false}}">
+              <button type="button" aria-pressed="true" onClick="{{d.toggleA}}" style="height: 44px; padding: 0 14px 0 10px; border: none; border-radius: 22px; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; cursor: pointer;"><span class="ms" aria-hidden="true" style="font-size: 18px;">check</span>Abend</button>
+            </sc-if>
+            <sc-if value="{{d.aOff}}" hint-placeholder-val="{{true}}">
+              <button type="button" aria-pressed="false" onClick="{{d.toggleA}}" style="height: 44px; padding: 0 16px; border: none; border-radius: 6px 22px 22px 6px; background: #F1DFDA; color: #53433F; font-size: 14px; font-weight: 600; cursor: pointer;">Abend</button>
+            </sc-if>
+          </div>
+          <button type="button" aria-label="Individuelle Schicht am {{d.date}}" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; border: 1px solid #D8C2BC; background: transparent; color: #53433F; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span class="ms" aria-hidden="true" style="font-size: 20px;">add</span></button>
+        </div>
+        <sc-if value="{{d.free}}" hint-placeholder-val="{{false}}">
+          <span style="font-size: 13px; line-height: 20px; color: #53433F; padding: 0 0 4px;">Keine Schicht</span>
+        </sc-if>
+        <sc-for list="{{d.lines}}" as="ln" hint-placeholder-count="1">
+          <a href="ShiftSheet.dc.html" style="display: flex; align-items: center; gap: 10px; min-height: 44px; text-decoration: none; color: #231917; border-top: 1px solid #F1DFDA;">
+            <sc-if value="{{ln.rec}}" hint-placeholder-val="{{false}}"><span class="ms f" aria-hidden="true" style="font-size: 20px; color: #8F4C38;">check_circle</span></sc-if>
+            <sc-if value="{{ln.plan}}" hint-placeholder-val="{{true}}"><span class="ms" aria-hidden="true" style="font-size: 20px; color: #85736E;">schedule</span></sc-if>
+            <span style="font-size: 14px; line-height: 20px; font-weight: 600; width: 52px;">{{ln.label}}</span>
+            <span class="tn" style="font-size: 14px; line-height: 20px; color: #53433F; flex-grow: 1;">{{ln.time}}</span>
+            <span style="font-size: 12px; line-height: 16px; color: #53433F;">{{ln.status}}</span>
+            <span class="tn" style="font-size: 14px; line-height: 20px; font-weight: 650; width: 52px; text-align: right;">{{ln.hours}}</span>
+          </a>
+        </sc-for>
+      </section>
+    </sc-for>
+  </main>
+
+  <nav aria-label="Hauptnavigation" style="height: 80px; flex-shrink: 0; box-sizing: border-box; background: #FCEAE5; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px 0 16px;">
+    <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #53433F;">
+      <span style="width: 56px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center;"><span class="ms" aria-hidden="true">today</span></span>
+      <span style="font-size: 12px; line-height: 16px; font-weight: 500;">Heute</span>
+    </a>
+    <a href="Plan.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #231917;">
+      <span style="width: 56px; height: 32px; border-radius: 16px; background: #FFDBD1; color: #5D4037; display: flex; align-items: center; justify-content: center;"><span class="ms f" aria-hidden="true">calendar_month</span></span>
+      <span style="font-size: 12px; line-height: 16px; font-weight: 700;">Plan</span>
+    </a>
+    <a href="Export.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #53433F;">
+      <span style="width: 56px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center;"><span class="ms" aria-hidden="true">send</span></span>
+      <span style="font-size: 12px; line-height: 16px; font-weight: 500;">Export</span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: { di: {}, mi: { a: true }, do: { m: true }, fr: { a: true }, sa: { m: true, a: true }, so: {} } };
+  }
+  renderVals() {
+    const sel = this.state.sel;
+    const fmt = (h) => (Number.isInteger(h) ? h + ',0' : String(h).replace('.', ',')) + ' h';
+    const base = [
+      { id: 'mo', wd: 'Mo', date: '02.11.', locked: true },
+      { id: 'di', wd: 'Di', date: '03.11.' },
+      { id: 'mi', wd: 'Mi', date: '04.11.', today: true },
+      { id: 'do', wd: 'Do', date: '05.11.' },
+      { id: 'fr', wd: 'Fr', date: '06.11.' },
+      { id: 'sa', wd: 'Sa', date: '07.11.' },
+      { id: 'so', wd: 'So', date: '08.11.' }
+    ];
+    let rec = 0;
+    let plan = 0;
+    const days = base.map((d) => {
+      let lines = [];
+      let m = false;
+      let a = false;
+      if (d.locked) {
+        m = true;
+        a = true;
+        lines = [
+          { label: 'Mittag', time: '12:00 – 15:30', hours: fmt(3.5), status: 'erfasst', rec: true, plan: false },
+          { label: 'Abend', time: '17:30 – 22:45', hours: fmt(5.25), status: 'erfasst', rec: true, plan: false }
+        ];
+        rec += 8.75;
+      } else {
+        const s = sel[d.id] || {};
+        m = !!s.m;
+        a = !!s.a;
+        if (m) {
+          const h = a ? 3.5 : 4;
+          plan += h;
+          lines.push({ label: 'Mittag', time: a ? '12:00 – 15:30' : '12:00 – 16:00', hours: fmt(h), status: 'geplant', rec: false, plan: true });
+        }
+        if (a) {
+          plan += 5.5;
+          lines.push({ label: 'Abend', time: '17:30 – 23:00', hours: fmt(5.5), status: 'geplant', rec: false, plan: true });
+        }
+      }
+      const toggle = (k) => {
+        if (d.locked) return undefined;
+        return () => this.setState((st) => {
+          const cur = Object.assign({}, st.sel[d.id] || {});
+          cur[k] = !cur[k];
+          const next = Object.assign({}, st.sel);
+          next[d.id] = cur;
+          return { sel: next };
+        });
+      };
+      return Object.assign({}, d, {
+        m: m, mOff: !m, a: a, aOff: !a,
+        lines: lines, free: lines.length === 0,
+        toggleM: toggle('m'), toggleA: toggle('a')
+      });
+    });
+    return { days: days, recText: fmt(rec), totalText: fmt(rec + plan) };
+  }
+}
+</script>
+</body>
+</html>

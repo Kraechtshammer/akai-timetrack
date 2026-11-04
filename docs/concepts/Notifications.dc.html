@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Benachrichtigungen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&amp;display=block">
+<style>
+body{margin:0}
+a{color:#8F4C38}a:hover{color:#723523}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;white-space:nowrap;letter-spacing:normal;text-transform:none;font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+button{font-family:inherit}
+.tn{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 412px; height: 720px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; padding: 28px 12px 24px; background: #1A1110; color: #231917; font-family: 'Roboto Flex', Roboto, sans-serif; overflow: hidden;">
+  <h1 style="margin: 0 0 4px 12px; font-size: 14px; line-height: 20px; font-weight: 600; color: #F1DFDA;">Benachrichtigungen</h1>
+
+  <article aria-label="Erinnerung vor Schichtbeginn" style="background: #FFF8F6; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; gap: 12px; align-items: flex-start;">
+      <span style="width: 36px; height: 36px; border-radius: 18px; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><span class="ms" aria-hidden="true" style="font-size: 20px;">schedule</span></span>
+      <div style="display: flex; flex-direction: column; flex-grow: 1;">
+        <span style="font-size: 12px; line-height: 16px; color: #53433F;">AKAI Timetrack · 17:15</span>
+        <span style="font-size: 16px; line-height: 24px; font-weight: 650;">Schicht beginnt in 15 min</span>
+        <span class="tn" style="font-size: 14px; line-height: 20px; color: #53433F;">Abend · 17:30 – 23:00</span>
+      </div>
+      <span class="ms" aria-hidden="true" style="color: #53433F;">expand_more</span>
+    </div>
+    <div style="display: flex; gap: 8px; padding-left: 48px;">
+      <button type="button" style="height: 40px; padding: 0 16px 0 12px; border-radius: 20px; border: none; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; cursor: pointer;"><span class="ms f" aria-hidden="true" style="font-size: 20px;">play_arrow</span>Erfassung starten</button>
+      <button type="button" style="height: 40px; padding: 0 16px; border-radius: 20px; border: none; background: #FFDBD1; color: #723523; font-size: 14px; font-weight: 650; cursor: pointer;">Später</button>
+    </div>
+  </article>
+
+  <article aria-label="Laufende Erfassung" style="background: #FFF8F6; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; gap: 12px; align-items: flex-start;">
+      <span style="width: 36px; height: 36px; border-radius: 18px; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><span class="ms f" aria-hidden="true" style="font-size: 20px;">timer</span></span>
+      <div style="display: flex; flex-direction: column; flex-grow: 1;">
+        <span style="font-size: 12px; line-height: 16px; color: #53433F;">AKAI Timetrack · läuft</span>
+        <span style="font-size: 16px; line-height: 24px; font-weight: 650;">Erfassung läuft</span>
+        <span class="tn" style="font-size: 14px; line-height: 20px; color: #53433F;">Abend · seit 17:30 · geplant bis 23:00</span>
+      </div>
+      <span class="tn" style="font-size: 22px; line-height: 28px; font-weight: 750; color: #8F4C38;">2:12:08</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 48px;">
+      <div aria-hidden="true" style="display: flex; gap: 4px; height: 8px;">
+        <span style="width: 40%; border-radius: 4px; background: #8F4C38;"></span>
+        <span style="flex-grow: 1; border-radius: 4px; background: #F1DFDA;"></span>
+      </div>
+      <div class="tn" style="display: flex; justify-content: space-between; font-size: 12px; line-height: 16px; color: #53433F;"><span>17:30</span><span>23:00</span></div>
+    </div>
+    <div style="display: flex; gap: 8px; padding-left: 48px;">
+      <button type="button" style="height: 40px; padding: 0 16px 0 12px; border-radius: 20px; border: none; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; cursor: pointer;"><span class="ms f" aria-hidden="true" style="font-size: 20px;">stop</span>Beenden</button>
+      <button type="button" style="height: 40px; padding: 0 16px; border-radius: 20px; border: none; background: #FFDBD1; color: #723523; font-size: 14px; font-weight: 650; cursor: pointer;">App öffnen</button>
+    </div>
+  </article>
+
+  <article aria-label="Nachfrage nach geplantem Ende" style="background: #FFF8F6; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; gap: 12px; align-items: flex-start;">
+      <span style="width: 36px; height: 36px; border-radius: 18px; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><span class="ms" aria-hidden="true" style="font-size: 20px;">help</span></span>
+      <div style="display: flex; flex-direction: column; flex-grow: 1;">
+        <span style="font-size: 12px; line-height: 16px; color: #53433F;">AKAI Timetrack · 23:30</span>
+        <span style="font-size: 16px; line-height: 24px; font-weight: 650;">Noch bei der Arbeit?</span>
+        <span class="tn" style="font-size: 14px; line-height: 20px; color: #53433F;">Geplantes Ende war 23:00. Die Erfassung läuft noch.</span>
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px; padding-left: 48px; flex-wrap: wrap;">
+      <button type="button" style="height: 40px; padding: 0 16px; border-radius: 20px; border: none; background: #8F4C38; color: #FFFFFF; font-size: 14px; font-weight: 650; cursor: pointer;">Ende 23:00</button>
+      <button type="button" style="height: 40px; padding: 0 16px; border-radius: 20px; border: none; background: #FFDBD1; color: #723523; font-size: 14px; font-weight: 650; cursor: pointer;">Jetzt beenden</button>
+      <button type="button" style="height: 40px; padding: 0 12px; border-radius: 20px; border: none; background: transparent; color: #8F4C38; font-size: 14px; font-weight: 650; cursor: pointer;">Weiter</button>
+    </div>
+  </article>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
