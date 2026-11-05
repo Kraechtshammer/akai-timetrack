@@ -20,7 +20,7 @@ Guidance for work in `android/`. The general workflow is in the root `CLAUDE.md`
 ## Launcher icons
 - Three adaptive icons in `res/mipmap-anydpi-v26/`:
   - `ic_launcher.xml` "Rund": red background, dark-red disc. For circle masks (Pixel). Default.
-  - `ic_launcher_squircle.xml`: the original sign, for squircle masks.
+  - `ic_launcher_squircle.xml`: exactly `branding/app-icon.svg`, its 100-unit box mapped onto the 72 dp visible area (scale 0.72, offset 18), for squircle masks.
   - `ic_launcher_small.xml` "Squircle klein": the whole squircle scaled down on a transparent background.
 - Each one is the icon of an `activity-alias` in `AndroidManifest.xml`: `.IconRound` (enabled), `.IconSquircle`, `.IconSmall`. Exactly one is enabled.
 - `MainActivity.kt` switches them through the channel `de.garten.akaitimetrack/app_icon` (`current`, `set`). Dart side: `lib/platform/app_icon.dart`.

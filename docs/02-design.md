@@ -573,7 +573,7 @@ Nothing in v1 needs changing for this beyond the conventions in §3.
 - **Monthly export** (2026-11-04): she sends her hours monthly, so the export covers a month, grouped by week (§4.5). The `exportMonthTotals` setting, its switch in Settings and the switch on the Export screen were removed, because the month total is now always the last line. An old stored `exportMonthTotals` value is ignored.
 - **App icon:** three adaptive variants, selectable in Settings › Darstellung › App-Symbol, because the launcher decides the mask shape:
   - "Rund": red ring and dark-red disc, for circular masks; the default.
-  - "Squircle": the original sign, for squircle masks; the default on Xiaomi.
+  - "Squircle": the original sign exactly as in `branding/app-icon.svg`, for squircle masks; the default on Xiaomi.
   - "Squircle klein": the whole sign scaled down.
   Each variant is an `activity-alias`; the app enables exactly one. Switching closes the app once. Themed icons (monochrome layer) are the same for all three.
 - **Package name:** changed to `de.gartenpa.timetrack` at 1.0.0 (was the provisional `de.garten.akaitimetrack`). The Kotlin namespace and `MainActivity` package stay `de.garten.akaitimetrack`.
