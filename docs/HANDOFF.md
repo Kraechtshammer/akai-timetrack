@@ -108,7 +108,8 @@ Key ideas:
 ## Working in this repo
 
 - Build and test inside the dev container (see 03-dev-setup.md). From Windows, the running container is reached through WSL: `wsl.exe -e docker exec <container> bash -lc '…'` (`wsl.exe -e docker ps` shows the name).
-- The bind mount is slow: `flutter analyze` takes about 5–7 minutes and a debug build about 2.
+- The repo lives in WSL (`/home/paga/Projects/akai-timetrack`) since 2026-11-05, with a link at `C:\Users\paga\Projects\akai-timetrack`. Open it in VS Code through WSL, then in the container. `flutter analyze` takes 20–30 s there (5–7 min on `C:`); see 03-dev-setup.md §8.
+- The dev image installs Android platforms 35, 36 and 37.0 (`.devcontainer/Dockerfile`). A platform missing there makes the first build in a fresh container fail with "Failed to find target"; it worked before only because the old container had downloaded it.
 - After changing ARB files run `flutter gen-l10n`; after changing tables run `dart run build_runner build -d`.
 - **Emulator:** the task *Emulator: Start*. It has no Google account, so there are no calendars. `scripts/emulator-test-calendar.sh` creates a local test calendar with two event colours. The user also tries the app in the emulator window, so don't drive the UI blindly.
 - **Releases:** bump `version:` in `pubspec.yaml`, push, then tag `v<version>`; GitHub Actions builds the APK (`03-dev-setup.md` section 9). Release builds use `android/key.properties` if present, otherwise the debug key.

@@ -5,7 +5,9 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 # Current versions: https://docs.flutter.dev/release/archive
 ARG FLUTTER_VERSION=3.47.9
 ARG ANDROID_CMDLINE_TOOLS=13114758
-ARG ANDROID_PLATFORM=android-36
+# The app compiles against 37 (android/app/build.gradle.kts; the SDK package is "android-37.0"),
+# the two local plugins against 36, and a pub plugin against 35.
+ARG ANDROID_PLATFORMS="android-35 android-36 android-37.0"
 ARG ANDROID_BUILD_TOOLS=36.0.0
 
 ENV ANDROID_HOME=/opt/android-sdk \
@@ -23,7 +25,9 @@ RUN apt-get update \
 
 USER vscode
 
-# Android SDK: command-line tools, platform tools (adb), one platform and build tools.
+# Android SDK: command-line tools, platform tools (adb), the platforms and build tools.
+# A platform missing here is installed by Gradle at build time, but the first build fails
+# ("Failed to find target") and it is lost when the container is recreated.
 # Anything else Gradle needs (e.g. the NDK) is downloaded by the warm-up build below.
 RUN curl -fsSL -o /tmp/clt.zip \
       "https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_CMDLINE_TOOLS}_latest.zip" \
@@ -32,7 +36,8 @@ RUN curl -fsSL -o /tmp/clt.zip \
  && mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest" \
  && rm /tmp/clt.zip \
  && (yes | sdkmanager --licenses > /dev/null) \
- && sdkmanager --install "platform-tools" "platforms;${ANDROID_PLATFORM}" "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null
+ && sdkmanager --install "platform-tools" $(printf 'platforms;%s ' ${ANDROID_PLATFORMS}) \
+      "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null
 
 # Flutter SDK from the official release archive.
 RUN archive=$(curl -fsSL https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json \

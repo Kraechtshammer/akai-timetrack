@@ -25,12 +25,17 @@ If the Windows server isn't running, adb uses its own server inside the containe
 
 All of these are already installed on this PC:
 - **Docker:** on this PC, the Docker Engine inside the WSL 2 Ubuntu, with VS Code's Dev Containers using it. Docker Desktop with the WSL 2 backend works too.
-- **VS Code** with the **Dev Containers** extension (`ms-vscode-remote.remote-containers`). No other extensions are needed on Windows; the Flutter and Claude Code extensions are installed inside the container.
+- **VS Code** with the **WSL** (`ms-vscode-remote.remote-wsl`) and **Dev Containers** (`ms-vscode-remote.remote-containers`) extensions. No other extensions are needed on Windows; the Flutter and Claude Code extensions are installed inside the container.
+- **The repo inside WSL**, not on `C:` (see section 8 for why): `/home/paga/Projects/akai-timetrack` in the Ubuntu distribution. In Explorer it's under *Linux → Ubuntu*, or `\\wsl.localhost\Ubuntu\home\paga\Projects`. `C:\Users\paga\Projects\akai-timetrack` is a link to that folder, so it can still be found next to the other projects.
 - **Android platform-tools** (`adb`), installed under `C:\Program Files\android-platform-tools`. On another PC: `winget install Google.PlatformTools`.
 
 ## 2. Open the project in the container
 
-1. Open the folder in VS Code → **"Reopen in Container"** (or Ctrl+Shift+P → *Dev Containers: Reopen in Container*).
+1. Open the folder through WSL, then in the container:
+   - In an Ubuntu terminal: `cd ~/Projects/akai-timetrack && code .` (or in VS Code: Ctrl+Shift+P → *WSL: Open Folder in WSL…*).
+   - Then **"Reopen in Container"** (or Ctrl+Shift+P → *Dev Containers: Reopen in Container*).
+
+   Don't open it through the `C:\` link or the `\\wsl.localhost` path: the container would then be mounted over the slow 9p bridge again.
 2. The first build takes a while (roughly 10–20 minutes): it downloads Flutter, the Android SDK and runs a warm-up build, so later builds are fast. Rebuilds after that reuse Docker's cache.
 3. When it's done, open a terminal and run `flutter doctor`. Flutter and the Android toolchain should be ✓. Android Studio may show as missing; it isn't needed in the container.
 
@@ -114,7 +119,9 @@ wsl.exe -e docker ps
 wsl.exe -e docker exec <name> bash -lc 'cd /workspaces/akai-timetrack && flutter test'
 ```
 
-`docker ps` shows the container name. Inside the container the repo is at `/workspaces/akai-timetrack`.
+`docker ps` shows the container name. Inside the container the repo is at `/workspaces/akai-timetrack`; in WSL it's at `~/Projects/akai-timetrack`, so git can run there too: `wsl.exe -e git -C /home/paga/Projects/akai-timetrack status`.
+
+From Git Bash, set `MSYS_NO_PATHCONV=1` before `wsl.exe` calls that pass Linux paths. Otherwise Git Bash rewrites `/mnt/c/...` into `C:/Program Files/Git/mnt/c/...`.
 
 To capture the emulator screen, run this in the container (`build/` is git-ignored):
 
@@ -122,16 +129,28 @@ To capture the emulator screen, run this in the container (`build/` is git-ignor
 adb exec-out screencap -p > build/shot.png
 ```
 
-## 8. Why builds are slow
+## 8. Build speed and where the repo lives
 
 There is no CPU limit. Windows, the WSL VM and the container all see every core, and the container has no cgroup CPU quota (`cat /sys/fs/cgroup/cpu.max` shows `max`).
 
-The real cause is file access. The project folder lives on `C:\` and is mounted into the container over 9p (`mount | grep workspaces` shows `type 9p ... aname=drvfs`), so every file read crosses the Windows/WSL boundary. `flutter analyze` takes about 5–7 minutes and a debug APK about 2 minutes, with the CPU mostly idle.
+The limit was file access. Until 2026-11-05 the repo lived on `C:\` and was mounted into the container over 9p (`mount | grep workspaces` showed `type 9p ... aname=drvfs`), so every file read crossed the Windows/WSL boundary. Since 2026-11-05 it lives on WSL's own ext4 disk (`/home/paga/Projects/akai-timetrack`), and the mount shows `ext4`.
+
+| | Repo on `C:` (9p) | Repo in WSL (ext4), measured 2026-11-05 |
+|---|---|---|
+| `flutter analyze` | 5–7 min | 20–30 s |
+| `flutter test` | | 25 s |
+| Debug APK, incremental | about 2 min | 23 s |
+| Debug APK, clean | | about 3 min |
+| Release APK | about 5 min | not measured yet |
+
+What changed with the move:
+- **Explorer:** `C:\Users\paga\Projects\akai-timetrack` is a link to `\\wsl.localhost\Ubuntu\home\paga\Projects\akai-timetrack`. Windows programs that read the repo through it (Explorer, Claude Code on Windows) now cross the boundary the other way, so they are the slow side. Build inside WSL or the container.
+- **Git:** run git inside WSL or the container. Git for Windows on the link is slow and complains about "dubious ownership". Pushing from WSL needs a credential helper there; Git for Windows' credential manager can be used for it.
+- **Backups:** the files are inside WSL's virtual disk (`ext4.vhdx`). OneDrive and File History don't see them, and `wsl --unregister Ubuntu` deletes them. Push to GitHub regularly. The git-ignored release key and `.env` need their own backup (see section 9).
 
 Memory is the other limit. The WSL VM gets about 15 GB by default (half the PC's RAM). The emulator takes about 6.5 GB. Gradle's and the Kotlin daemon's JVMs may each grow to 8 GB (`org.gradle.jvmargs` in `android/gradle.properties`).
 
-Options. Decided on 2026-11-04: the repo stays on `C:`, so builds stay slow; the other two options still apply:
-- **Clone the repo inside the WSL file system**, e.g. `~/code/akai-timetrack` in Ubuntu, and open that folder in VS Code through the WSL extension → *Reopen in Container*. File access then stays on native ext4, which typically makes analyze and builds several times faster. Windows tools can still reach it at `\\wsl$\Ubuntu\...`.
+Further options:
 - **Give WSL more memory** in `%UserProfile%\.wslconfig`:
   ```
   [wsl2]
