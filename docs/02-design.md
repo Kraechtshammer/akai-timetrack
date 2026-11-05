@@ -458,7 +458,7 @@ akai_timetrack/
 
 ## 12. Release and signing
 
-- **Version:** 1.0.0 (`version: 1.0.0+1` in `pubspec.yaml`). The part after `+` is Android's versionCode. It must go up with every release, or the phone refuses the update.
+- **Version:** 1.1.0 (`version: 1.1.0+3` in `pubspec.yaml`). The part after `+` is Android's versionCode. It must go up with every release, or the phone refuses the update.
 - **Package name (final):** `de.gartenpa.timetrack`, set in one place, `android/app/build.gradle.kts` (`applicationId`). Android treats a new package name as a different app (no updates, separate data), so it must not change again. The Kotlin namespace and the `MainActivity` package stay `de.garten.akaitimetrack`; they are internal only.
 - **App name (final):** **TimeTrack** on the home screen, set in `android/app/src/main/AndroidManifest.xml` (`android:label`) and in the ARB files.
 - **Release signing key:** created on 2026-11-04 in the dev container.
