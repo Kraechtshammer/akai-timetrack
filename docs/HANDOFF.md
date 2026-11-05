@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-05; the version is now 1.1.0 (`1.1.0+3`). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-05; the version is now 1.2.0 (`1.2.0+4`). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -77,7 +77,7 @@ Automated checks:
 
 ## Open points (in rough priority)
 
-0. **In-app update on real phones:** 1.1.0 is the first version with the updater, so it is installed by hand; the first real in-app update is the release after it. Until then the path with the release key and GitHub is only checked with debug builds and the fake server on the emulator. On the Xiaomi: some MIUI versions had trouble with session installs from third-party apps; if it fails there, fall back to the system installer intent (FileProvider + ACTION_VIEW).
+0. **In-app update on real phones:** 1.1.0 is the first version with the updater, so it is installed by hand; the first real in-app update is 1.2.0 (tips). Until then the path with the release key and GitHub is only checked with debug builds and the fake server on the emulator. On the Xiaomi: some MIUI versions had trouble with session installs from third-party apps; if it fails there, fall back to the system installer intent (FileProvider + ACTION_VIEW).
 
 1. **Check on the Pixel 7 Pro:** Live Update promotion, launcher icon shape, release APK.
 2. **Not tested yet:**
