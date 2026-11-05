@@ -83,6 +83,15 @@ To check the token is not tracked: `git check-ignore -v .devcontainer/.env` shou
 
 The `dist/` folder is visible in Windows Explorer, so an APK can also be copied to a phone by hand. Opening it on the phone asks to allow installs from that source. Release APKs are signed with the release key when `android/key.properties` exists, otherwise with the debug key (see section 9). A debug-signed APK can't update an app installed with the release key.
 
+**Changing the database.** Tables are in `lib/data/database.dart`. After a change:
+
+```
+dart run build_runner build -d          # regenerate database.g.dart
+dart run drift_dev make-migrations      # new snapshot in drift_schemas/, steps, tests
+```
+
+Then raise `schemaVersion`, write the step in `AppDatabase.migration` (`from1To2`, …), and run `flutter test test/drift`. Run `make-migrations` once before the change too, if the current version has no snapshot yet. Migrations only add tables or nullable columns.
+
 **App icon variants.** The launcher entry is one of three activity aliases (Rund, Squircle, Squircle klein), chosen in the app's Settings. `flutter run` / F5 still works: `MainActivity` keeps a MAIN/LAUNCHER intent filter in the source manifest, and the build removes it from the installed app (`tools:node="remove"`). To start the app by hand:
 
 ```

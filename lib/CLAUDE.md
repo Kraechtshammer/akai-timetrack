@@ -4,9 +4,9 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 
 ## Layers
 
-- `core/`: pure helpers. Time (`time.dart`: day keys, ISO weeks, minutes), `format.dart` (HH:mm, `formatHours`).
-- `data/`: drift database `database.dart` (+ generated `database.g.dart`), `shift_repository.dart`, `settings_repository.dart`, `app_settings.dart`.
-- `domain/`: pure Dart logic (planning, recording, rounding, month summary, export text, reminder planner). No Flutter imports. Unit-tested.
+- `core/`: pure helpers. Time (`time.dart`: day keys, ISO weeks, minutes), `format.dart` (HH:mm, `formatHours`, `formatEuros`).
+- `data/`: drift database `database.dart` (+ generated `database.g.dart` and `database.steps.dart`), `database_connection.dart` (opens the file), `shift_repository.dart`, `tip_repository.dart`, `settings_repository.dart`, `app_settings.dart`.
+- `domain/`: pure Dart logic (planning, recording, rounding, month summary, export text, reminder planner, tips). No Flutter imports. Unit-tested.
 - `platform/`: Android integration. `notification_service.dart`, `calendar_sync.dart`, `device_setup.dart`, `app_icon.dart`.
 - `app/`: `AppServices` (`services.dart`, one per isolate), Riverpod `providers.dart`, `app.dart`, `theme.dart`.
 - `ui/`: screens. `material.dart` is the one UI import. `common.dart` has shared widgets.
@@ -30,7 +30,7 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 3. `copyWith`: nullable values are `T? Function()?` closures, e.g. `calendarId: () => null`.
 4. Add a round-trip test in `test/settings_and_notification_test.dart`.
 5. Settings live in the `settings` key-value table so the background isolate can read them. No new table or column is needed.
-- `lastCalendarSync` is device status, not a setting. `SettingsRepository.watch()` filters it out so it doesn't rebuild the app. Do the same for other status keys.
+- `lastCalendarSync` (and `tipPromptDismissedDay`) is device status, not a setting. `SettingsRepository.watch()` filters it out so it doesn't rebuild the app. Do the same for other status keys.
 
 ### Add or change a string
 - `l10n/app_de.arb` is the template. `app_en.arb` must get every key.
@@ -54,8 +54,10 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 
 ### Change the database
 - Tables are in `data/database.dart`. After editing run `dart run build_runner build -d`.
-- There are no schema snapshots yet. Before the first schema change run `dart run drift_dev make-migrations` (design §3, §16).
-- Raise `schemaVersion` and add a migration step. Migrations only add. Never rename or reuse a column.
+- Then run `dart run drift_dev make-migrations`. It snapshots the schema into `drift_schemas/`, regenerates `database.steps.dart` and the tests in `test/drift/` (config in `build.yaml`).
+- Raise `schemaVersion` and add the step in `AppDatabase.migration`. Migrations only add. Never rename or reuse a column. Fill the generated data-integrity test with a row per old table.
+- `database.dart` must not import Flutter (drift's schema export runs it in plain Dart); the file is opened in `database_connection.dart`.
+- Money is integer cents. Show it with `formatEuros`; parse input with `parseEuroCents` (`domain/tips.dart`).
 
 ### Change domain logic
 - Keep it in `domain/` as pure functions or small classes taking repositories/settings. Every domain change gets a test.

@@ -10,12 +10,15 @@ import '../../core/format.dart';
 import '../../core/time.dart';
 import '../../data/app_settings.dart';
 import '../../data/database.dart';
+import '../../data/settings_repository.dart';
 import '../../domain/month_summary.dart';
 import '../../domain/recording.dart';
 import '../../domain/rounding.dart';
 import '../../domain/shift_info.dart';
+import '../../domain/tips.dart';
 import '../../l10n/labels.dart';
 import '../common.dart';
+import '../pay/money_sheet.dart';
 
 /// "Heute": next shift or running recording, month overview, this week.
 class TodayScreen extends ConsumerWidget {
@@ -48,6 +51,23 @@ class TodayScreen extends ConsumerWidget {
     final missed = monthShifts
         .where((s) => s.statusAt(now) == ShiftStatus.missed)
         .firstOrNull;
+    final recent = (addDays(today, -1), addDays(today, 1));
+    final recentShifts = ref.watch(shiftsProvider(recent)).value;
+    final recentTips = ref.watch(tipDaysProvider(recent)).value;
+    final dismissed = ref.watch(tipPromptDismissedProvider);
+    // Only once everything is loaded, so the card doesn't flash up.
+    final tipDay =
+        recentShifts == null || recentTips == null || dismissed.isLoading
+        ? null
+        : tipPromptDay(
+            now: now,
+            shifts: recentShifts,
+            tipDays: recentTips,
+            dismissedDay: dismissed.value,
+          );
+    final monthTips = TipMonth.of(
+      ref.watch(tipPayoutsProvider(tipWeeksOf(now))).value ?? const [],
+    );
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
@@ -79,7 +99,13 @@ class TodayScreen extends ConsumerWidget {
                     onPressed: () => onOpenPlan(missed.dayDate),
                   ),
                 ),
-              _MonthCard(summary: summary, now: now, running: running != null),
+              if (tipDay != null) _TipPromptCard(day: tipDay, today: today),
+              _MonthCard(
+                summary: summary,
+                tipCents: monthTips.totalCents,
+                now: now,
+                running: running != null,
+              ),
               _WeekStrip(
                 style: ref.settings.weekMarks,
                 week: week,
@@ -390,11 +416,15 @@ class _RunningCardState extends ConsumerState<_RunningCard> {
 class _MonthCard extends StatelessWidget {
   const _MonthCard({
     required this.summary,
+    required this.tipCents,
     required this.now,
     required this.running,
   });
 
   final MonthSummary summary;
+
+  /// The month's tip payouts (docs/02-design.md §4.7).
+  final int tipCents;
   final DateTime now;
   final bool running;
 
@@ -402,12 +432,12 @@ class _MonthCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final locale = context.locale;
-    Widget figure(String label, int minutes, Color color) => Column(
+    Widget figure(String label, String value, Color color) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: context.text.labelMedium),
         Text(
-          l10n.hours(formatHours(minutes, locale)),
+          value,
           style: context.text.headlineMedium?.copyWith(
             fontWeight: FontWeight.w800,
             color: color,
@@ -439,14 +469,14 @@ class _MonthCard extends StatelessWidget {
               Expanded(
                 child: figure(
                   l10n.monthRecorded,
-                  summary.recordedMinutes,
+                  l10n.hours(formatHours(summary.recordedMinutes, locale)),
                   context.colors.primary,
                 ),
               ),
               Expanded(
                 child: figure(
                   l10n.monthExpected,
-                  summary.expectedMinutes,
+                  l10n.hours(formatHours(summary.expectedMinutes, locale)),
                   context.colors.onSurface,
                 ),
               ),
@@ -462,6 +492,97 @@ class _MonthCard extends StatelessWidget {
                     summary.upcomingShifts,
                   ),
             style: context.text.bodySmall,
+          ),
+          // Tips get their own row; salary rows go below it later.
+          Divider(height: 8, color: context.colors.outlineVariant),
+          Row(
+            spacing: 8,
+            children: [
+              Icon(
+                Icons.payments_outlined,
+                size: 20,
+                color: context.colors.tertiary,
+              ),
+              Expanded(child: Text(l10n.tips, style: context.text.labelLarge)),
+              Text(
+                formatEuros(tipCents, locale),
+                style: context.text.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: context.colors.tertiary,
+                  fontFeatures: tabularFigures,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Trinkgeld eintragen": asks for the pool total of a day she just worked
+/// (docs/02-design.md §4.7).
+class _TipPromptCard extends ConsumerWidget {
+  const _TipPromptCard({required this.day, required this.today});
+
+  final DateTime day;
+  final DateTime today;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final colors = context.colors;
+    return Panel(
+      color: colors.tertiaryContainer,
+      padding: const EdgeInsets.fromLTRB(20, 16, 12, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            spacing: 12,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.savings_outlined, color: colors.onTertiaryContainer),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.tipPromptTitle,
+                      style: context.text.titleMedium?.copyWith(
+                        color: colors.onTertiaryContainer,
+                      ),
+                    ),
+                    Text(
+                      day == today
+                          ? l10n.tipPromptToday
+                          : l10n.tipPromptYesterday,
+                      style: context.text.bodyMedium?.copyWith(
+                        color: colors.onTertiaryContainer,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            spacing: 8,
+            children: [
+              M3EButton(
+                style: M3EButtonStyle.text,
+                onPressed: () => ref.services.settings.setStatus(
+                  SettingsRepository.tipPromptDismissed,
+                  dayKey(day),
+                ),
+                child: Text(l10n.tipNotNow),
+              ),
+              M3EButton(
+                onPressed: () => showTipDaySheet(context, ref, day: day),
+                child: Text(l10n.tipEnter),
+              ),
+            ],
           ),
         ],
       ),

@@ -18,10 +18,15 @@ class SettingsRepository {
   /// The newest version the update popup was shown for (device status).
   static const updatePopupShown = 'updatePopupShown';
 
+  /// The day whose "Trinkgeld eintragen" prompt on Heute she closed,
+  /// `yyyy-MM-dd` (device status, docs/02-design.md §4.7).
+  static const tipPromptDismissed = 'tipPromptDismissedDay';
+
   static const _statusKeys = {
     _lastCalendarSync,
     lastUpdateCheck,
     updatePopupShown,
+    tipPromptDismissed,
   };
 
   Future<AppSettings> load() async =>
@@ -57,6 +62,12 @@ class SettingsRepository {
   Future<String?> status(String key) async => (await (_db.select(
     _db.settings,
   )..where((s) => s.key.equals(key))).getSingleOrNull())?.value;
+
+  Stream<String?> watchStatus(String key) =>
+      (_db.select(_db.settings)..where((s) => s.key.equals(key)))
+          .watchSingleOrNull()
+          .map((row) => row?.value)
+          .distinct();
 
   Future<void> setStatus(String key, String value) => _db
       .into(_db.settings)

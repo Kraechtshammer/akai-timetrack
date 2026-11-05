@@ -35,7 +35,7 @@ The UI is German first, English second. The user writes in German or English; an
   - Undo test data you create (test shifts, recordings, changed settings), or tell the user.
 - **Phone:** the user's Pixel 7 Pro (Android 16 QPR; Live Updates work there). adb reaches it only while the Windows adb server runs.
 
-Common commands: `flutter analyze` (must report no issues), `flutter test`, `dart format lib test packages`, `flutter gen-l10n` after ARB changes, `dart run build_runner build -d` after table changes, `bash scripts/build-apk.sh debug|release`, `adb install -r dist/<apk>`.
+Common commands: `flutter analyze` (must report no issues), `flutter test`, `dart format lib test packages`, `flutter gen-l10n` after ARB changes, `dart run build_runner build -d` then `dart run drift_dev make-migrations` after table changes, `bash scripts/build-apk.sh debug|release`, `adb install -r dist/<apk>`.
 
 ## Working agreements with the user
 
@@ -65,6 +65,7 @@ Common commands: `flutter analyze` (must report no issues), `flutter test`, `dar
 
 ## Pitfalls seen in this repo
 
+- The dev container's Python is minimal (no `json` module). Use Dart scripts for JSON/ARB edits.
 - Python on Windows writes CRLF in text mode. Use `newline=''` or binary writes, or the Write/Edit tools.
 - Shell heredocs mangle backslashes, for example in regexes. Put such scripts in a file.
 - The release build drops resources referenced only by name. Add them to `android/app/src/main/res/raw/keep.xml`; `ic_notification` once made the release app hang on the splash screen.

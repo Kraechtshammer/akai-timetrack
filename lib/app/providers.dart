@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/app_settings.dart';
 import '../data/database.dart';
+import '../data/settings_repository.dart';
 import '../platform/app_icon.dart';
 import 'services.dart';
 
@@ -21,6 +22,26 @@ typedef DayRange = (DateTime from, DateTime to);
 final shiftsProvider = StreamProvider.family<List<Shift>, DayRange>(
   (ref, range) =>
       ref.watch(servicesProvider).shifts.watchDays(range.$1, range.$2),
+);
+
+/// Daily pool totals ("Tagestopf") with a day in the range.
+final tipDaysProvider = StreamProvider.family<List<TipDay>, DayRange>(
+  (ref, range) =>
+      ref.watch(servicesProvider).tips.watchDays(range.$1, range.$2),
+);
+
+/// Weekly payouts ("Ausgezahlt") of the weeks starting in the range.
+final tipPayoutsProvider = StreamProvider.family<List<TipPayout>, DayRange>(
+  (ref, range) =>
+      ref.watch(servicesProvider).tips.watchPayouts(range.$1, range.$2),
+);
+
+/// The day whose tip prompt on Heute she closed (`yyyy-MM-dd`).
+final tipPromptDismissedProvider = StreamProvider<String?>(
+  (ref) => ref
+      .watch(servicesProvider)
+      .settings
+      .watchStatus(SettingsRepository.tipPromptDismissed),
 );
 
 final runningShiftProvider = StreamProvider<Shift?>(

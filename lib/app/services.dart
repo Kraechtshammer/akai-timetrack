@@ -8,8 +8,10 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../core/time.dart';
 import '../data/database.dart';
+import '../data/database_connection.dart';
 import '../data/settings_repository.dart';
 import '../data/shift_repository.dart';
+import '../data/tip_repository.dart';
 import '../domain/planning.dart';
 import '../domain/recording.dart';
 import '../l10n/app_localizations.dart';
@@ -23,6 +25,7 @@ class AppServices {
     required this.db,
     required this.shifts,
     required this.settings,
+    required this.tips,
     required this.notifications,
     required this.calendar,
   }) {
@@ -33,6 +36,7 @@ class AppServices {
   final AppDatabase db;
   final ShiftRepository shifts;
   final SettingsRepository settings;
+  final TipRepository tips;
   final NotificationService notifications;
   final CalendarSync calendar;
   late final PlanningService planning;
@@ -46,13 +50,14 @@ class AppServices {
     } catch (_) {
       tz.setLocalLocation(tz.getLocation('Europe/Berlin'));
     }
-    final db = AppDatabase();
+    final db = openAppDatabase();
     final shifts = ShiftRepository(db);
     final settings = SettingsRepository(db);
     return AppServices._(
       db: db,
       shifts: shifts,
       settings: settings,
+      tips: TipRepository(db),
       notifications: NotificationService(),
       calendar: CalendarSync(shifts, settings),
     );

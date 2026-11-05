@@ -22,6 +22,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabExport => 'Export';
 
   @override
+  String get tabPay => 'Pay';
+
+  @override
+  String get paySubtitle => 'Tips week by week';
+
+  @override
+  String get tips => 'Tips';
+
+  @override
+  String tipsMonthWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'from $count weeks',
+      one: 'from 1 week',
+      zero: 'nothing paid out yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tipPayout => 'Paid out';
+
+  @override
+  String get tipPayoutHint => 'The cash you got for this week';
+
+  @override
+  String tipPayoutTitle(int week) {
+    return 'Paid out · week $week';
+  }
+
+  @override
+  String get tipPool => 'Daily pool';
+
+  @override
+  String get tipPoolHint => 'Everyone\'s tips combined that day';
+
+  @override
+  String tipPoolTitle(String day) {
+    return 'Daily pool · $day';
+  }
+
+  @override
+  String get tipPoolSum => 'Total';
+
+  @override
+  String get tipNoWorkdays => 'No shifts this week.';
+
+  @override
+  String get tipEnter => 'Add';
+
+  @override
+  String get tipInvalid => 'Enter an amount like 42.50.';
+
+  @override
+  String get tipDeleted => 'Amount deleted';
+
+  @override
+  String get tipPromptTitle => 'Add the tips';
+
+  @override
+  String get tipPromptToday =>
+      'How much did everyone get in tips today, all combined?';
+
+  @override
+  String get tipPromptYesterday =>
+      'How much did everyone get in tips yesterday, all combined?';
+
+  @override
+  String get tipNotNow => 'Not now';
+
+  @override
   String get settings => 'Settings';
 
   @override

@@ -122,6 +122,120 @@ abstract class AppLocalizations {
   /// **'Export'**
   String get tabExport;
 
+  /// No description provided for @tabPay.
+  ///
+  /// In de, this message translates to:
+  /// **'Lohn'**
+  String get tabPay;
+
+  /// No description provided for @paySubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Trinkgeld Woche für Woche'**
+  String get paySubtitle;
+
+  /// No description provided for @tips.
+  ///
+  /// In de, this message translates to:
+  /// **'Trinkgeld'**
+  String get tips;
+
+  /// No description provided for @tipsMonthWeeks.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =0{noch nichts ausgezahlt} =1{aus 1 Woche} other{aus {count} Wochen}}'**
+  String tipsMonthWeeks(int count);
+
+  /// No description provided for @tipPayout.
+  ///
+  /// In de, this message translates to:
+  /// **'Ausgezahlt'**
+  String get tipPayout;
+
+  /// No description provided for @tipPayoutHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Was du für diese Woche bar bekommen hast'**
+  String get tipPayoutHint;
+
+  /// No description provided for @tipPayoutTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Ausgezahlt · KW {week}'**
+  String tipPayoutTitle(int week);
+
+  /// No description provided for @tipPool.
+  ///
+  /// In de, this message translates to:
+  /// **'Tagestopf'**
+  String get tipPool;
+
+  /// No description provided for @tipPoolHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Trinkgeld aller zusammen an diesem Tag'**
+  String get tipPoolHint;
+
+  /// No description provided for @tipPoolTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Tagestopf · {day}'**
+  String tipPoolTitle(String day);
+
+  /// No description provided for @tipPoolSum.
+  ///
+  /// In de, this message translates to:
+  /// **'Zusammen'**
+  String get tipPoolSum;
+
+  /// No description provided for @tipNoWorkdays.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Woche keine Schichten.'**
+  String get tipNoWorkdays;
+
+  /// No description provided for @tipEnter.
+  ///
+  /// In de, this message translates to:
+  /// **'Eintragen'**
+  String get tipEnter;
+
+  /// No description provided for @tipInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte einen Betrag wie 42,50 eingeben.'**
+  String get tipInvalid;
+
+  /// No description provided for @tipDeleted.
+  ///
+  /// In de, this message translates to:
+  /// **'Betrag gelöscht'**
+  String get tipDeleted;
+
+  /// No description provided for @tipPromptTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Trinkgeld eintragen'**
+  String get tipPromptTitle;
+
+  /// No description provided for @tipPromptToday.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie viel Trinkgeld kam heute insgesamt zusammen?'**
+  String get tipPromptToday;
+
+  /// No description provided for @tipPromptYesterday.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie viel Trinkgeld kam gestern insgesamt zusammen?'**
+  String get tipPromptYesterday;
+
+  /// No description provided for @tipNotNow.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht jetzt'**
+  String get tipNotNow;
+
   /// No description provided for @settings.
   ///
   /// In de, this message translates to:

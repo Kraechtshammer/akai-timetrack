@@ -9,3 +9,11 @@ String shortWeekday(DateTime day, String locale) {
   final name = DateFormat.E(locale).format(day);
   return name.endsWith('.') ? name.substring(0, name.length - 1) : name;
 }
+
+/// Euros, with cents only when they aren't zero: `40 €`, `42,50 €` /
+/// `€40`, `€42.50`.
+String formatEuros(int cents, String locale) => NumberFormat.currency(
+  locale: locale,
+  symbol: '€',
+  decimalDigits: cents % 100 == 0 ? 0 : 2,
+).format(cents / 100);

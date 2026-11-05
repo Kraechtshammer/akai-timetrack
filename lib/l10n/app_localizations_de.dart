@@ -22,6 +22,78 @@ class AppLocalizationsDe extends AppLocalizations {
   String get tabExport => 'Export';
 
   @override
+  String get tabPay => 'Lohn';
+
+  @override
+  String get paySubtitle => 'Trinkgeld Woche für Woche';
+
+  @override
+  String get tips => 'Trinkgeld';
+
+  @override
+  String tipsMonthWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'aus $count Wochen',
+      one: 'aus 1 Woche',
+      zero: 'noch nichts ausgezahlt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tipPayout => 'Ausgezahlt';
+
+  @override
+  String get tipPayoutHint => 'Was du für diese Woche bar bekommen hast';
+
+  @override
+  String tipPayoutTitle(int week) {
+    return 'Ausgezahlt · KW $week';
+  }
+
+  @override
+  String get tipPool => 'Tagestopf';
+
+  @override
+  String get tipPoolHint => 'Trinkgeld aller zusammen an diesem Tag';
+
+  @override
+  String tipPoolTitle(String day) {
+    return 'Tagestopf · $day';
+  }
+
+  @override
+  String get tipPoolSum => 'Zusammen';
+
+  @override
+  String get tipNoWorkdays => 'Diese Woche keine Schichten.';
+
+  @override
+  String get tipEnter => 'Eintragen';
+
+  @override
+  String get tipInvalid => 'Bitte einen Betrag wie 42,50 eingeben.';
+
+  @override
+  String get tipDeleted => 'Betrag gelöscht';
+
+  @override
+  String get tipPromptTitle => 'Trinkgeld eintragen';
+
+  @override
+  String get tipPromptToday =>
+      'Wie viel Trinkgeld kam heute insgesamt zusammen?';
+
+  @override
+  String get tipPromptYesterday =>
+      'Wie viel Trinkgeld kam gestern insgesamt zusammen?';
+
+  @override
+  String get tipNotNow => 'Nicht jetzt';
+
+  @override
   String get settings => 'Einstellungen';
 
   @override

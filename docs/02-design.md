@@ -131,6 +131,29 @@ Settings live in the database so the notification background isolate can read th
 | `themeMode` | `system` / `light` / `dark` |
 | `locale` | `system` / `de` / `en` |
 | `onboardingDone` | false |
+| `tipPromptDismissedDay` | null; the `yyyy-MM-dd` day whose "Trinkgeld eintragen" prompt on Heute she closed (§4.7). Device status like `lastCalendarSync`: `SettingsRepository.watch()` leaves it out, so closing the prompt doesn't rebuild the app. |
+
+### Tables `tip_days` and `tip_payouts` (F10, schema version 2)
+
+Tips are kept apart from shifts. The pool total belongs to a day, not to a shift, and the payout belongs to a week. Neither is device-specific, so both go into a later backup (§14.1).
+
+| Table `tip_days` | Type | Meaning |
+|---|---|---|
+| `id` | text PK (UUID v4) | |
+| `day` | text `yyyy-MM-dd`, unique | the workday |
+| `poolCents` | int | **"Tagestopf"**: the day's tips of everyone combined, not her share |
+| `createdAt`, `updatedAt` | DateTime | |
+
+| Table `tip_payouts` | Type | Meaning |
+|---|---|---|
+| `id` | text PK (UUID v4) | |
+| `weekStart` | text `yyyy-MM-dd`, unique | the Monday of the tip week (Monday to Sunday) |
+| `amountCents` | int | **"Ausgezahlt"**: the cash she received for that week |
+| `createdAt`, `updatedAt` | DateTime | |
+
+- One row per day or week at most. Saving again updates the row; clearing the amount deletes it.
+- Zero is a valid amount (stored), an empty field is not (no row).
+- A note column is left out for now. It can be added later as a nullable column.
 
 ## 4. Domain logic
 
@@ -233,6 +256,29 @@ Pure function `desiredNotifications(shifts, settings, now) → Set<ScheduledNoti
 - app start and resume
 - after any shift or settings change
 - after start/stop
+
+### 4.7 Tips (F10, `domain/tips.dart`)
+
+**Workdays** of a week are the days up to today that have at least one shift (recorded, running or "nicht erfasst"). A day with a stored pool total is also listed, even if its shift was deleted later, so no entry disappears.
+
+**Money:**
+- Stored as integer cents.
+- Shown with cents only when they aren't zero: "40 €", "42,50 €" in German; "€40", "€42.50" in English (`NumberFormat.currency` with 0 or 2 decimals).
+- Input accepts "40", "40,5", "40,50" and "40.50": `,` and `.` both work as the decimal mark when one or two digits follow, because phone keyboards differ. Thousands may only be grouped with the app language's mark ("1.234,50" in German, "1,234.50" in English), so "40,505" is rejected as a typo rather than read as 40 505 €. More than two decimals or anything else is rejected with a hint.
+
+**Which month a payout counts for:** the month of the week's Thursday, the same rule ISO week numbers use. A week spanning two months goes to the month with more of its days (the restaurant is open Monday to Saturday, so at least 3 of 6 workdays). Example: Mon 2026-11-30 to Sun 2026-12-06 counts for December.
+
+**Month figure ("Trinkgeld" on Heute and Lohn):** the sum of the payouts of the weeks that count for the month. Pool totals are not added in, because they are everyone's tips.
+
+**Prompt on Heute ("Trinkgeld eintragen"):** shown for the newest day D that meets all of these:
+- D is today or yesterday (so she can still enter it the next morning, and an evening shift ending after midnight still counts for D);
+- D has at least one recorded shift, and none of D's shifts is running or still planned for later;
+- D has no pool total;
+- `tipPromptDismissedDay` is not D.
+
+"Eintragen" opens the pool-total sheet for D. "Nicht jetzt" stores D in `tipPromptDismissedDay`. Later days can still be entered on the Lohn tab.
+
+**Not in this version:** an estimate of her share. It would need the number of people working each day (§14.2).
 
 ## 5. Calendar sync
 
@@ -349,7 +395,8 @@ All screens follow the concept canvas. Behaviour that isn't visible in the mocku
 - **Next-shift card** shows the next `planned` shift today or later. It turns into the running card while recording.
 - **When there's no plan:** "Keine Schicht geplant" with a "Trotzdem starten" button.
 - **Missed shifts:** if a past shift wasn't recorded, a chip "1 Schicht nicht erfasst" opens it.
-- **Month card:** wavy progress bar, recorded vs expected. Uses Flutter's indicator if it ships a wavy variant, otherwise a `CustomPainter`.
+- **Month card:** wavy progress bar, recorded vs expected. Uses Flutter's indicator if it ships a wavy variant, otherwise a `CustomPainter`. Below the bar, a row **"Trinkgeld"** shows the month's payouts (§4.7); "0 €" until the first payout. The user saw both prototypes (2026-11-05). A third column next to the hours looked good too, but a row leaves room for the salary rows planned later (§14.2).
+- **Tip prompt:** a small card "Trinkgeld eintragen" below the next-shift card, by the rule in §4.7, with "Eintragen" and "Nicht jetzt".
 - **Week strip:** tap a day → Plan tab at that week. Under each day, lunch and evening shifts are marked either with icons (sun, moon, clock for custom; the default) or with two bars (left lunch, right evening; custom shifts by start time). Grey = planned, coloured = recorded. Chosen in Settings › Darstellung › Wochenübersicht.
 
 ### Plan
@@ -367,6 +414,21 @@ All screens follow the concept canvas. Behaviour that isn't visible in the mocku
 - **Pause chips:** none / 15 / 30 / 45 / Andere (number input).
 - **Validation:** end must be after start. A shift may cross midnight; if the end is before the start, it moves to the next day (a hint is shown).
 - **Delete:** asks for confirmation only if the shift is recorded.
+
+### Lohn (F10)
+
+The third tab, between Plan and Export: Heute, Plan, Lohn, Export. Icon: `payments`. English label "Pay". It opens on the current week on each visit, like Export opens on the current month. Salary will be added to this tab later (§14.2).
+
+- **Month card:** the month of the shown week (by the Thursday rule), with the "Trinkgeld" figure and the number of weeks with a payout ("aus 3 Wochen"). Later it gets the salary figures.
+- **Week switcher:** the same as on Plan (arrows, swipe, "today" button).
+- **"Ausgezahlt" card:** the week's payout, or an "Eintragen" button if there is none. Tap opens the money sheet.
+- **"Tagestopf" list:** one row per workday (§4.7): weekday and date, the shift types worked (sun/moon icons as on Heute), and the pool total or "–". Tap opens the money sheet for that day. Below the list: "Zusammen" with the sum of the week's pool totals.
+- **A week without workdays:** "Diese Woche keine Schichten." The payout can still be entered.
+- **Money sheet** (bottom sheet, the same for day and week):
+  - title "Tagestopf · Mo, 2. Nov." or "Ausgezahlt · KW 45";
+  - a hint: "Trinkgeld aller zusammen an diesem Tag" or "Was du für diese Woche bar bekommen hast";
+  - one text field with the decimal keyboard and a "€" suffix, focused when the sheet opens;
+  - "Speichern", plus "Löschen" if there is a value. Delete doesn't ask; a snack bar offers "Rückgängig" (with `persist: false`).
 
 ### Export
 - **Month picker:** always opens on the **current month**, also when coming back to the tab (user decision 2026-11-04). Earlier months are one tap back.
@@ -446,6 +508,8 @@ akai_timetrack/
   - export text (DE/EN, breaks, weeks cut at the month's edges, empty month, "gesamt"/"bisher")
   - ReminderPlanner (lead time, 14-day window, running shift)
   - sync state transitions (gateway faked)
+  - tips (F10): money parsing and formatting DE/EN, the Thursday month rule, workdays of a week, the Heute prompt rule, repository save/clear
+  - migration from schema 1 to 2 against the committed snapshot
 - **Widget tests:** Plan toggles, edit sheet validation, export preview.
 - **Test devices:** development and testing happen on a **Google Pixel 7 Pro** (latest Android) plus the emulator. Her Xiaomi isn't available before handover, because the app is a surprise. The Xiaomi-specific behaviour (Autostart, battery saver) is therefore built from documentation, and the checklist below runs on her phone during the field test (M6). The emulator can at least check minSdk 29 (an Android 10 image).
 - **Manual checklist (Pixel first, then again on her Xiaomi):**
@@ -534,19 +598,9 @@ akai_timetrack/
   - **iOS:** the app's iCloud Drive container. Needs the Apple Developer Program.
   - Recommendation for later: the system file picker on Android first, because it needs no accounts.
 
-### 14.2 Tips and salary
+### 14.2 Salary (and a tip-share estimate)
 
-**Tips** go in a new table rather than as a column on the shift, because there may be more than one entry per shift (cash, card share, pooled tips) and maybe tips without a shift:
-
-| Table `tips` | Type | Meaning |
-|---|---|---|
-| `id` | text UUID | |
-| `shiftId` | text?, FK → shifts | null = not tied to a shift (e.g. a monthly pool payout) |
-| `day` | text `yyyy-MM-dd` | for month grouping |
-| `amountCents` | int | |
-| `kind` | enum `cash` / `card` / `pool` / `other` | |
-| `note` | text? | |
-| `createdAt`, `updatedAt` | DateTime | |
+Tips are built (F10, §3 and §4.7). The model planned here first (one tip entry per shift, kinds cash/card/pool) was dropped because AKAI pools tips per day and pays weekly.
 
 **Wage rates** are valid from a date, so a raise doesn't change past months:
 
@@ -559,11 +613,9 @@ akai_timetrack/
 
 Possible later extension: a `surcharge_rules` table for Sunday, holiday and night surcharges, which are common in restaurants. Each rule would have a weekday or holiday flag, a time window and a percentage.
 
-**Salary calculation:** a pure domain function `salaryFor(month, shifts, wageRates, tips)` returning hours × the rate valid on each shift's day, tips, and the totals with and without tips. It's shown in a later "Lohn" tab, and could optionally go into the export text.
+**Salary calculation:** a pure domain function `salaryFor(month, shifts, wageRates, payouts)` returning hours × the rate valid on each shift's day, tips, and the totals with and without tips. It goes on the "Lohn" tab and the month card there.
 
-**UI hooks:** the shift edit sheet gets a "Trinkgeld" field below "Pause", and the month card on Heute can gain a third figure. The concept layouts leave room for both.
-
-Nothing in v1 needs changing for this beyond the conventions in §3.
+**Tip-share estimate (maybe):** her expected share of a day's pool needs the kitchen/service split and the number of servers that day. Both change, so it would be a per-day input next to "Tagestopf" (a nullable column on `tip_days`).
 
 ## 15. Open points (small, can be decided while building)
 
@@ -587,4 +639,5 @@ Nothing in v1 needs changing for this beyond the conventions in §3.
   Each variant is an `activity-alias`; the app enables exactly one. Switching closes the app once. Themed icons (monochrome layer) are the same for all three.
 - **Package name:** changed to `de.gartenpa.timetrack` at 1.0.0 (was the provisional `de.garten.akaitimetrack`). The Kotlin namespace and `MainActivity` package stay `de.garten.akaitimetrack`.
 - **In-app update** (2026-11-05, §12): not in the original design. No new Flutter packages: dart:io for HTTP, the installer in `MainActivity.kt`. Needs the `INTERNET` permission in the main manifest (Flutter only adds it to debug builds) and `REQUEST_INSTALL_PACKAGES`.
-- **Database:** no drift schema snapshots yet (`drift_schemas/`). Create one before the first schema change: `dart run drift_dev make-migrations`.
+- **Database:** schema snapshots in `drift_schemas/` since schema version 2 (2026-11-05), configured in `build.yaml`. Migration steps come from the generated `lib/data/database.steps.dart`; tests are in `test/drift/`. Opening the database file moved to `lib/data/database_connection.dart`, because drift's schema export runs `database.dart` without Flutter.
+- **Tips** (2026-11-05, F10): the per-shift `tips` table planned in §14.2 was replaced by `tip_days` (the day's pool total) and `tip_payouts` (the weekly cash payout), because AKAI pools tips per day and pays weekly. A fourth tab, "Lohn", was added between Plan and Export. Schema version 2.

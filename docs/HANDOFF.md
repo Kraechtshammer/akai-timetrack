@@ -64,6 +64,17 @@ Automated checks:
 - Checked by the user on the emulator (debug builds 1.0.0 → 1.0.1 from the fake server): popup with notes, "install unknown apps" switch and automatic continue, download progress, cancelling Android's prompt ("Update abgebrochen") and retrying without a second download, the update itself, the APK deleted on the next start, deleting the file by hand.
 - User decisions: session installer (not the system installer intent), popup once per version, check on start/resume every 6 h (no background job), only her sections of the notes.
 
+## Done in the fourth session (2026-11-05): tips (F10)
+
+- Research in `01-research.md` §9, design in `02-design.md` §3 (tables), §4.7 (rules), §7 (screens).
+- **New tab "Lohn"** (English "Pay"), between Plan and Export. It opens on the current week. It shows the month's tips, the week's "Ausgezahlt" (cash payout) and a "Tagestopf" list: one row per workday with the day's pool total, the tips of everyone combined. Both amounts are only for her records; they don't go into the export.
+- **Heute:** a "Trinkgeld eintragen" card once the day's shifts are recorded (today or yesterday; "Nicht jetzt" hides it for that day), and a "Trinkgeld" row on the month card. A third column was prototyped too; the user chose the row, because salary rows will go there later.
+- A payout counts for the month of its week's Thursday (ISO rule; user decision).
+- **Database schema version 2:** tables `tip_days` and `tip_payouts`. First drift schema snapshots (`drift_schemas/`, `build.yaml`) and generated migration tests (`test/drift/`). Opening the database file moved to `data/database_connection.dart`, so drift's schema export can run `database.dart` without Flutter.
+- Checked by the user on the emulator (installed over 1.1.0 data, so the migration ran on a real database): prompt and sheet, amounts with and without cents, payout and month total, delete with "Rückgängig", both month-card layouts. 66 tests pass (14 of them for tips, 2 for the migration).
+- Not checked: light mode for the new screens; on a phone.
+- Trap: the dev container's Python has no `json` module. ARB edits were done with a Dart script.
+
 ## Open points (in rough priority)
 
 0. **In-app update on real phones:** 1.1.0 is the first version with the updater, so it is installed by hand; the first real in-app update is the release after it. Until then the path with the release key and GitHub is only checked with debug builds and the fake server on the emulator. On the Xiaomi: some MIUI versions had trouble with session installs from third-party apps; if it fails there, fall back to the system installer intent (FileProvider + ACTION_VIEW).
@@ -93,17 +104,21 @@ lib/
         providers.dart      Riverpod providers (settings, shifts by day range, running shift, clock, sync status)
         app.dart, theme.dart (M3ETheme wrapper, seed colours)
   core/ time.dart, format.dart        dates, ISO weeks, minutes, HH:mm, decimal hours
-  data/ database.dart (+ .g.dart)     drift tables Shifts, Settings
-        shift_repository.dart, settings_repository.dart (also lastCalendarSync), app_settings.dart
+  data/ database.dart (+ .g.dart, .steps.dart)  drift tables Shifts, Settings, TipDays, TipPayouts; migrations
+        database_connection.dart     opens the database file (kept out of database.dart for drift's schema export)
+        shift_repository.dart, tip_repository.dart,
+        settings_repository.dart (also status keys: lastCalendarSync, tipPromptDismissedDay), app_settings.dart
   domain/ planning.dart, recording.dart, rounding.dart, month_summary.dart,
-          export_text.dart, reminder_planner.dart, shift_info.dart   (pure logic, tested)
+          export_text.dart, reminder_planner.dart, shift_info.dart,
+          tips.dart (money parsing, tip weeks and months, Heute prompt)   (pure logic, tested)
   platform/ notification_service.dart, calendar_sync.dart, device_setup.dart
   l10n/ app_de.arb (source), app_en.arb, labels.dart (+ generated app_localizations*.dart)
   ui/   material.dart (the one UI import), home_shell, common (header, Panel, WavyProgress, WeekSwitcher, pickers),
-        today/, plan/, shift_sheet.dart, export/, settings/, onboarding/
+        today/, plan/, shift_sheet.dart, pay/ (Lohn tab, money sheet), export/, settings/, onboarding/
 packages/calendar_bridge/   Kotlin CalendarContract plugin (calendars incl. sync flag, event colours, events, enableSync, requestSync)
 packages/running_progress/  Kotlin plugin: moves the running notification's progress bar (Live Update on Android 16)
-test/                       unit tests (helpers.dart builds test shifts)
+test/                       unit tests (helpers.dart builds test shifts); test/drift/ generated migration tests
+drift_schemas/              drift schema snapshots per version (build.yaml configures make-migrations)
 .github/workflows/ci.yml       analyze + test on push to main and on pull requests
 .github/workflows/release.yml  on tag v*: signed release APK + GitHub release (needs the three secrets)
 scripts/release-notes.sh       release notes from the commit subjects' type prefixes

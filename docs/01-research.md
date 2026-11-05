@@ -245,6 +245,35 @@ Xiaomi is one of the most aggressive vendors at killing background apps (see don
   - Heute and Plan in dark mode
 - Not drawn: the default-times onboarding step (it looks like the Settings section), and dark variants of the remaining screens (they use the same dark colour roles).
 
+## 9. Tips (F10), 2026-11-05
+
+Added after 1.1.0. Salary comes later and will go on the same tab.
+
+### How tips work at AKAI
+
+- All tips go into one pool. Each day's pool total is known.
+- Kitchen and servers each get a share per workday. Her share depends on how many people worked that day, so it isn't a fixed rule.
+- She is paid her tips **weekly, in cash**. The tip week runs Monday to Sunday, the same as the app's weeks. The restaurant is closed on Sundays.
+
+### What she wants to record
+
+| # | Feature | Notes |
+|---|---------|-------|
+| F10a | **Daily pool total ("Tagestopf")** | One number per day: the total tips of everyone combined, **not her share**. Optional. Only for days she worked, because those are the days that count for her. |
+| F10b | **Weekly payout ("Ausgezahlt")** | The cash she actually received for the week. |
+
+- Both numbers are **only for her own records**. They don't go into the export text.
+- Amounts are euros with cents. Cents are shown only when they aren't zero ("40 €", "42,50 €").
+
+### Decisions (the user, 2026-11-05)
+
+- **A new tab, "Lohn"** (English "Pay"), rather than putting money on the Export screen. Export is a monthly task; money is recorded weekly. "Verdienst" was proposed first; the user chose "Lohn", which also fits once salary is added.
+- **A prompt on "Heute"** asks for the day's pool total after she has worked.
+- **Heute's month card** gets a third figure: tips this month.
+- **No share estimate for now.** The app doesn't calculate what she should have got. That needs the number of people per day and is kept as a possible later feature.
+- **No new dependencies.** `intl` formats euros.
+- The tips model planned in `02-design.md` §14.2 (one entry per shift, kinds cash/card/pool) doesn't match this and is replaced in the design.
+
 ## Sources
 
 - [Android developer verification rolling out (Android Developers Blog, 2026-03)](https://android-developers.googleblog.com/2026/03/android-developer-verification-rolling-out-to-all-developers.html)
