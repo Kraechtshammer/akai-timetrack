@@ -12,7 +12,7 @@ The project's written memory. Future sessions rely on it, so keep it current in 
 | `03-dev-setup.md` | Dev container, Claude token, phone and emulator, build tasks, using the container from Windows, why builds are slow, releases and secrets | When the workflow or tooling changes. |
 | `concepts/` | Approved UI concept screens (`*.dc.html` design-canvas sources and `canvas.json`). The developer approved them on 2026-11-04. | Only when the developer changes the concepts. The live canvas is linked in `02-design.md`. The app follows these screens; ask before departing from them. |
 
-The README in the repo root has only a status line and links here.
+The README in the repo root is the landing page: features, screenshots (`docs/screenshots/`), install, build and links here. Update it when a feature the user sees is added or changed.
 
 ## Writing style
 

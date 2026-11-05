@@ -100,7 +100,16 @@ Automated checks:
 - **Checked:** 121 tests pass (23 for the planner rules and repository, 3 for the image layout, 1 more migration test); `flutter analyze` clean. The developer went through the test steps on the emulator (settings, people, answers, Fill, shift sheet, Share, "Add my shifts to Plan", "Away this week", deleting) and found it working. Installed over 1.3.1 data, so the migration ran on a real database.
 - **Not checked:** the shared PNG at full size and in a real chat; light mode for the new screens; a phone.
 
+## Done in the seventh session (2026-11-05): README
+
+- The README is now the repo's landing page: icon, badges, four screenshots, the features per tab, install, build and the stack.
+- Screenshots are in `docs/screenshots/`: English UI, dark mode, demo data with made-up names, taken on the emulator.
+- How they were made: the emulator's database (`app_flutter/timetrack.sqlite`, read with `adb exec-out run-as de.gartenpa.timetrack cat …`) was backed up, replaced with a demo database built with `sqlite3`, and restored afterwards. The full screenshots were cropped to 1440 × 2920 from y = 120 (no status bar or gesture handle), scaled to 540 px wide, with rounded corners. The seed and crop scripts were not kept in the repo.
+- Found while doing it: on the Pay tab in English, the weekday in the "Daily pool" list wraps ("Mo" / "n"), because the cell is 28 px wide (`ui/pay/pay_screen.dart`). German "Mo" fits. Not fixed yet. The Pay screenshot is cropped above that list.
+
 ## Open points (in rough priority)
+
+0. **Pay tab, English:** the weekday in the "Daily pool" list wraps (see the seventh session). Widen or drop the fixed 28 px width.
 
 0. **Team planner in real use:** look at the shared picture in WhatsApp (Standard quality shrinks it to about 1600 px); set the real staff counts; maybe later: drag and drop, "Same as last week", kitchen staff (`01-research.md` §10).
 
