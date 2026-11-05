@@ -63,6 +63,7 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 ## Platform notes
 
 - `platform/app_icon.dart` uses the MainActivity channel `de.garten.akaitimetrack/app_icon`. It works in the UI isolate only.
+- `platform/app_update.dart` (in-app update) uses the MainActivity channel `de.garten.akaitimetrack/updater`, also UI isolate only. State lives in `app/update_controller.dart` (`updateProvider`); `HomeShell` triggers the check on start and resume. Its status keys (`lastUpdateCheck`, `updatePopupShown`) are filtered out of `SettingsRepository.watch()`. The release URL can be overridden with `--dart-define=UPDATE_RELEASE_URL=...` for tests.
 - Notification ids: `notificationId(shift, kind)` in `domain/reminder_planner.dart` = `shift.notifId * 10 + kind.code`. The running notification is `runningNotificationId` = 1.
 - The running notification's progress bar is moved by the `running_progress` package (exact alarm every 5 min).
 - Calendar access goes through `CalendarSync` and the `calendar_bridge` package. `CalendarSync` takes an optional bridge and an optional permission function, so tests can fake both.

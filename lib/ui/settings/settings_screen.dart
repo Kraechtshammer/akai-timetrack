@@ -14,6 +14,7 @@ import '../../l10n/labels.dart';
 import '../common.dart';
 import 'calendar_pickers.dart';
 import 'reliability.dart';
+import 'update_tiles.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -128,20 +129,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           _Section(l10n.sectionCalendar, [
-            _Tile(
+            SettingsTile(
               icon: Icons.event,
               title: l10n.calendar,
               value: s.calendarName ?? l10n.calendarNone,
               onTap: () => showCalendarPicker(context, ref),
             ),
-            _Tile(
+            SettingsTile(
               icon: Icons.title,
               title: l10n.eventTitle,
               value: s.eventTitle,
               onTap: _editTitle,
             ),
             if (calendarSet)
-              _Tile(
+              SettingsTile(
                 icon: Icons.format_color_fill,
                 title: l10n.eventColor,
                 value: s.eventColorKey == null
@@ -160,7 +161,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ]),
           _Section(l10n.sectionDefaultTimes, const [DefaultTimesTiles()]),
           _Section(l10n.sectionReminders, [
-            _Tile(
+            SettingsTile(
               icon: Icons.notifications_outlined,
               title: l10n.reminderBefore,
               value: l10n.minutesBefore(s.reminderLeadMinutes),
@@ -172,7 +173,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 (m) => s.copyWith(reminderLeadMinutes: m),
               ),
             ),
-            _Tile(
+            SettingsTile(
               icon: Icons.notification_important_outlined,
               title: l10n.overrunAsk,
               value: l10n.minutesAfterEnd(s.overrunMinutes),
@@ -186,7 +187,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ]),
           _Section(l10n.sectionRecording, [
-            _Tile(
+            SettingsTile(
               icon: Icons.av_timer,
               title: l10n.rounding,
               value: roundingLabel(s.roundingMode, l10n),
@@ -206,7 +207,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ]),
           _Section(l10n.sectionAppearance, [
             ListTile(
-              leading: const _TileIcon(Icons.palette_outlined),
+              leading: const SettingsTileIcon(Icons.palette_outlined),
               title: Text(l10n.color),
               subtitle: Text(themeSeedLabel(s.themeSeed, l10n)),
             ),
@@ -226,7 +227,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ),
             ListTile(
-              leading: const _TileIcon(Icons.contrast),
+              leading: const SettingsTileIcon(Icons.contrast),
               title: Text(l10n.darkMode),
             ),
             Padding(
@@ -249,7 +250,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     _update((s) => s.copyWith(themeMode: modes.single)),
               ),
             ),
-            _Tile(
+            SettingsTile(
               icon: Icons.apps,
               title: l10n.appIcon,
               value: switch (ref.watch(appIconProvider).value) {
@@ -293,7 +294,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ref.invalidate(appIconProvider);
               },
             ),
-            _Tile(
+            SettingsTile(
               icon: Icons.view_week_outlined,
               title: l10n.weekMarks,
               value: weekMarksLabel(s.weekMarks, l10n),
@@ -310,7 +311,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 }
               },
             ),
-            _Tile(
+            SettingsTile(
               icon: Icons.language,
               title: l10n.language,
               value: switch (s.locale) {
@@ -336,6 +337,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
           ]),
+          _Section(l10n.sectionUpdate, const [UpdateTiles()]),
         ],
       ),
     );
@@ -367,13 +369,13 @@ class DefaultTimesTiles extends ConsumerWidget {
 
     return Column(
       children: [
-        _Tile(
+        SettingsTile(
           icon: Icons.light_mode_outlined,
           title: l10n.shiftLunch,
           value: range(s.lunch),
           onTap: () => edit(s.lunch, (t) => s.copyWith(lunch: t)),
         ),
-        _Tile(
+        SettingsTile(
           icon: Icons.wb_twilight,
           title: l10n.lunchBeforeEvening,
           value: range(s.lunchBeforeEvening),
@@ -382,7 +384,7 @@ class DefaultTimesTiles extends ConsumerWidget {
             (t) => s.copyWith(lunchBeforeEvening: t),
           ),
         ),
-        _Tile(
+        SettingsTile(
           icon: Icons.dark_mode_outlined,
           title: l10n.shiftEvening,
           value: range(s.evening),
@@ -439,7 +441,7 @@ class _SyncNowTileState extends ConsumerState<_SyncNowTile> {
           : DateFormat('E d. MMM, HH:mm', context.locale);
       status = l10n.syncUpToDate(format.format(last));
     }
-    return _Tile(
+    return SettingsTile(
       icon: Icons.sync,
       title: l10n.syncNow,
       value: status,
@@ -483,8 +485,9 @@ class _Section extends StatelessWidget {
   );
 }
 
-class _Tile extends StatelessWidget {
-  const _Tile({
+class SettingsTile extends StatelessWidget {
+  const SettingsTile({
+    super.key,
     required this.icon,
     required this.title,
     required this.value,
@@ -500,7 +503,7 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListTile(
-    leading: _TileIcon(icon),
+    leading: SettingsTileIcon(icon),
     title: Text(title),
     subtitle: Text(value),
     trailing: trailing,
@@ -508,8 +511,8 @@ class _Tile extends StatelessWidget {
   );
 }
 
-class _TileIcon extends StatelessWidget {
-  const _TileIcon(this.icon);
+class SettingsTileIcon extends StatelessWidget {
+  const SettingsTileIcon(this.icon, {super.key});
 
   final IconData icon;
 

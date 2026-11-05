@@ -12,13 +12,27 @@ class SettingsRepository {
   /// not a setting, so changing it doesn't rebuild the app).
   static const _lastCalendarSync = 'lastCalendarSync';
 
+  /// When the app last looked for an update (device status).
+  static const lastUpdateCheck = 'lastUpdateCheck';
+
+  /// The newest version the update popup was shown for (device status).
+  static const updatePopupShown = 'updatePopupShown';
+
+  static const _statusKeys = {
+    _lastCalendarSync,
+    lastUpdateCheck,
+    updatePopupShown,
+  };
+
   Future<AppSettings> load() async =>
       AppSettings.fromMap(_toMap(await _db.select(_db.settings).get()));
 
   Stream<AppSettings> watch() => _db
       .select(_db.settings)
       .watch()
-      .map((rows) => _toMap(rows)..remove(_lastCalendarSync))
+      .map(
+        (rows) => _toMap(rows)..removeWhere((k, _) => _statusKeys.contains(k)),
+      )
       .distinct(mapEquals)
       .map(AppSettings.fromMap);
 
@@ -38,6 +52,15 @@ class SettingsRepository {
             final ms = int.tryParse(row?.value ?? '');
             return ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
           });
+
+  /// A device status value (one of the status keys above).
+  Future<String?> status(String key) async => (await (_db.select(
+    _db.settings,
+  )..where((s) => s.key.equals(key))).getSingleOrNull())?.value;
+
+  Future<void> setStatus(String key, String value) => _db
+      .into(_db.settings)
+      .insertOnConflictUpdate(SettingsCompanion.insert(key: key, value: value));
 
   /// Applies [change] to the current settings and saves the result.
   Future<AppSettings> update(AppSettings Function(AppSettings) change) async {

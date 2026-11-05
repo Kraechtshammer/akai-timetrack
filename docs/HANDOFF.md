@@ -56,7 +56,17 @@ Automated checks:
    - **On the emulator (SDK 36.0) the notification is not promoted** (no `PROMOTED_ONGOING` flag), although the extra and permission are present. Live Updates were rolled out with Android 16 QPR1 (36.1), so this needs checking on the Pixel. If it isn't promoted there either, look at the promotion requirements (channel importance, `hasPromotableCharacteristics()`, the per-app "Live notifications" switch).
    - Pre-scheduling separate notifications (the other option discussed) doesn't work with flutter_local_notifications: scheduled notifications are keyed by id, so they can't all replace notification 1. That's why the native plugin approach is used for every Android version.
 
+## Done in the third session (2026-11-05): in-app update
+
+- The app looks for a newer GitHub release on start and on resume (at most every 6 hours), shows a popup once per version with the "New / Fixed / Improved" notes, downloads the APK and starts Android's installer (PackageInstaller session). Settings › App-Update: check now, the found update, "Update neu starten", "Update-Datei löschen". The APK is deleted on the first start of the new version. Design: `02-design.md` §12.
+- Code: `domain/app_update.dart` (versions, release JSON, notes, clean-up rules; tested), `platform/app_update.dart` (HTTP, files, channel), `app/update_controller.dart` (Riverpod state), `ui/settings/update_tiles.dart` (tiles and popup), `MainActivity.kt` (channel `de.garten.akaitimetrack/updater`). The manifest now has `INTERNET` and `REQUEST_INSTALL_PACKAGES`.
+- Testing on the emulator with a fake release: `scripts/update_test_server.dart`, see `03-dev-setup.md` §9.
+- Checked by the user on the emulator (debug builds 1.0.0 → 1.0.1 from the fake server): popup with notes, "install unknown apps" switch and automatic continue, download progress, cancelling Android's prompt ("Update abgebrochen") and retrying without a second download, the update itself, the APK deleted on the next start, deleting the file by hand.
+- User decisions: session installer (not the system installer intent), popup once per version, check on start/resume every 6 h (no background job), only her sections of the notes.
+
 ## Open points (in rough priority)
+
+0. **In-app update on real phones:** 1.1.0 is the first version with the updater, so it is installed by hand; the first real in-app update is the release after it. Until then the path with the release key and GitHub is only checked with debug builds and the fake server on the emulator. On the Xiaomi: some MIUI versions had trouble with session installs from third-party apps; if it fails there, fall back to the system installer intent (FileProvider + ACTION_VIEW).
 
 1. **Check on the Pixel 7 Pro:** Live Update promotion, launcher icon shape, release APK.
 2. **Not tested yet:**

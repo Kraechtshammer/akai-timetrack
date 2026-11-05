@@ -787,4 +787,109 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get appIconApply => 'Ändern';
+
+  @override
+  String get sectionUpdate => 'App-Update';
+
+  @override
+  String get updateCheck => 'Nach Updates suchen';
+
+  @override
+  String updateStatusChecked(String version, String time) {
+    return 'Version $version · aktuell, geprüft $time';
+  }
+
+  @override
+  String updateStatusNotChecked(String version) {
+    return 'Version $version · noch nicht geprüft';
+  }
+
+  @override
+  String get updateChecking => 'Suche nach Updates …';
+
+  @override
+  String get updateUpToDate => 'TimeTrack ist auf dem neuesten Stand.';
+
+  @override
+  String updateAvailableTile(String version) {
+    return 'Update auf Version $version';
+  }
+
+  @override
+  String get updateAvailableHint => 'Neuerungen ansehen und installieren';
+
+  @override
+  String updateDownloading(int percent) {
+    return 'Wird heruntergeladen … $percent %';
+  }
+
+  @override
+  String get updateInstalling =>
+      'Bestätige die Installation im Android-Fenster. Die App schließt sich dabei; öffne sie danach einfach wieder.';
+
+  @override
+  String get updateCloseHint =>
+      'Die App schließt sich während des Updates. Öffne sie danach einfach wieder.';
+
+  @override
+  String get updateRestart => 'Update neu starten';
+
+  @override
+  String get updateRestartHint =>
+      'Falls die Installation hängt oder nicht geklappt hat';
+
+  @override
+  String get updateDeleteFile => 'Update-Datei löschen';
+
+  @override
+  String updateFileSize(String size) {
+    return 'Belegt $size';
+  }
+
+  @override
+  String get updateNoFile => 'Keine Datei gespeichert';
+
+  @override
+  String get updateFileDeleted => 'Update-Datei gelöscht';
+
+  @override
+  String updateDialogTitle(String version) {
+    return 'Update auf Version $version';
+  }
+
+  @override
+  String get updateNotesEmpty => 'Kleine Verbesserungen im Hintergrund.';
+
+  @override
+  String get notesNew => 'Neu';
+
+  @override
+  String get notesFixed => 'Behoben';
+
+  @override
+  String get notesImproved => 'Verbessert';
+
+  @override
+  String get updateInstall => 'Aktualisieren';
+
+  @override
+  String get updateClose => 'Schließen';
+
+  @override
+  String get updateCheckFailed =>
+      'GitHub ist gerade nicht erreichbar. Versuch es später noch einmal.';
+
+  @override
+  String get updateDownloadFailed =>
+      'Der Download hat nicht geklappt. Versuch es noch einmal.';
+
+  @override
+  String get updateNoPermission =>
+      'TimeTrack darf noch keine Apps installieren. Erlaube es in den Android-Einstellungen und tippe dann noch einmal auf „Aktualisieren“.';
+
+  @override
+  String get updateAborted => 'Update abgebrochen.';
+
+  @override
+  String get updateFailed => 'Android hat das Update abgelehnt.';
 }

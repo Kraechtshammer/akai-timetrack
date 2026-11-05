@@ -48,6 +48,9 @@ Guidance for work in `android/`. The general workflow is in the root `CLAUDE.md`
   - `RECEIVE_BOOT_COMPLETED`: reschedule reminders after a reboot.
   - `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`: the user may exempt the app (reliable reminders).
   - `READ_CALENDAR`, `WRITE_CALENDAR`: mirror shifts into a calendar (`packages/calendar_bridge`).
+  - `INTERNET`: the in-app update (GitHub releases). Flutter adds it only to debug/profile builds, so it must stay in the main manifest or release builds can't check.
+  - `REQUEST_INSTALL_PACKAGES`: install the downloaded update.
+- **In-app update installer** (`MainActivity.kt`, channel `de.garten.akaitimetrack/updater`): `installedVersion`, `canInstall`, `openInstallPermission`, `install(path)` (PackageInstaller session; abandons the app's old sessions first). A dynamically registered, not exported receiver gets the session status: it starts the confirmation dialog, every other status goes to Dart as `installResult {status, message}`.
 - The plugins add their own entries (`POST_PROMOTED_NOTIFICATIONS`, `ProgressTickReceiver`). See `packages/CLAUDE.md`.
 - Three receivers belong to `flutter_local_notifications`: `ScheduledNotificationReceiver`, `ScheduledNotificationBootReceiver` (boot, package replaced, quickboot), `ActionBroadcastReceiver` (notification buttons). Keep all three or reminders and buttons stop working.
 - `android:label` is "TimeTrack".

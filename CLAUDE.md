@@ -16,7 +16,7 @@ The UI is German first, English second. The user writes in German or English; an
 | `android/` | Android project: manifest, launcher icon variants, signing, `MainActivity` | [android/CLAUDE.md](android/CLAUDE.md) |
 | `docs/` | Research, design, dev setup, handoff, UI concepts | [docs/CLAUDE.md](docs/CLAUDE.md) |
 | `branding/app-icon.svg` | Master of the app icon (the restaurant's sign); the Android icon layers are generated from it | |
-| `scripts/` | `build-apk.sh` (APK into `dist/`), `install-apk.sh`, `release-notes.sh` (release notes from commit prefixes), `emulator.sh`, `emulator-test-calendar.sh` (local test calendar), `windows/start-adb-server.cmd` | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
+| `scripts/` | `build-apk.sh` (APK into `dist/`), `install-apk.sh`, `release-notes.sh` (release notes from commit prefixes), `emulator.sh`, `emulator-test-calendar.sh` (local test calendar), `update_test_server.dart` (fake release for testing the in-app update), `windows/start-adb-server.cmd` | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
 | `.devcontainer/` | The dev container: Flutter 3.47.9, Android SDK, JDK 17, emulator, adb wrapper | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
 | `.github/workflows/` | `ci.yml` (analyze + tests on main and PRs), `release.yml` (signed APK and GitHub release on `v*` tags) | 03-dev-setup.md §9 |
 | `.githooks/` | `commit-msg`: rejects commit subjects without a type prefix | 03-dev-setup.md §9 |

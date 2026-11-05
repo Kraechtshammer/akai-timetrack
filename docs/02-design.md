@@ -380,6 +380,7 @@ All screens follow the concept canvas. Behaviour that isn't visible in the mocku
   - Erinnerungen
   - Erfassung & Export
   - Darstellung & Sprache
+  - App-Update: "Nach Updates suchen" (installed version, last check), the found update, "Update neu starten", "Update-Datei löschen" (§12)
   - Über
 - **Reliability card** appears at the top only while something is missing:
   - notification permission
@@ -468,11 +469,19 @@ akai_timetrack/
   - SHA-256 certificate fingerprint: `A0:BF:16:21:D7:60:52:69:B2:D6:2D:3C:CD:A2:AF:8E:41:1A:A9:C8:76:8A:4B:7A:2F:66:15:70:62:1C:2C:91`
 - **Signing in the build:** `android/app/build.gradle.kts` uses the release key for release builds when `android/key.properties` exists, otherwise the debug key. That is fine for local tests, but a debug-signed APK cannot update an install signed with the release key.
 - **Back up the key.** Every update must be signed with the same key. Keep `android/timetrack-release.jks` and its password in a password manager plus an offline copy. If the key is lost, the app on her phone can only be replaced by uninstalling it, which deletes its data. The GitHub secret is not a backup, because secrets can't be read back.
-- **Releases come from GitHub Actions** (private repo `github.com/Kraechtshammer/akai-timetrack`):
+- **Releases come from GitHub Actions** (public repo `github.com/Kraechtshammer/akai-timetrack`; the in-app update needs it public):
   - `.github/workflows/ci.yml`: on every push to main and on pull requests, runs `flutter analyze` and `flutter test` (Flutter 3.47.9, same as the dev container).
   - `.github/workflows/release.yml`: on pushing a tag `v*` (or started by hand in the Actions tab), it checks that the tag matches the `pubspec.yaml` version, runs analyze and tests, writes the keystore from the repository secrets, builds the release APK, checks that it isn't debug-signed, and creates a GitHub release "TimeTrack <version>" with `timetrack-<version>.apk` attached and generated release notes. It fails if the secrets are missing.
   - Steps are in [03-dev-setup.md](03-dev-setup.md), section 9.
 - **Versioning rule:** to release, raise the version name and the build number in `pubspec.yaml` (e.g. `1.0.1+2`), commit, then tag `v1.0.1`.
+- **In-app update** (since 2026-11-05):
+  - **Check:** `GET api.github.com/repos/Kraechtshammer/akai-timetrack/releases/latest`, no token (public repo). Drafts and pre-releases don't count; the release needs an `.apk` asset. Newer means a higher `vX.Y.Z` tag than the installed versionName.
+  - **When:** on app start and when the app comes back to the foreground, at most every 6 hours (`lastUpdateCheck` status key), plus by hand in Settings. No background work: Android keeps the process alive for days, so "on start" alone wasn't enough, and a background job would need the workmanager package.
+  - **Popup:** once per new version (`updatePopupShown` status key), with the release notes: only the "New", "Fixed" and "Improved" sections, headings translated, Markdown links and bold stripped. A release text without headings is shown as it is. "Später" leaves the update in Settings › App-Update.
+  - **Install:** the APK goes to `<app support>/updates/timetrack-<version>.apk` (`.part` while downloading, size checked against the asset), then into a PackageInstaller session (`MainActivity.kt`, channel `de.garten.akaitimetrack/updater`). Android asks the user to confirm; on success it stops and replaces the app. If "install unknown apps" is off for TimeTrack, the app opens that switch and continues the update when she comes back.
+  - **Restart:** "Update neu starten" (popup while installing, and Settings while an APK is stored) abandons the app's unfinished installer sessions and starts again, reusing the downloaded APK.
+  - **Clean-up:** on the first check after start the app deletes APKs of the installed version or older and unfinished downloads. "Update-Datei löschen" deletes all of them by hand.
+  - Only an APK signed with the same key can replace the app; Android's refusal is shown in the popup.
 - **Installing:** USB (`flutter install`) or the APK from the release page. Because the package name changed to the final one, the first install is a new app; the earlier test install (`de.garten.akaitimetrack`) must be uninstalled, and its data is not carried over.
 - When global developer verification arrives (2027), register the free limited-distribution account and register the app's package name `de.gartenpa.timetrack`.
 
@@ -577,4 +586,5 @@ Nothing in v1 needs changing for this beyond the conventions in §3.
   - "Squircle klein": the whole sign scaled down.
   Each variant is an `activity-alias`; the app enables exactly one. Switching closes the app once. Themed icons (monochrome layer) are the same for all three.
 - **Package name:** changed to `de.gartenpa.timetrack` at 1.0.0 (was the provisional `de.garten.akaitimetrack`). The Kotlin namespace and `MainActivity` package stay `de.garten.akaitimetrack`.
+- **In-app update** (2026-11-05, §12): not in the original design. No new Flutter packages: dart:io for HTTP, the installer in `MainActivity.kt`. Needs the `INTERNET` permission in the main manifest (Flutter only adds it to debug builds) and `REQUEST_INSTALL_PACKAGES`.
 - **Database:** no drift schema snapshots yet (`drift_schemas/`). Create one before the first schema change: `dart run drift_dev make-migrations`.

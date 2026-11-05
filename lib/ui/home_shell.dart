@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'material.dart';
 
 import '../app/providers.dart';
+import '../app/update_controller.dart';
 import '../core/time.dart';
 import 'common.dart';
 import 'export/export_screen.dart';
 import 'plan/plan_screen.dart';
+import 'settings/update_tiles.dart';
 import 'today/today_screen.dart';
 
 /// The three tabs: Heute, Plan, Export.
@@ -26,10 +28,27 @@ class _HomeShellState extends ConsumerState<HomeShell>
   /// screen, so it always opens on the current month.
   var _exportVisits = 0;
 
+  var _updatePopupOpen = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _lookForUpdate());
+  }
+
+  /// Looks for an update (at most every 6 hours) and shows the popup once
+  /// per new version. [resumed]: also continues an update that waited for
+  /// the "install unknown apps" permission.
+  Future<void> _lookForUpdate({bool resumed = false}) async {
+    final update = ref.read(updateProvider.notifier);
+    await (resumed ? update.resumed() : update.checkIfDue());
+    if (!mounted || _updatePopupOpen || !await update.popupDue()) return;
+    if (!mounted) return;
+    _updatePopupOpen = true;
+    await update.markPopupShown();
+    if (mounted) await showUpdateDialog(context);
+    _updatePopupOpen = false;
   }
 
   @override
@@ -42,7 +61,10 @@ class _HomeShellState extends ConsumerState<HomeShell>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Back in the app: catch up on reminders and the calendar
     // (e.g. events deleted in Google Calendar meanwhile).
-    if (state == AppLifecycleState.resumed) ref.services.syncAll();
+    if (state == AppLifecycleState.resumed) {
+      ref.services.syncAll();
+      _lookForUpdate(resumed: true);
+    }
   }
 
   void _openPlan(DateTime week) => setState(() {

@@ -161,7 +161,7 @@ Further options:
 
 ## 9. Releases
 
-Releases are built by GitHub Actions when a version tag is pushed. The repo is private: `github.com/Kraechtshammer/akai-timetrack`. Version 1.0.0 uses the package name `de.gartenpa.timetrack`; it installs as a new app, so uninstall the old test install first (its data is not carried over).
+Releases are built by GitHub Actions when a version tag is pushed. The repo is public: `github.com/Kraechtshammer/akai-timetrack`. Keep it public, or the in-app update can no longer see the releases. Version 1.0.0 uses the package name `de.gartenpa.timetrack`; it installs as a new app, so uninstall the old test install first (its data is not carried over).
 
 **One-time setup: repository secrets.** The release workflow needs three secrets. Without them it fails.
 1. On GitHub open the repo → Settings → Secrets and variables → Actions → *New repository secret*.
@@ -179,7 +179,7 @@ Releases are built by GitHub Actions when a version tag is pushed. The repo is p
    git push origin v1.0.1
    ```
 4. The release workflow (`.github/workflows/release.yml`) checks that the tag matches the pubspec version, runs analyze and tests, builds the signed APK and creates the release "TimeTrack 1.0.1" with `timetrack-1.0.1.apk` attached and the release notes as its text. It can also be started by hand in the Actions tab.
-5. On the phone, log in to GitHub (the repo is private), download the APK from the release page and install it over the old one.
+5. On the phone the app finds the release by itself (on start or when opened again, at most every 6 hours; or Settings › App-Update › "Nach Updates suchen") and shows the popup with the notes. The APK can also still be downloaded from the release page and installed by hand.
 
 **Release notes.** Since 2026-11-05 every commit subject starts with a type prefix. `scripts/release-notes.sh <tag>` collects the subjects since the tag before and sorts them into sections; the release workflow uses its output as the release text.
 
@@ -198,6 +198,13 @@ Releases are built by GitHub Actions when a version tag is pushed. The repo is p
 **Key files** (all git-ignored, in `android/`): `timetrack-release.jks` (the keystore, alias `timetrack`), `key.properties` (its settings) and `timetrack-release.jks.base64` (copy for GitHub; delete after use). Never commit or share them.
 
 **Back up the key.** Every update must be signed with the same key. Keep `timetrack-release.jks` and the password in a password manager plus an offline copy. If the key is lost, the app on her phone can only be replaced by uninstalling it, which deletes its data. The GitHub secret is not a backup: secrets can't be read back.
+
+**Testing the in-app update.** The app on the emulator is debug-signed, so the real (release-signed) APK from GitHub can't replace it. Point a debug build at a fake release instead:
+1. Build the "new" version and keep it: `flutter build apk --debug --dart-define=UPDATE_RELEASE_URL=http://127.0.0.1:8765/latest.json --build-name=1.0.1 --build-number=2`, copy `build/app/outputs/flutter-apk/app-debug.apk` aside.
+2. Build an older one with the same `--dart-define` and `--build-name=1.0.0 --build-number=1`, and `adb install -r` it.
+3. `dart run scripts/update_test_server.dart <new apk> 1.0.1` and `adb reverse tcp:8765 tcp:8765`.
+4. Open the app: the popup appears. Debug APKs are about 200 MB, so the download takes a moment.
+- The debug key belongs to the container (`~/.android/debug.keystore`). After a container rebuild it is new, and new debug builds can't update an older debug install ("signatures do not match"). Because the app is debuggable, its data can be kept: `adb exec-out run-as de.gartenpa.timetrack tar cf - . > appdata.tar`, uninstall, install, then copy `app_flutter/timetrack.sqlite` back with `adb push` to `/data/local/tmp` and `run-as … cp`.
 
 **Local release builds.** `scripts/build-apk.sh release` and the task *Build: Release APK* also sign with the release key when `android/key.properties` is present, otherwise with the debug key.
 

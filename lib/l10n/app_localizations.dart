@@ -1405,6 +1405,180 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Ändern'**
   String get appIconApply;
+
+  /// No description provided for @sectionUpdate.
+  ///
+  /// In de, this message translates to:
+  /// **'App-Update'**
+  String get sectionUpdate;
+
+  /// No description provided for @updateCheck.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach Updates suchen'**
+  String get updateCheck;
+
+  /// No description provided for @updateStatusChecked.
+  ///
+  /// In de, this message translates to:
+  /// **'Version {version} · aktuell, geprüft {time}'**
+  String updateStatusChecked(String version, String time);
+
+  /// No description provided for @updateStatusNotChecked.
+  ///
+  /// In de, this message translates to:
+  /// **'Version {version} · noch nicht geprüft'**
+  String updateStatusNotChecked(String version);
+
+  /// No description provided for @updateChecking.
+  ///
+  /// In de, this message translates to:
+  /// **'Suche nach Updates …'**
+  String get updateChecking;
+
+  /// No description provided for @updateUpToDate.
+  ///
+  /// In de, this message translates to:
+  /// **'TimeTrack ist auf dem neuesten Stand.'**
+  String get updateUpToDate;
+
+  /// No description provided for @updateAvailableTile.
+  ///
+  /// In de, this message translates to:
+  /// **'Update auf Version {version}'**
+  String updateAvailableTile(String version);
+
+  /// No description provided for @updateAvailableHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Neuerungen ansehen und installieren'**
+  String get updateAvailableHint;
+
+  /// No description provided for @updateDownloading.
+  ///
+  /// In de, this message translates to:
+  /// **'Wird heruntergeladen … {percent} %'**
+  String updateDownloading(int percent);
+
+  /// No description provided for @updateInstalling.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätige die Installation im Android-Fenster. Die App schließt sich dabei; öffne sie danach einfach wieder.'**
+  String get updateInstalling;
+
+  /// No description provided for @updateCloseHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Die App schließt sich während des Updates. Öffne sie danach einfach wieder.'**
+  String get updateCloseHint;
+
+  /// No description provided for @updateRestart.
+  ///
+  /// In de, this message translates to:
+  /// **'Update neu starten'**
+  String get updateRestart;
+
+  /// No description provided for @updateRestartHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Falls die Installation hängt oder nicht geklappt hat'**
+  String get updateRestartHint;
+
+  /// No description provided for @updateDeleteFile.
+  ///
+  /// In de, this message translates to:
+  /// **'Update-Datei löschen'**
+  String get updateDeleteFile;
+
+  /// No description provided for @updateFileSize.
+  ///
+  /// In de, this message translates to:
+  /// **'Belegt {size}'**
+  String updateFileSize(String size);
+
+  /// No description provided for @updateNoFile.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Datei gespeichert'**
+  String get updateNoFile;
+
+  /// No description provided for @updateFileDeleted.
+  ///
+  /// In de, this message translates to:
+  /// **'Update-Datei gelöscht'**
+  String get updateFileDeleted;
+
+  /// No description provided for @updateDialogTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Update auf Version {version}'**
+  String updateDialogTitle(String version);
+
+  /// No description provided for @updateNotesEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Kleine Verbesserungen im Hintergrund.'**
+  String get updateNotesEmpty;
+
+  /// No description provided for @notesNew.
+  ///
+  /// In de, this message translates to:
+  /// **'Neu'**
+  String get notesNew;
+
+  /// No description provided for @notesFixed.
+  ///
+  /// In de, this message translates to:
+  /// **'Behoben'**
+  String get notesFixed;
+
+  /// No description provided for @notesImproved.
+  ///
+  /// In de, this message translates to:
+  /// **'Verbessert'**
+  String get notesImproved;
+
+  /// No description provided for @updateInstall.
+  ///
+  /// In de, this message translates to:
+  /// **'Aktualisieren'**
+  String get updateInstall;
+
+  /// No description provided for @updateClose.
+  ///
+  /// In de, this message translates to:
+  /// **'Schließen'**
+  String get updateClose;
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'GitHub ist gerade nicht erreichbar. Versuch es später noch einmal.'**
+  String get updateCheckFailed;
+
+  /// No description provided for @updateDownloadFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Download hat nicht geklappt. Versuch es noch einmal.'**
+  String get updateDownloadFailed;
+
+  /// No description provided for @updateNoPermission.
+  ///
+  /// In de, this message translates to:
+  /// **'TimeTrack darf noch keine Apps installieren. Erlaube es in den Android-Einstellungen und tippe dann noch einmal auf „Aktualisieren“.'**
+  String get updateNoPermission;
+
+  /// No description provided for @updateAborted.
+  ///
+  /// In de, this message translates to:
+  /// **'Update abgebrochen.'**
+  String get updateAborted;
+
+  /// No description provided for @updateFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Android hat das Update abgelehnt.'**
+  String get updateFailed;
 }
 
 class _AppLocalizationsDelegate
