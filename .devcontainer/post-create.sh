@@ -15,6 +15,8 @@ step "Installing the Claude Code CLI" npm install -g @anthropic-ai/claude-code
 # Android only: hide the Linux-desktop and web targets from the device picker and `flutter doctor`.
 step "Configuring Flutter for Android only" flutter config --no-enable-linux-desktop --no-enable-web
 step "Fetching Flutter packages" flutter pub get
+# Commit subjects need a type prefix (Feature:, Bugfix:, ...) for the release notes.
+step "Enabling the repo's git hooks" git config core.hooksPath .githooks
 
 if [ ${#failed[@]} -gt 0 ]; then
   echo >&2

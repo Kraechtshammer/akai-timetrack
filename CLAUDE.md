@@ -16,9 +16,10 @@ The UI is German first, English second. The user writes in German or English; an
 | `android/` | Android project: manifest, launcher icon variants, signing, `MainActivity` | [android/CLAUDE.md](android/CLAUDE.md) |
 | `docs/` | Research, design, dev setup, handoff, UI concepts | [docs/CLAUDE.md](docs/CLAUDE.md) |
 | `branding/app-icon.svg` | Master of the app icon (the restaurant's sign); the Android icon layers are generated from it | |
-| `scripts/` | `build-apk.sh` (APK into `dist/`), `install-apk.sh`, `emulator.sh`, `emulator-test-calendar.sh` (local test calendar), `windows/start-adb-server.cmd` | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
+| `scripts/` | `build-apk.sh` (APK into `dist/`), `install-apk.sh`, `release-notes.sh` (release notes from commit prefixes), `emulator.sh`, `emulator-test-calendar.sh` (local test calendar), `windows/start-adb-server.cmd` | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
 | `.devcontainer/` | The dev container: Flutter 3.47.9, Android SDK, JDK 17, emulator, adb wrapper | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
 | `.github/workflows/` | `ci.yml` (analyze + tests on main and PRs), `release.yml` (signed APK and GitHub release on `v*` tags) | 03-dev-setup.md §9 |
+| `.githooks/` | `commit-msg`: rejects commit subjects without a type prefix | 03-dev-setup.md §9 |
 | `.vscode/tasks.json` | Tasks: analyze, test, build APKs, install, emulator start/stop, device pairing, logs | |
 | `dist/`, `build/` | Build output, git-ignored | |
 
@@ -38,7 +39,8 @@ Common commands: `flutter analyze` (must report no issues), `flutter test`, `dar
 
 ## Working agreements with the user
 
-- **One commit per finished feature**, made as soon as the feature is checked. Commit messages have an imperative summary, a body saying what and why, and the `Co-Authored-By` trailer. **Push only when the user asks.**
+- **One commit per finished feature**, made as soon as the feature is checked. Commit messages have an imperative summary with a type prefix, a body saying what and why, and the `Co-Authored-By` trailer.
+- **Type prefixes** (checked by `.githooks/commit-msg`; the release notes are built from them by `scripts/release-notes.sh`): `Feature:` new things she can do, `Bugfix:` something broken works again, `Improvement:` existing behaviour or looks got better, `Docs:` docs only, `Dev:` build, CI, tooling, tests, `Release:` version bumps (left out of the notes). Example: `Feature: Export the month's hours`. The summary after the prefix appears in the release notes as is, so write it for her, not for a developer, when the type is Feature, Bugfix or Improvement. **Push only when the user asks.**
 - **Git identity:** the repo-local GitHub noreply address (`git config user.email` shows `…@users.noreply.github.com`). Never use the global work address; check it before the first commit of a session.
 - **Parallelize longer work.** Split it into well-described chunks for Sonnet subagents: files, the exact change, conventions, and "no commits". Then verify their work yourself (diff, analyze, tests, emulator) before committing. Never let two agents edit the same files. Only one agent at a time drives the emulator.
 - **Ask before:**

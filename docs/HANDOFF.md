@@ -96,6 +96,8 @@ packages/running_progress/  Kotlin plugin: moves the running notification's prog
 test/                       unit tests (helpers.dart builds test shifts)
 .github/workflows/ci.yml       analyze + test on push to main and on pull requests
 .github/workflows/release.yml  on tag v*: signed release APK + GitHub release (needs the three secrets)
+scripts/release-notes.sh       release notes from the commit subjects' type prefixes
+.githooks/commit-msg           rejects commit subjects without a type prefix
 android/key.properties, android/timetrack-release.jks, android/timetrack-release.jks.base64
                             release signing key files; git-ignored, never commit or print them
 ```
@@ -113,4 +115,4 @@ Key ideas:
 - After changing ARB files run `flutter gen-l10n`; after changing tables run `dart run build_runner build -d`.
 - **Emulator:** the task *Emulator: Start*. It has no Google account, so there are no calendars. `scripts/emulator-test-calendar.sh` creates a local test calendar with two event colours. The user also tries the app in the emulator window, so don't drive the UI blindly.
 - **Releases:** bump `version:` in `pubspec.yaml`, push, then tag `v<version>`; GitHub Actions builds the APK (`03-dev-setup.md` section 9). Release builds use `android/key.properties` if present, otherwise the debug key.
-- **Commits:** use the repo-local GitHub noreply identity; never the global work address.
+- **Commits:** use the repo-local GitHub noreply identity; never the global work address. Subjects start with a type prefix (`Feature:`, `Bugfix:`, `Improvement:`, `Docs:`, `Dev:`, `Release:`); the release notes are built from them (03-dev-setup.md section 9).

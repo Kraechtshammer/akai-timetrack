@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Checks that the commit subject starts with a type prefix, so scripts/release-notes.sh can
+# sort it into the GitHub release notes. Enabled by `git config core.hooksPath .githooks`
+# (the dev container's post-create step sets it).
+subject=$(grep -v '^#' "$1" | head -n1)
+types='Feature|Bugfix|Improvement|Docs|Dev|Release'
+
+# Git's own messages (merges, reverts, fixup!/squash! for later rebasing) pass.
+if [[ $subject =~ ^(Merge|Revert|fixup!|squash!|amend!) ]]; then exit 0; fi
+
+if [[ ! $subject =~ ^($types):\ [^[:space:]] ]]; then
+  cat >&2 <<'EOF'
+Commit subject needs a type prefix, e.g. "Feature: Export the month's hours".
+  Feature:      new things she can do in the app
+  Bugfix:       something that was broken works again
+  Improvement:  existing behaviour or looks got better
+  Docs:         documentation only
+  Dev:          build, CI, tooling, tests, dev container
+  Release:      version bumps (left out of the release notes)
+EOF
+  echo "Got: $subject" >&2
+  exit 1
+fi

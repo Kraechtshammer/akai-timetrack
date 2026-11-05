@@ -172,14 +172,28 @@ Releases are built by GitHub Actions when a version tag is pushed. The repo is p
 
 **Make a release.**
 1. In `pubspec.yaml` set `version:` to the new name and a higher build number, e.g. `1.0.1+2`. The build number is Android's versionCode and must increase, or updates are refused.
-2. Commit and push to main. The CI workflow (`.github/workflows/ci.yml`) runs analyze and tests.
+2. Commit (subject `Release: 1.0.1`) and push to main. The CI workflow (`.github/workflows/ci.yml`) runs analyze and tests.
 3. Tag and push:
    ```
    git tag v1.0.1
    git push origin v1.0.1
    ```
-4. The release workflow (`.github/workflows/release.yml`) checks that the tag matches the pubspec version, runs analyze and tests, builds the signed APK and creates the release "TimeTrack 1.0.1" with `timetrack-1.0.1.apk` attached. It can also be started by hand in the Actions tab.
+4. The release workflow (`.github/workflows/release.yml`) checks that the tag matches the pubspec version, runs analyze and tests, builds the signed APK and creates the release "TimeTrack 1.0.1" with `timetrack-1.0.1.apk` attached and the release notes as its text. It can also be started by hand in the Actions tab.
 5. On the phone, log in to GitHub (the repo is private), download the APK from the release page and install it over the old one.
+
+**Release notes.** Since 2026-11-05 every commit subject starts with a type prefix. `scripts/release-notes.sh <tag>` collects the subjects since the tag before and sorts them into sections; the release workflow uses its output as the release text.
+
+| Prefix | Section | Use for |
+|---|---|---|
+| `Feature:` | New | new things she can do in the app |
+| `Bugfix:` | Fixed | something that was broken works again |
+| `Improvement:` | Improved | existing behaviour or looks got better |
+| `Dev:`, `Docs:` | Behind the scenes | build, CI, tooling, tests, dev container; docs |
+| `Release:` | left out | version bumps |
+
+- Subjects without a prefix (all commits before 2026-11-05) go under "Other changes".
+- Preview the next release's notes with `bash scripts/release-notes.sh` (no tag).
+- `.githooks/commit-msg` rejects a subject without a prefix. Merges, reverts and `fixup!` commits pass. The dev container's post-create step enables it with `git config core.hooksPath .githooks`; in an older container or a plain WSL clone, run that once by hand.
 
 **Key files** (all git-ignored, in `android/`): `timetrack-release.jks` (the keystore, alias `timetrack`), `key.properties` (its settings) and `timetrack-release.jks.base64` (copy for GitHub; delete after use). Never commit or share them.
 
