@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Prints the release notes (Markdown) for a release, built from the commit subjects since the
 # previous tag. Commit subjects start with a type prefix (see .githooks/commit-msg):
-#   Feature:      new things she can do in the app
+#   Feature:      new things the user can do in the app
 #   Bugfix:       something that was broken works again
 #   Improvement:  existing behaviour or looks got better
 #   Docs:         documentation only

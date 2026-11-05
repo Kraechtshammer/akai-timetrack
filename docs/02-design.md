@@ -6,7 +6,7 @@ Inputs: [01-research.md](01-research.md) (features F1–F9, decisions Q1–Q10) 
 ## 1. Scope of v1
 
 In scope:
-- **Plan:** plan shifts, with Mittag/Abend quick toggles and custom shifts.
+- **Plan:** plan shifts, with Lunch/Evening quick toggles and custom shifts.
 - **Recording:** record time from the app or from notifications.
 - **Editing:** correct shift times by hand, including breaks.
 - **Calendar sync:** one-way sync to a chosen Google calendar, with a selectable event colour.
@@ -27,7 +27,7 @@ Out of scope for v1:
 
 ```
 ┌──────────────── UI (Flutter widgets) ────────────────┐
-│ Heute · Plan · Schicht-Sheet · Export · Einstellungen │
+│ Home · Plan · Shift sheet · Export · Settings         │
 │ Onboarding                                            │
 └───────────────┬──────────────────────────────────────┘
                 │ Riverpod providers (watch DB streams)
@@ -78,7 +78,7 @@ Principles:
 | `day` | text `yyyy-MM-dd` | Local date the shift belongs to (its start date). Used for week and month grouping. |
 | `type` | enum `lunch` / `evening` / `custom` | |
 | `plannedStart`, `plannedEnd` | DateTime (stored as UTC epoch ms) | |
-| `plannedCustomized` | bool | True once she edits the planned times by hand. Stops automatic default-time adjustments (§4.1). |
+| `plannedCustomized` | bool | True once the user edits the planned times by hand. Stops automatic default-time adjustments (§4.1). |
 | `rawStart`, `rawEnd` | DateTime? | Exact recorded timestamps. `rawStart != null && rawEnd == null` means **recording is running**. |
 | `actualStart`, `actualEnd` | DateTime? | Rounded times (after Stop) or times entered by hand. These are what counts. |
 | `breakMinutes` | int, default 0 | |
@@ -92,7 +92,7 @@ Rules:
 - **Deleting a shift** sets `pendingDelete`. The row is removed once the calendar event is deleted, or right away if it never had an event.
 - **Derived status:**
   - `planned`: no actuals, start in the future.
-  - `missed`: no actuals, planned end in the past. Shown as "nicht erfasst".
+  - `missed`: no actuals, planned end in the past. Shown as "not recorded".
   - `running`: recording started, not stopped.
   - `recorded`: `actualStart` and `actualEnd` are both set.
 - **Hours** = `actualEnd − actualStart − breakMinutes` for recorded shifts, and `plannedEnd − plannedStart` for planned ones.
@@ -124,14 +124,14 @@ Settings live in the database so the notification background isolate can read th
 | `overrunReminderMinutes` | 30 |
 | `roundingMode` | `nearestQuarter` (alternatives: `inFavour`, `strict`) |
 | `calendarId` | null, meaning sync is off |
-| `eventTitle` | "Kellnern" |
+| `eventTitle` | `Kellnern` (a literal default in the code) |
 | `eventColorKey` | null, meaning the calendar's own colour |
 | `themeSeed` | `akaiRed` / `terracotta` / `system` / `blue` / `green` / `violet` |
-| `weekMarks` | `icons` / `bars` (week strip on Heute) |
+| `weekMarks` | `icons` / `bars` (week strip on the Home tab) |
 | `themeMode` | `system` / `light` / `dark` |
 | `locale` | `system` / `de` / `en` |
 | `onboardingDone` | false |
-| `tipPromptDismissedDay` | null; the `yyyy-MM-dd` day whose "Trinkgeld eintragen" prompt on Heute she closed (§4.7). Device status like `lastCalendarSync`: `SettingsRepository.watch()` leaves it out, so closing the prompt doesn't rebuild the app. |
+| `tipPromptDismissedDay` | null; the `yyyy-MM-dd` day whose "Add the tips" prompt on the Home tab the user closed (§4.7). Device status like `lastCalendarSync`: `SettingsRepository.watch()` leaves it out, so closing the prompt doesn't rebuild the app. |
 
 ### Tables `tip_days` and `tip_payouts` (F10, schema version 2)
 
@@ -141,14 +141,14 @@ Tips are kept apart from shifts. The pool total belongs to a day, not to a shift
 |---|---|---|
 | `id` | text PK (UUID v4) | |
 | `day` | text `yyyy-MM-dd`, unique | the workday |
-| `poolCents` | int | **"Tagestopf"**: the day's tips of everyone combined, not her share |
+| `poolCents` | int | **"Daily pool"**: the day's tips of everyone combined, not the user's share |
 | `createdAt`, `updatedAt` | DateTime | |
 
 | Table `tip_payouts` | Type | Meaning |
 |---|---|---|
 | `id` | text PK (UUID v4) | |
 | `weekStart` | text `yyyy-MM-dd`, unique | the Monday of the tip week (Monday to Sunday) |
-| `amountCents` | int | **"Ausgezahlt"**: the cash she received for that week |
+| `amountCents` | int | **"Paid out"**: the cash the user received for that week |
 | `createdAt`, `updatedAt` | DateTime | |
 
 - One row per day or week at most. Saving again updates the row; clearing the amount deletes it.
@@ -159,13 +159,13 @@ Tips are kept apart from shifts. The pool total belongs to a day, not to a shift
 
 ### 4.1 Planning (Plan tab)
 
-- **Tapping Mittag/Abend toggles** a shift of that type on that day.
+- **Tapping Lunch or Evening toggles** a shift of that type on that day.
   - Turning it on creates the shift with the default times.
   - Turning it off deletes it. Only shifts with no recording can be removed this way; recorded shifts need a long-press or the edit sheet.
 - **Lunch default depends on the evening shift.**
   - Adding an evening shift on a day with a lunch shift moves the lunch end to 15:30, but only if the lunch shift still has default times (`plannedCustomized == false`) and isn't recorded yet.
   - Removing the evening shift moves it back to 16:00.
-- **"+"** opens the sheet with type *Individuell* and empty times, defaulting to 18:00–22:00 so the pickers start somewhere sensible.
+- **"+"** opens the sheet with type *Custom* and empty times, defaulting to 18:00–22:00 so the pickers start somewhere sensible.
 - **Past weeks** are fully editable. Recorded shifts are never changed automatically.
 
 ### 4.2 Recording (`RecordingService`)
@@ -174,15 +174,15 @@ The same code runs from the UI and from the notification background isolate.
 
 **`start(shiftId?, at = now)`**
 - If `shiftId` is given (from a notification or a shift row), that shift gets `rawStart = at`.
-- Otherwise, from the Heute card: the shift is today's next planned shift if its start is less than 2 h away or it is in progress.
-- If there is no such shift, a new shift of type Mittag (before 15:00) or Abend is created, with default planned times.
-- Then: show the ongoing "Erfassung läuft" notification and schedule the overrun reminder.
+- Otherwise, from the Home tab's card: the shift is today's next planned shift if its start is less than 2 h away or it is in progress.
+- If there is no such shift, a new shift of type lunch (before 15:00) or evening is created, with default planned times.
+- Then: show the ongoing "Recording" notification and schedule the overrun reminder.
 
 **`stop(at = now)`**
 - `rawEnd = at`, `actualStart = round(rawStart)`, `actualEnd = round(rawEnd)`. If both round to the same quarter, the end becomes start + 15 min.
 - Cancel the ongoing notification and the overrun reminder, mark the shift `dirty`, and run the calendar sync.
 
-**`stopAt(plannedEnd)`** is the same as `stop`, with `rawEnd = plannedEnd`. It's used by the "Ende 23:00" notification action.
+**`stopAt(plannedEnd)`** is the same as `stop`, with `rawEnd = plannedEnd`. It's used by the "End 23:00" notification action.
 
 **`changeStart(t)`** (while running) sets `rawStart = t` and refreshes the notification.
 
@@ -195,44 +195,44 @@ strict:         start rounded up, end rounded down
 ```
 
 - Applied only on Stop. Times entered by hand are kept as entered; the pickers step in 5 minutes.
-- The raw times stay stored and show as "Aufgezeichnet 17:32 – 22:41" in the sheet.
+- The raw times stay stored and show as "Recorded 17:32 – 22:41, rounded to quarter hours" in the sheet.
 
 ### 4.4 Month summary (F8)
 
 For the month of the selected or current date:
-- **Erfasst** = sum of hours of `recorded` shifts.
-- **Geplant (inkl. erfasst)** = Erfasst + hours of all `planned`, `running` and `missed` shifts in that month.
+- **Recorded** = sum of hours of `recorded` shifts.
+- **Planned (incl. recorded)** = Recorded + hours of all `planned`, `running` and `missed` shifts in that month.
   - A `running` shift counts with its planned hours.
-  - `missed` shifts are included but also shown as a warning ("1 Schicht nicht erfasst"), tappable to fix.
+  - `missed` shifts are included but also shown as a warning ("1 shift not recorded"), tappable to fix.
 - A shift belongs to the month of its `day`.
 
 ### 4.5 Export text (F6)
 
-Pure function `buildExportText(month, shifts, now, l10n)` in `lib/domain/export_text.dart`. She sends her hours once a month, so the text covers a whole month, grouped by week (user decision 2026-11-04; it was a weekly text before):
+Pure function `buildExportText(month, shifts, now, l10n)` in `lib/domain/export_text.dart`. The user sends the hours once a month, so the text covers a whole month, grouped by week (developer decision 2026-11-04; it was a weekly text before):
 
 ```
-Arbeitszeiten Oktober 2026
+Working hours October 2026
 
-KW 40 (01.10.–04.10.)
-Do 01.10.: 12:00–16:00 (4,0 h)
-Woche gesamt: 4,0 h
+CW 40 (01/10–04/10)
+Thu 01/10: 12:00–16:00 (4.0 h)
+Week total: 4.0 h
 
-KW 44 (26.10.–31.10.)
-Mo 26.10.: 12:00–16:00 (4,0 h)
-Fr 30.10.: 12:00–15:30 (3,5 h), 17:30–23:00, 30 min Pause (5,0 h)
-Woche gesamt: 12,5 h
+CW 44 (26/10–31/10)
+Mon 26/10: 12:00–16:00 (4.0 h)
+Fri 30/10: 12:00–15:30 (3.5 h), 17:30–23:00, 30 min break (5.0 h)
+Week total: 12.5 h
 
-Oktober gesamt: 16,5 h
+October total: 16.5 h
 ```
 
 - **Month:** calendar month. Planning stays weekly; only the export is monthly.
-- **Weeks:** ISO weeks (Mon–Sun) with their week number (KW). A week that crosses the month's start or end is cut to the days inside the month; its other days are in the neighbouring month's export. Weeks without recorded shifts are left out.
+- **Weeks:** ISO weeks (Mon–Sun) with their week number (CW). A week that crosses the month's start or end is cut to the days inside the month; its other days are in the neighbouring month's export. Weeks without recorded shifts are left out.
 - **What's listed:** only `recorded` shifts, in time order. Days without recorded shifts are left out.
-- **Per shift:** `start–end`, then `, N min Pause` if there is a break, then `(net h)`.
+- **Per shift:** `start–end`, then `, N min break` if there is a break, then `(net h)`.
 - **Hour format:** at most 2 decimals, always at least one (`4,0`), with a locale decimal separator (`,` in DE, `.` in EN).
-- **Last line:** "<Monat> gesamt" once the month is over, "<Monat> bisher" while it is still running.
-- **Warning:** if the month has `missed` or `running` shifts, the Export screen shows "1 Schicht nicht erfasst" above the preview. They are not included in the text.
-- **English version:** "Working hours October 2026", "CW 40 (01/10–04/10)", "Week total", "October total", "November so far".
+- **Last line:** "<Month> total" once the month is over, "<Month> so far" while it is still running.
+- **Warning:** if the month has `missed` or `running` shifts, the Export screen shows "1 shift not recorded" above the preview. They are not included in the text.
+- **Language:** the text follows the app language. The German version has the same layout, with German labels and dates like `01.10.`.
 
 ### 4.6 Reminder planning (`ReminderPlanner`)
 
@@ -259,26 +259,26 @@ Pure function `desiredNotifications(shifts, settings, now) → Set<ScheduledNoti
 
 ### 4.7 Tips (F10, `domain/tips.dart`)
 
-**Workdays** of a week are the days up to today that have at least one shift (recorded, running or "nicht erfasst"). A day with a stored pool total is also listed, even if its shift was deleted later, so no entry disappears.
+**Workdays** of a week are the days up to today that have at least one shift (recorded, running or not recorded). A day with a stored pool total is also listed, even if its shift was deleted later, so no entry disappears.
 
 **Money:**
 - Stored as integer cents.
 - Shown with cents only when they aren't zero: "40 €", "42,50 €" in German; "€40", "€42.50" in English (`NumberFormat.currency` with 0 or 2 decimals).
-- Input accepts "40", "40,5", "40,50" and "40.50": `,` and `.` both work as the decimal mark when one or two digits follow, because phone keyboards differ. Thousands may only be grouped with the app language's mark ("1.234,50" in German, "1,234.50" in English), so "40,505" is rejected as a typo rather than read as 40 505 €. More than two decimals or anything else is rejected with a hint.
+- Input accepts "40", "40,5", "40,50" and "40.50": `,` and `.` both work as the decimal mark when one or two digits follow, because phone keyboards differ. Thousands may only be grouped with the app language's mark ("1.234,50" in German, "1,234.50" in English), so "40,505" is rejected as a typo rather than read as 40 505 euros. More than two decimals or anything else is rejected with a hint.
 
 **Which month a payout counts for:** the month of the week's Thursday, the same rule ISO week numbers use. A week spanning two months goes to the month with more of its days (the restaurant is open Monday to Saturday, so at least 3 of 6 workdays). Example: Mon 2026-11-30 to Sun 2026-12-06 counts for December.
 
-**Month figure ("Trinkgeld" on Heute and Lohn):** the sum of the payouts of the weeks that count for the month. Pool totals are not added in, because they are everyone's tips.
+**Month figure ("Tips" on the Home and Pay tabs):** the sum of the payouts of the weeks that count for the month. Pool totals are not added in, because they are everyone's tips.
 
-**Prompt on Heute ("Trinkgeld eintragen"):** shown for the newest day D that meets all of these:
-- D is today or yesterday (so she can still enter it the next morning, and an evening shift ending after midnight still counts for D);
+**Prompt on the Home tab ("Add the tips"):** shown for the newest day D that meets all of these:
+- D is today or yesterday (so the user can still enter it the next morning, and an evening shift ending after midnight still counts for D);
 - D has at least one recorded shift, and none of D's shifts is running or still planned for later;
 - D has no pool total;
 - `tipPromptDismissedDay` is not D.
 
-"Eintragen" opens the pool-total sheet for D. "Nicht jetzt" stores D in `tipPromptDismissedDay`. Later days can still be entered on the Lohn tab.
+"Add" opens the pool-total sheet for D. "Not now" stores D in `tipPromptDismissedDay`. Later days can still be entered on the Pay tab.
 
-**Not in this version:** an estimate of her share. It would need the number of people working each day (§14.2).
+**Not in this version:** an estimate of the user's share. It would need the number of people working each day (§14.2).
 
 ## 5. Calendar sync
 
@@ -311,33 +311,33 @@ This bridge is also the part that has to be rewritten for iOS later (EventKit). 
 
 - The list shows calendars with access level ≥ `CAL_ACCESS_CONTRIBUTOR`, grouped by account (the Google address) and marked with their colour.
 - **Calendars not synced to the phone** (`SYNC_EVENTS = 0`; Google adds newly created calendars switched off) are listed too, with a hint. Choosing one turns its sync on (`SYNC_EVENTS = 1`, `VISIBLE = 1`) and asks Android to sync the account.
-- **"Aktualisieren"** asks Android to sync all calendar accounts (so a calendar just created on calendar.google.com shows up) and reads the list again, once right away and once after a few seconds.
-- Above the list is a hint: "Lege bei Bedarf einmalig einen eigenen Kalender auf calendar.google.com an und teile ihn". A link opens the browser.
-- Any calendar works, including the shared one or her main one. The app only touches events whose IDs it has stored. Other events in the calendar (yours, or hers made by hand) are never read as shifts, changed or deleted.
-- **Changing the calendar later:** asks "Bestehende Termine in den neuen Kalender verschieben?" — on Yes, the app deletes the events from the old calendar and creates them in the new one; on No, it removes the old ones only.
-- **"Kein Kalender"** turns sync off and deletes the app's events from the old calendar (as implemented; see §16).
+- **"Refresh"** asks Android to sync all calendar accounts (so a calendar just created on calendar.google.com shows up) and reads the list again, once right away and once after a few seconds.
+- Above the list is a hint: "New Google calendars can only be created and shared in the browser." A link ("Open calendar.google.com") opens the browser.
+- Any calendar works, including the shared one or the user's main one. The app only touches events whose IDs it has stored. Other events in the calendar (the developer's, or the user's own made by hand) are never read as shifts, changed or deleted.
+- **Changing the calendar later:** asks whether to move the existing events to the new calendar. On yes, the app deletes the events from the old calendar and creates them in the new one; on no, it removes the old ones only.
+- **"No calendar"** turns sync off and deletes the app's events from the old calendar (as implemented; see §16).
 
 ### 5.3 Event colour (new)
 
-- Settings › Kalender › **Termin-Farbe** opens a grid of the account's event colours, read from `CalendarContract.Colors` (`COLOR_TYPE_EVENT`). For Google accounts these are the 11 Google Calendar colours (Tomate, Flamingo, Mandarine, Banane, Salbei, Basilikum, Pfau, Heidelbeere, Lavendel, Weintraube, Graphit).
-- The first option is **"Kalenderfarbe"** (no override). It's the default.
+- Settings › Calendar › **Event color** opens a grid of the account's event colours, read from `CalendarContract.Colors` (`COLOR_TYPE_EVENT`). For Google accounts these are the 11 Google Calendar colours (Tomato, Flamingo, Tangerine, Banana, Sage, Basil, Peacock, Blueberry, Lavender, Grape, Graphite).
+- The first option is **"Calendar color"** (no override). It's the default.
 - One colour applies to all app events. Changing it marks all managed events `dirty`; the sync updates them in the background.
 - If the selected calendar's account provides no colour palette (e.g. a local calendar), the setting is hidden.
 
 ### 5.4 What an event looks like
 
-- **Title:** the `eventTitle` setting ("Kellnern").
+- **Title:** the `eventTitle` setting (default `Kellnern`).
 - **Time:** actual times if recorded, otherwise planned times.
 - **Colour:** the `eventColorKey` setting.
-- **Reminders:** none (`HAS_ALARM = 0`). The app does the reminding, and you shouldn't get her reminders through the shared calendar.
+- **Reminders:** none (`HAS_ALARM = 0`). The app does the reminding, and the developer shouldn't get the user's reminders through the shared calendar.
 - **Availability:** busy.
 - **Description:**
   ```
-  Geplant: 17:30–23:00
-  Erfasst: 17:30–22:45 (5,25 h)
-  Wird von TimeTrack verwaltet – bitte in der App ändern.
+  Planned: 17:30–23:00
+  Recorded: 17:30–22:45 (5.25 h)
+  Managed by TimeTrack – please change it in the app.
   ```
-  The "Erfasst" line appears only once the shift is recorded.
+  The "Recorded" line appears only once the shift is recorded.
 
 ### 5.5 Sync algorithm (`CalendarSync.reconcile`)
 
@@ -353,9 +353,9 @@ for shift in synced shifts from the current week onward:
     eventState(id) is deleted/missing → insertEvent again (deleted in Google Calendar → re-created)
 ```
 
-The last loop is limited to the current week onward, so old shifts she deliberately cleaned up in the past aren't recreated on every start.
+The last loop is limited to the current week onward, so old shifts the user deliberately cleaned up in the past aren't recreated on every start.
 
-**Sync status and "Jetzt synchronisieren".** Settings › Kalender shows the status: "N Änderungen noch nicht im Kalender" while shifts are marked, otherwise "Alles aktuell · zuletzt 17:04" (the time of the last run without errors, stored as `lastCalendarSync` in the settings table but kept out of `AppSettings`). The button runs the sync and then asks Android to upload the account's changes to Google right away (`ContentResolver.requestSync`, expedited). Automatic sync is unchanged.
+**Sync status and "Sync now".** Settings › Calendar shows the status: "N changes not in the calendar yet" while shifts are marked, otherwise "Up to date · last synced 17:04" (the time of the last run without errors, stored as `lastCalendarSync` in the settings table but kept out of `AppSettings`). The button runs the sync and then asks Android to upload the account's changes to Google right away (`ContentResolver.requestSync`, expedited). Automatic sync is unchanged.
 
 **Language.** The event description is written in the app's language; changing the language marks all events for an update, like a title or colour change.
 
@@ -367,17 +367,17 @@ The last loop is limited to the current week onward, so old shifts she deliberat
 
 | Channel | Importance | Use |
 |---|---|---|
-| `reminders` ("Erinnerungen") | high, sound | pre-shift reminder |
-| `recording` ("Laufende Erfassung") | low, silent, ongoing | running timer |
-| `overrun` ("Nachfragen") | high, sound | "Noch bei der Arbeit?" |
+| `reminders` ("Reminders") | high, sound | pre-shift reminder |
+| `recording` ("Running recording") | low, silent, ongoing | running timer |
+| `overrun` ("Follow-up questions") | high, sound | "Still at work?" |
 
 ### Notifications
 
 | Notification | Content | Actions (background, no UI) | Tap |
 |---|---|---|---|
-| Pre-shift reminder | "Schicht beginnt in 15 min" · "Abend · 17:30 – 23:00" | **Erfassung starten** → `start(shiftId)`; **Später** → re-schedule in 10 min (once) | Opens Heute |
-| Running | "Erfassung läuft" · "Abend · seit 17:30 · geplant bis 23:00". `usesChronometer` + `when = rawStart` (the system draws the timer). Progress bar from the recorded start to the planned end (see below). | **Beenden** → `stop()` | Opens Heute |
-| Overrun | "Noch bei der Arbeit?" · "Geplantes Ende war 23:00." | **Ende 23:00** → `stopAt(plannedEnd)`; **Jetzt beenden** → `stop()`; **Weiter** → overrun again in 30 min | Opens Heute |
+| Pre-shift reminder | "Shift starts in 15 min" · "Evening · 17:30 – 23:00" | **Start recording** → `start(shiftId)`; **Later** → re-schedule in 10 min (once) | Opens the Home tab |
+| Running | "Recording" · "Evening · since 17:30 · planned until 23:00". `usesChronometer` + `when = rawStart` (the system draws the timer). Progress bar from the recorded start to the planned end (see below). | **Stop** → `stop()` | Opens the Home tab |
+| Overrun | "Still at work?" · "The planned end was 23:00. Recording is still running." | **End 23:00** → `stopAt(plannedEnd)`; **Stop now** → `stop()`; **Keep going** → overrun again in 30 min | Opens the Home tab |
 
 **Progress bar of the running notification.** flutter_local_notifications posts the notification (with its button and the progress at that moment). The local plugin `running_progress` then keeps the bar moving without Flutter: an exact alarm every 5 minutes wakes a `BroadcastReceiver`, which rebuilds the shown notification with `Notification.Builder.recoverBuilder` (so the buttons stay), sets the new progress and re-posts it, until the planned end. If the notification is gone (stopped), it stops. On **Android 16** the rebuilt notification uses `Notification.ProgressStyle` and `setRequestPromotedOngoing(true)` (permission `POST_PROMOTED_NOTIFICATIONS`), so it shows as a **Live Update** (status-bar chip, prominent on the lock screen); before Android 16 it uses the classic `setProgress`. Each re-post through the app (reconcile) restarts the plugin.
 
@@ -391,13 +391,13 @@ The last loop is limited to the current week onward, so old shifts she deliberat
 
 All screens follow the concept canvas. Behaviour that isn't visible in the mockups:
 
-### Heute
+### Home
 - **Next-shift card** shows the next `planned` shift today or later. It turns into the running card while recording.
-- **When there's no plan:** "Keine Schicht geplant" with a "Trotzdem starten" button.
-- **Missed shifts:** if a past shift wasn't recorded, a chip "1 Schicht nicht erfasst" opens it.
-- **Month card:** wavy progress bar, recorded vs expected. Uses Flutter's indicator if it ships a wavy variant, otherwise a `CustomPainter`. Below the bar, a row **"Trinkgeld"** shows the month's payouts (§4.7); "0 €" until the first payout. The user saw both prototypes (2026-11-05). A third column next to the hours looked good too, but a row leaves room for the salary rows planned later (§14.2).
-- **Tip prompt:** a small card "Trinkgeld eintragen" below the next-shift card, by the rule in §4.7, with "Eintragen" and "Nicht jetzt".
-- **Week strip:** tap a day → Plan tab at that week. Under each day, lunch and evening shifts are marked either with icons (sun, moon, clock for custom; the default) or with two bars (left lunch, right evening; custom shifts by start time). Grey = planned, coloured = recorded. Chosen in Settings › Darstellung › Wochenübersicht.
+- **When there's no plan:** "No shift planned" with a "Start anyway" button.
+- **Missed shifts:** if a past shift wasn't recorded, a chip "1 shift not recorded" opens it.
+- **Month card:** wavy progress bar, recorded vs expected. Uses Flutter's indicator if it ships a wavy variant, otherwise a `CustomPainter`. Below the bar, a row **"Tips"** shows the month's payouts (§4.7); "€0" until the first payout. The developer saw both prototypes (2026-11-05). A third column next to the hours looked good too, but a row leaves room for the salary rows planned later (§14.2).
+- **Tip prompt:** a small card "Add the tips" below the next-shift card, by the rule in §4.7, with "Add" and "Not now".
+- **Week strip:** tap a day → Plan tab at that week. Under each day, lunch and evening shifts are marked either with icons (sun, moon, clock for custom; the default) or with two bars (left lunch, right evening; custom shifts by start time). Grey = planned, coloured = recorded. Chosen in Settings › Appearance & language › Week overview.
 
 ### Plan
 - **Week navigation:** arrows, swipe, and a "today" button.
@@ -405,64 +405,64 @@ All screens follow the concept canvas. Behaviour that isn't visible in the mocku
 - **Shift rows:**
   - Icon shows the status (clock = planned, filled check = recorded, warning = missed).
   - Tap opens the edit sheet.
-  - Long-press offers "Löschen" with an undo snackbar.
+  - Long-press offers "Delete" with an undo snackbar.
 
-### Schicht bearbeiten (bottom sheet)
-- **Type selector:** Mittag / Abend / Individuell. Switching type resets the planned times to that type's defaults, but only if they haven't been edited by hand.
+### Edit shift (bottom sheet)
+- **Type selector:** Lunch / Evening / Custom. Switching type resets the planned times to that type's defaults, but only if they haven't been edited by hand.
 - **Planned and actual times** use the Material time picker in 24 h format.
-- **Actual times** start empty for unrecorded shifts, with a button "Wie geplant übernehmen".
-- **Pause chips:** none / 15 / 30 / 45 / Andere (number input).
+- **Actual times** start empty for unrecorded shifts, with a button "Use planned times".
+- **Break chips:** none / 15 / 30 / 45 / Other (number input).
 - **Validation:** end must be after start. A shift may cross midnight; if the end is before the start, it moves to the next day (a hint is shown).
 - **Delete:** asks for confirmation only if the shift is recorded.
 
-### Lohn (F10)
+### Pay (F10)
 
-The third tab, between Plan and Export: Heute, Plan, Lohn, Export. Icon: `payments`. English label "Pay". It opens on the current week on each visit, like Export opens on the current month. Salary will be added to this tab later (§14.2).
+The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments`. It opens on the current week on each visit, like Export opens on the current month. Salary will be added to this tab later (§14.2).
 
-- **Month card:** the month of the shown week (by the Thursday rule), with the "Trinkgeld" figure and the number of weeks with a payout ("aus 3 Wochen"). Later it gets the salary figures.
+- **Month card:** the month of the shown week (by the Thursday rule), with the "Tips" figure and the number of weeks with a payout ("from 3 weeks"). Later it gets the salary figures.
 - **Week switcher:** the same as on Plan (arrows, swipe, "today" button).
-- **"Ausgezahlt" card:** the week's payout, or an "Eintragen" button if there is none. Tap opens the money sheet.
-- **"Tagestopf" list:** one row per workday (§4.7): weekday and date, the shift types worked (sun/moon icons as on Heute), and the pool total or "–". Tap opens the money sheet for that day. Below the list: "Zusammen" with the sum of the week's pool totals.
-- **A week without workdays:** "Diese Woche keine Schichten." The payout can still be entered.
+- **"Paid out" card:** the week's payout, or an "Add" button if there is none. Tap opens the money sheet.
+- **"Daily pool" list:** one row per workday (§4.7): weekday and date, the shift types worked (sun/moon icons as on the Home tab), and the pool total or "–". Tap opens the money sheet for that day. Below the list: "Total" with the sum of the week's pool totals.
+- **A week without workdays:** "No shifts this week." The payout can still be entered.
 - **Money sheet** (bottom sheet, the same for day and week):
-  - title "Tagestopf · Mo, 2. Nov." or "Ausgezahlt · KW 45";
-  - a hint: "Trinkgeld aller zusammen an diesem Tag" or "Was du für diese Woche bar bekommen hast";
+  - title "Daily pool · Mon, Nov 2" or "Paid out · week 45";
+  - a hint: "Everyone's tips combined that day" or "The cash you got for this week";
   - one text field with the decimal keyboard and a "€" suffix, focused when the sheet opens;
-  - "Speichern", plus "Löschen" if there is a value. Delete doesn't ask; a snack bar offers "Rückgängig" (with `persist: false`).
+  - "Save", plus "Delete" if there is a value. Delete doesn't ask; a snack bar offers "Undo" (with `persist: false`).
 
 ### Export
-- **Month picker:** always opens on the **current month**, also when coming back to the tab (user decision 2026-11-04). Earlier months are one tap back.
-- **Summary card:** "Monat gesamt" with the hours, shifts and days of the month.
+- **Month picker:** always opens on the **current month**, also when coming back to the tab (developer decision 2026-11-04). Earlier months are one tap back.
+- **Summary card:** "Month total" with the hours, shifts and days of the month.
 - **Copy** puts the text on the clipboard. **Share** opens the share sheet (WhatsApp etc.).
 
-### Einstellungen
+### Settings
 - **Sections:**
-  - Kalender: calendar, Termin-Titel, **Termin-Farbe**
-  - Standard-Schichtzeiten
-  - Erinnerungen
-  - Erfassung & Export
-  - Darstellung & Sprache
-  - App-Update: "Nach Updates suchen" (installed version, last check), the found update, "Update neu starten", "Update-Datei löschen" (§12)
-  - Über
+  - Calendar: calendar, Event title, **Event color**
+  - Default shift times
+  - Reminders
+  - Recording & export
+  - Appearance & language
+  - App update: "Check for updates" (installed version, last check), the found update, "Restart update", "Delete update file" (§12)
+  - An about section
 - **Reliability card** appears at the top only while something is missing:
   - notification permission
   - exact alarms
   - battery optimisation
-  - Autostart, on Xiaomi only; it can't be read, so it's checked off by hand: "Erledigt"
+  - Autostart, on Xiaomi only; it can't be read, so it's checked off by hand: "Done"
 
 ### Onboarding (first start, all skippable except the first page)
 1. **Welcome + language:** "AKAI Timetrack" with a short explanation.
 2. **Notifications:** `POST_NOTIFICATIONS`.
 3. **Exact reminders:** on Android 14+, the "Alarms & reminders" settings page.
 4. **Calendar:** the hint about a separate calendar, the permission, the selection list, then the event colour.
-5. **Xiaomi only:** Autostart and battery set to "Keine Einschränkungen", with buttons that open the right settings pages.
+5. **Xiaomi only:** Autostart and battery set to "No restrictions", with buttons that open the right settings pages.
 6. **Default times:** confirm or adjust.
 
 ## 8. Theming (F9)
 
 - `ColorScheme.fromSeed(seed, brightness)` builds the light and dark schemes.
-- **Presets:** AKAI-Rot `#C62828` (default; built with the `vibrant` scheme variant so it stays a clear red), Terrakotta `#8F4C38` (the former AKAI-Rot), Blau `#415F91`, Grün `#4C662B`, Violett `#65558F`.
-- **"Systemfarbe"** uses the `dynamic_color` palette. On Android < 12 it's still shown and falls back to AKAI-Rot.
+- **Presets:** "AKAI red" `#C62828` (default; built with the `vibrant` scheme variant so it stays a clear red), "Terracotta" `#8F4C38` (the former AKAI red), "Blue" `#415F91`, "Green" `#4C662B`, "Violet" `#65558F`.
+- **"System color"** uses the `dynamic_color` palette. On Android < 12 it's still shown and falls back to AKAI red.
 - **Dark mode** follows `ThemeMode` from the setting.
 - **Fonts:** Roboto and Material Icons, which ship with Flutter; nothing extra is bundled, and nothing is fetched at runtime.
 - **Large numbers** (timer, hours) use tabular figures.
@@ -505,18 +505,18 @@ akai_timetrack/
   - rounding (all modes, edge :07:30)
   - lunch/evening default logic
   - month summary (month boundaries, missed shifts)
-  - export text (DE/EN, breaks, weeks cut at the month's edges, empty month, "gesamt"/"bisher")
+  - export text (DE/EN, breaks, weeks cut at the month's edges, empty month, "total"/"so far")
   - ReminderPlanner (lead time, 14-day window, running shift)
   - sync state transitions (gateway faked)
-  - tips (F10): money parsing and formatting DE/EN, the Thursday month rule, workdays of a week, the Heute prompt rule, repository save/clear
+  - tips (F10): money parsing and formatting DE/EN, the Thursday month rule, workdays of a week, the Home prompt rule, repository save/clear
   - migration from schema 1 to 2 against the committed snapshot
 - **Widget tests:** Plan toggles, edit sheet validation, export preview.
-- **Test devices:** development and testing happen on a **Google Pixel 7 Pro** (latest Android) plus the emulator. Her Xiaomi isn't available before handover, because the app is a surprise. The Xiaomi-specific behaviour (Autostart, battery saver) is therefore built from documentation, and the checklist below runs on her phone during the field test (M6). The emulator can at least check minSdk 29 (an Android 10 image).
-- **Manual checklist (Pixel first, then again on her Xiaomi):**
+- **Test devices:** development and testing happen on a **Google Pixel 7 Pro** (latest Android) plus the emulator. The user's Xiaomi isn't available before handover, because the app is a surprise. The Xiaomi-specific behaviour (Autostart, battery saver) is therefore built from documentation, and the checklist below runs on the user's phone during the field test (M6). The emulator can at least check minSdk 29 (an Android 10 image).
+- **Manual checklist (Pixel first, then again on the user's Xiaomi):**
   - reminder after a reboot
   - reminder with the app swiped away
   - Start/Stop from the notification with the app killed
-  - event appears on your phone, with the right colour
+  - event appears on the developer's phone, with the right colour
   - deleting the event in Google Calendar → recreated
   - dark mode and system colour
 
@@ -532,7 +532,7 @@ akai_timetrack/
   - All three files are git-ignored.
   - SHA-256 certificate fingerprint: `A0:BF:16:21:D7:60:52:69:B2:D6:2D:3C:CD:A2:AF:8E:41:1A:A9:C8:76:8A:4B:7A:2F:66:15:70:62:1C:2C:91`
 - **Signing in the build:** `android/app/build.gradle.kts` uses the release key for release builds when `android/key.properties` exists, otherwise the debug key. That is fine for local tests, but a debug-signed APK cannot update an install signed with the release key.
-- **Back up the key.** Every update must be signed with the same key. Keep `android/timetrack-release.jks` and its password in a password manager plus an offline copy. If the key is lost, the app on her phone can only be replaced by uninstalling it, which deletes its data. The GitHub secret is not a backup, because secrets can't be read back.
+- **Back up the key.** Every update must be signed with the same key. Keep `android/timetrack-release.jks` and its password in a password manager plus an offline copy. If the key is lost, the app on the user's phone can only be replaced by uninstalling it, which deletes its data. The GitHub secret is not a backup, because secrets can't be read back.
 - **Releases come from GitHub Actions** (public repo `github.com/Kraechtshammer/akai-timetrack`; the in-app update needs it public):
   - `.github/workflows/ci.yml`: on every push to main and on pull requests, runs `flutter analyze` and `flutter test` (Flutter 3.47.9, same as the dev container).
   - `.github/workflows/release.yml`: on pushing a tag `v*` (or started by hand in the Actions tab), it checks that the tag matches the `pubspec.yaml` version, runs analyze and tests, writes the keystore from the repository secrets, builds the release APK, checks that it isn't debug-signed, and creates a GitHub release "TimeTrack <version>" with `timetrack-<version>.apk` attached and generated release notes. It fails if the secrets are missing.
@@ -541,10 +541,10 @@ akai_timetrack/
 - **In-app update** (since 2026-11-05):
   - **Check:** `GET api.github.com/repos/Kraechtshammer/akai-timetrack/releases/latest`, no token (public repo). Drafts and pre-releases don't count; the release needs an `.apk` asset. Newer means a higher `vX.Y.Z` tag than the installed versionName.
   - **When:** on app start and when the app comes back to the foreground, at most every 6 hours (`lastUpdateCheck` status key), plus by hand in Settings. No background work: Android keeps the process alive for days, so "on start" alone wasn't enough, and a background job would need the workmanager package.
-  - **Popup:** once per new version (`updatePopupShown` status key), with the release notes: only the "New", "Fixed" and "Improved" sections, headings translated, Markdown links and bold stripped. A release text without headings is shown as it is. "Später" leaves the update in Settings › App-Update.
-  - **Install:** the APK goes to `<app support>/updates/timetrack-<version>.apk` (`.part` while downloading, size checked against the asset), then into a PackageInstaller session (`MainActivity.kt`, channel `de.garten.akaitimetrack/updater`). Android asks the user to confirm; on success it stops and replaces the app. If "install unknown apps" is off for TimeTrack, the app opens that switch and continues the update when she comes back.
-  - **Restart:** "Update neu starten" (popup while installing, and Settings while an APK is stored) abandons the app's unfinished installer sessions and starts again, reusing the downloaded APK.
-  - **Clean-up:** on the first check after start the app deletes APKs of the installed version or older and unfinished downloads. "Update-Datei löschen" deletes all of them by hand.
+  - **Popup:** once per new version (`updatePopupShown` status key), with the release notes: only the "New", "Fixed" and "Improved" sections, headings translated, Markdown links and bold stripped. A release text without headings is shown as it is. "Later" leaves the update in Settings › App update.
+  - **Install:** the APK goes to `<app support>/updates/timetrack-<version>.apk` (`.part` while downloading, size checked against the asset), then into a PackageInstaller session (`MainActivity.kt`, channel `de.garten.akaitimetrack/updater`). Android asks the user to confirm; on success it stops and replaces the app. If "install unknown apps" is off for TimeTrack, the app opens that switch and continues the update when the user comes back.
+  - **Restart:** "Restart update" (popup while installing, and Settings while an APK is stored) abandons the app's unfinished installer sessions and starts again, reusing the downloaded APK.
+  - **Clean-up:** on the first check after start the app deletes APKs of the installed version or older and unfinished downloads. "Delete update file" deletes all of them by hand.
   - Only an APK signed with the same key can replace the app; Android's refusal is shown in the popup.
 - **Installing:** USB (`flutter install`) or the APK from the release page. Because the package name changed to the final one, the first install is a new app; the earlier test install (`de.garten.akaitimetrack`) must be uninstalled, and its data is not carried over.
 - When global developer verification arrives (2027), register the free limited-distribution account and register the app's package name `de.gartenpa.timetrack`.
@@ -555,17 +555,17 @@ akai_timetrack/
 |---|---|---|
 | M0 | Setup and spikes | Flutter project builds and runs on the **Pixel 7 Pro** (test device). Spikes confirm (a) a notification action writes to the DB with the app killed, (b) the chronometer notification shows, (c) the Kotlin bridge inserts a coloured event that appears with that colour in Google Calendar on the web. |
 | M1 | Data and Plan | Plan tab with toggles, custom shifts, edit sheet and breaks, persisted in drift, with unit tests for the planning logic. |
-| M2 | Recording | Heute screen, start/stop/change start, rounding, running notification, pre-shift and overrun reminders, background actions. |
+| M2 | Recording | Home tab, start/stop/change start, rounding, running notification, pre-shift and overrun reminders, background actions. |
 | M3 | Calendar sync | Calendar selection, event colour, reconcile with recreate-on-delete. |
 | M4 | Export and overview | Export screen (copy/share), month card, missed-shift warnings. |
 | M5 | Settings, theming, i18n, onboarding | All settings working, EN translation, dark mode and system colour, onboarding incl. Xiaomi hints. |
-| M6 | Handover and field test | Release key created and backed up. Install on her Xiaomi and set it up together (onboarding incl. Autostart and battery). Run the Xiaomi checklist, then one real week of use, then fixes. |
+| M6 | Handover and field test | Release key created and backed up. Install on the user's Xiaomi and set it up together (onboarding incl. Autostart and battery). Run the Xiaomi checklist, then one real week of use, then fixes. |
 
 ## 14. Prepared for later (not in v1)
 
 ### 14.1 Backup and restore
 
-**What v1 already has, with no work:** Android Auto Backup stores the database in her Google account's device backup. It's restored when she sets up a new phone or reinstalls the app. There's no manual "restore now" and no control over timing, but it covers a lost or replaced phone.
+**What v1 already has, with no work:** Android Auto Backup stores the database in the user's Google account's device backup. It's restored when the user sets up a new phone or reinstalls the app. There's no manual "restore now" and no control over timing, but it covers a lost or replaced phone.
 
 **What a later backup feature would be built on:**
 
@@ -587,13 +587,13 @@ akai_timetrack/
 - **Restore:**
   - **Into an empty app:** import everything.
   - **Into an app that already has data:** merge by UUID, where the newer `updatedAt` wins.
-  - **After a restore:** every shift is marked `dirty`, and she picks the calendar again.
+  - **After a restore:** every shift is marked `dirty`, and the user picks the calendar again.
   - **Avoiding duplicate events:** after a restore, before creating any events, the app looks in the chosen calendar for an existing event **on the same day, with the same start and end time and the event title from settings**. If one matches, the app reconnects the shift to it instead of creating a duplicate. Times are compared using the recorded times if the shift has them, otherwise the planned times.
-    - If several events match (e.g. two "Kellnern" events at the same time), the app takes one and leaves the others alone.
+    - If several events match (e.g. two events with the default title at the same time), the app takes one and leaves the others alone.
     - An event edited by hand in Google Calendar, or created before the title setting was changed, won't match. The app then creates a new event, and the old one has to be deleted by hand.
     - Nothing extra is written into the events for this, so they stay clean.
 - **Where the file goes**, to be decided when the feature is built:
-  - **No account setup:** Android's system file picker (Storage Access Framework). She picks a folder once, e.g. in Google Drive. The app keeps write access to it and saves a backup automatically, say weekly. No Google Cloud project, no OAuth.
+  - **No account setup:** Android's system file picker (Storage Access Framework). The user picks a folder once, e.g. in Google Drive. The app keeps write access to it and saves a backup automatically, say weekly. No Google Cloud project, no OAuth.
   - **Invisible app storage on Google Drive:** Google Drive's hidden "app data" folder via the Drive API. Needs a Google Cloud project and Google sign-in in the app.
   - **iOS:** the app's iCloud Drive container. Needs the Apple Developer Program.
   - Recommendation for later: the system file picker on Android first, because it needs no accounts.
@@ -613,15 +613,15 @@ Tips are built (F10, §3 and §4.7). The model planned here first (one tip entry
 
 Possible later extension: a `surcharge_rules` table for Sunday, holiday and night surcharges, which are common in restaurants. Each rule would have a weekday or holiday flag, a time window and a percentage.
 
-**Salary calculation:** a pure domain function `salaryFor(month, shifts, wageRates, payouts)` returning hours × the rate valid on each shift's day, tips, and the totals with and without tips. It goes on the "Lohn" tab and the month card there.
+**Salary calculation:** a pure domain function `salaryFor(month, shifts, wageRates, payouts)` returning hours × the rate valid on each shift's day, tips, and the totals with and without tips. It goes on the Pay tab and the month card there.
 
-**Tip-share estimate (maybe):** her expected share of a day's pool needs the kitchen/service split and the number of servers that day. Both change, so it would be a per-day input next to "Tagestopf" (a nullable column on `tip_days`).
+**Tip-share estimate (maybe):** the user's expected share of a day's pool needs the kitchen/service split and the number of servers that day. Both change, so it would be a per-day input next to "Daily pool" (a nullable column on `tip_days`).
 
 ## 15. Open points (small, can be decided while building)
 
 - App name "TimeTrack" and package name `de.gartenpa.timetrack` are final (see §12).
 - Exact text of the event description in English.
-- Whether "Später" on the pre-shift reminder needs a configurable delay (currently a fixed 10 min).
+- Whether "Later" on the pre-shift reminder needs a configurable delay (currently a fixed 10 min).
 
 ## 16. Changes made during implementation
 
@@ -629,15 +629,15 @@ Possible later extension: a `surcharge_rules` table for Sunday, holiday and nigh
 - **Navigation:** no go_router. Three tabs in an `IndexedStack` (`lib/ui/home_shell.dart`), Settings pushed with `Navigator`. A tap on a notification just opens the app.
 - **Calendar bridge:** a plain `MethodChannel` local plugin (`packages/calendar_bridge`) instead of Pigeon. It has to be a plugin package (not code in MainActivity) so it's also available in the notification background isolate. The same goes for `packages/running_progress`.
 - **compileSdk 37:** required by `permission_handler`. minSdk stays 29.
-- **"Kein Kalender":** choosing it deletes the app's events from the old calendar. Switching calendars always moves all events (no question).
+- **"No calendar":** choosing it deletes the app's events from the old calendar. Switching calendars always moves all events (no question).
 - **Export texts:** neutral, with no mention of the boss.
-- **Monthly export** (2026-11-04): she sends her hours monthly, so the export covers a month, grouped by week (§4.5). The `exportMonthTotals` setting, its switch in Settings and the switch on the Export screen were removed, because the month total is now always the last line. An old stored `exportMonthTotals` value is ignored.
-- **App icon:** three adaptive variants, selectable in Settings › Darstellung › App-Symbol, because the launcher decides the mask shape:
-  - "Rund": red ring and dark-red disc, for circular masks; the default.
+- **Monthly export** (2026-11-04): the user sends the hours monthly, so the export covers a month, grouped by week (§4.5). The `exportMonthTotals` setting, its switch in Settings and the switch on the Export screen were removed, because the month total is now always the last line. An old stored `exportMonthTotals` value is ignored.
+- **App icon:** three adaptive variants, selectable in Settings › Appearance & language › App icon, because the launcher decides the mask shape:
+  - "Round": red ring and dark-red disc, for circular masks; the default.
   - "Squircle": the original sign exactly as in `branding/app-icon.svg`, for squircle masks; the default on Xiaomi.
-  - "Squircle klein": the whole sign scaled down.
+  - "Small squircle": the whole sign scaled down.
   Each variant is an `activity-alias`; the app enables exactly one. Switching closes the app once. Themed icons (monochrome layer) are the same for all three.
 - **Package name:** changed to `de.gartenpa.timetrack` at 1.0.0 (was the provisional `de.garten.akaitimetrack`). The Kotlin namespace and `MainActivity` package stay `de.garten.akaitimetrack`.
 - **In-app update** (2026-11-05, §12): not in the original design. No new Flutter packages: dart:io for HTTP, the installer in `MainActivity.kt`. Needs the `INTERNET` permission in the main manifest (Flutter only adds it to debug builds) and `REQUEST_INSTALL_PACKAGES`.
 - **Database:** schema snapshots in `drift_schemas/` since schema version 2 (2026-11-05), configured in `build.yaml`. Migration steps come from the generated `lib/data/database.steps.dart`; tests are in `test/drift/`. Opening the database file moved to `lib/data/database_connection.dart`, because drift's schema export runs `database.dart` without Flutter.
-- **Tips** (2026-11-05, F10): the per-shift `tips` table planned in §14.2 was replaced by `tip_days` (the day's pool total) and `tip_payouts` (the weekly cash payout), because AKAI pools tips per day and pays weekly. A fourth tab, "Lohn", was added between Plan and Export. Schema version 2.
+- **Tips** (2026-11-05, F10): the per-shift `tips` table planned in §14.2 was replaced by `tip_days` (the day's pool total) and `tip_payouts` (the weekly cash payout), because AKAI pools tips per day and pays weekly. A fourth tab, "Pay", was added between Plan and Export. Schema version 2.

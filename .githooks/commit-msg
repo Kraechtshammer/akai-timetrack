@@ -11,7 +11,7 @@ if [[ $subject =~ ^(Merge|Revert|fixup!|squash!|amend!) ]]; then exit 0; fi
 if [[ ! $subject =~ ^($types):\ [^[:space:]] ]]; then
   cat >&2 <<'EOF'
 Commit subject needs a type prefix, e.g. "Feature: Export the month's hours".
-  Feature:      new things she can do in the app
+  Feature:      new things the user can do in the app
   Bugfix:       something that was broken works again
   Improvement:  existing behaviour or looks got better
   Docs:         documentation only

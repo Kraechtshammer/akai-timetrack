@@ -1,10 +1,10 @@
 # TimeTrack (AKAI Timetrack)
 
-Android app (Flutter) for one person: the user's partner, who waits tables at the restaurant AKAI. She plans lunch and evening shifts, the shifts appear in a shared Google calendar, she records her working time from a notification, and she sends the week's hours as text. The app is a surprise. It runs on her Xiaomi only after the handover (milestone M6). Until then, the user tests it on a Pixel 7 Pro and on the emulator.
+Android app (Flutter) for a waiter at the restaurant AKAI ("the user"). The user plans lunch and evening shifts, the shifts appear in a shared Google calendar, the user records the working time from a notification, and sends the month's hours as text. The app is a surprise for the user. It runs on the user's Xiaomi only after the handover (milestone M6). Until then, the developer tests it on a Pixel 7 Pro and on the emulator. It may later be shared with the user's colleagues at AKAI.
 
 Status: version 1.0.1 is released (tag `v1.0.1`). **Read [docs/HANDOFF.md](docs/HANDOFF.md) first.** It has the current state, the open points and the code map.
 
-The UI is German first, English second. The user writes in German or English; answer in English unless they switch.
+The app's UI is German first, English second. Docs, code comments and release notes are English only (see [docs/CLAUDE.md](docs/CLAUDE.md), "Writing style"). The developer writes in German or English; answer in English unless they switch.
 
 ## Where things are
 
@@ -30,17 +30,17 @@ The UI is German first, English second. The user writes in German or English; an
 
   Run long builds in the background and do other work meanwhile. When you wait, wait on the process you started. VS Code's own Dart analysis server always runs, so a loop on "is the analyzer running" never ends.
 - **Emulator:** `emulator-5554`, inside the container (task *Emulator: Start*). It has a local test calendar (`scripts/emulator-test-calendar.sh`) and is in dark mode.
-  - The user tests in it too, so don't drive the UI blindly. Take a screenshot first: `adb exec-out screencap -p > build/shot.png`, then read the PNG.
+  - The developer tests in it too, so don't drive the UI blindly. Take a screenshot first: `adb exec-out screencap -p > build/shot.png`, then read the PNG.
   - Tap coordinates are device pixels (1440×3120).
-  - Undo test data you create (test shifts, recordings, changed settings), or tell the user.
-- **Phone:** the user's Pixel 7 Pro (Android 16 QPR; Live Updates work there). adb reaches it only while the Windows adb server runs.
+  - Undo test data you create (test shifts, recordings, changed settings), or tell the developer.
+- **Phone:** the developer's Pixel 7 Pro (Android 16 QPR; Live Updates work there). adb reaches it only while the Windows adb server runs.
 
 Common commands: `flutter analyze` (must report no issues), `flutter test`, `dart format lib test packages`, `flutter gen-l10n` after ARB changes, `dart run build_runner build -d` then `dart run drift_dev make-migrations` after table changes, `bash scripts/build-apk.sh debug|release`, `adb install -r dist/<apk>`.
 
-## Working agreements with the user
+## Working agreements with the developer
 
 - **One commit per finished feature**, made as soon as the feature is checked. Commit messages have an imperative summary with a type prefix, a body saying what and why, and the `Co-Authored-By` trailer.
-- **Type prefixes** (checked by `.githooks/commit-msg`; the release notes are built from them by `scripts/release-notes.sh`): `Feature:` new things she can do, `Bugfix:` something broken works again, `Improvement:` existing behaviour or looks got better, `Docs:` docs only, `Dev:` build, CI, tooling, tests, `Release:` version bumps (left out of the notes). Example: `Feature: Export the month's hours`. The summary after the prefix appears in the release notes as is, so write it for her, not for a developer, when the type is Feature, Bugfix or Improvement. **Push only when the user asks.**
+- **Type prefixes** (checked by `.githooks/commit-msg`; the release notes are built from them by `scripts/release-notes.sh`): `Feature:` new things the user can do, `Bugfix:` something broken works again, `Improvement:` existing behaviour or looks got better, `Docs:` docs only, `Dev:` build, CI, tooling, tests, `Release:` version bumps (left out of the notes). Example: `Feature: Export the month's hours`. The summary after the prefix appears in the release notes as is, so write it for the user, in English, not for a developer, with no German UI terms, when the type is Feature, Bugfix or Improvement. **Push only when the developer asks.**
 - **Git identity:** the repo-local GitHub noreply address (`git config user.email` shows `…@users.noreply.github.com`). Never use the global work address; check it before the first commit of a session.
 - **Parallelize longer work.** Split it into well-described chunks for Sonnet subagents: files, the exact change, conventions, and "no commits". Then verify their work yourself (diff, analyze, tests, emulator) before committing. Never let two agents edit the same files. Only one agent at a time drives the emulator.
 - **Ask before:**
@@ -48,9 +48,9 @@ Common commands: `flutter analyze` (must report no issues), `flutter test`, `dar
   - changing app or package names;
   - design choices with trade-offs.
 
-  Offer the options with a recommendation. For visual choices, build real prototypes in the app and show screenshots; the user liked that for the week strip.
-- **Secrets never go into git, chat or docs:** `android/key.properties`, `android/*.jks`, `.devcontainer/.env`. The release key's backup is the user's job; remind them if the key changes.
-- **Releases:** raise `version:` in `pubspec.yaml` (name and a higher build number), commit, push, then push the tag `vX.Y.Z` (with the user's OK). See 03-dev-setup.md §9.
+  Offer the options with a recommendation. For visual choices, build real prototypes in the app and show screenshots; the developer liked that for the week strip.
+- **Secrets never go into git, chat or docs:** `android/key.properties`, `android/*.jks`, `.devcontainer/.env`. The release key's backup is the developer's job; remind them if the key changes.
+- **Releases:** raise `version:` in `pubspec.yaml` (name and a higher build number), commit, push, then push the tag `vX.Y.Z` (with the developer's OK). See 03-dev-setup.md §9.
 
 ## Quality bar
 
@@ -61,6 +61,7 @@ Common commands: `flutter analyze` (must report no issues), `flutter test`, `dar
   - `docs/02-design.md` for behaviour (deviations from the original design go in §16);
   - `docs/03-dev-setup.md` for the workflow.
 - German UI texts must read naturally, and every key also gets its English translation.
+- Docs, code comments and release notes are English only and neutral: UI elements are quoted with their English label from `lib/l10n/app_en.arb`, and the person using the app is "the user" (see docs/CLAUDE.md).
 - Report honestly what was checked and what wasn't (for example "only on the emulator, not on a phone").
 
 ## Pitfalls seen in this repo

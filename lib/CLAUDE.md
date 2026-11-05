@@ -1,6 +1,6 @@
 # lib/ and test/
 
-Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev container, running flutter/adb, commits, docs style and user preferences. Design background: `docs/02-design.md`; state and code map: `docs/HANDOFF.md`.
+Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev container, running flutter/adb, commits, docs style and developer preferences. Design background: `docs/02-design.md`; state and code map: `docs/HANDOFF.md`.
 
 ## Layers
 
@@ -50,7 +50,7 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 - Check the screen in dark and in light mode.
 
 ### Change colours
-- Seeds are in `app/theme.dart`. AKAI-Rot `#C62828` uses `DynamicSchemeVariant.vibrant`; `fidelity` was rejected (glaring dark-mode containers, blue tertiary). The other seeds use `tonalSpot`. "Systemfarbe" comes from `dynamic_color`.
+- Seeds are in `app/theme.dart`. "AKAI red" `#C62828` uses `DynamicSchemeVariant.vibrant`; `fidelity` was rejected (glaring dark-mode containers, blue tertiary). The other seeds use `tonalSpot`. "System color" comes from `dynamic_color`.
 
 ### Change the database
 - Tables are in `data/database.dart`. After editing run `dart run build_runner build -d`.

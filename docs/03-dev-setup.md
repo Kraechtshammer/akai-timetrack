@@ -92,7 +92,7 @@ dart run drift_dev make-migrations      # new snapshot in drift_schemas/, steps,
 
 Then raise `schemaVersion`, write the step in `AppDatabase.migration` (`from1To2`, …), and run `flutter test test/drift`. Run `make-migrations` once before the change too, if the current version has no snapshot yet. Migrations only add tables or nullable columns.
 
-**App icon variants.** The launcher entry is one of three activity aliases (Rund, Squircle, Squircle klein), chosen in the app's Settings. `flutter run` / F5 still works: `MainActivity` keeps a MAIN/LAUNCHER intent filter in the source manifest, and the build removes it from the installed app (`tools:node="remove"`). To start the app by hand:
+**App icon variants.** The launcher entry is one of three activity aliases (Round, Squircle, Small squircle), chosen in the app's Settings. `flutter run` / F5 still works: `MainActivity` keeps a MAIN/LAUNCHER intent filter in the source manifest, and the build removes it from the installed app (`tools:node="remove"`). To start the app by hand:
 
 ```
 adb shell am start -n de.gartenpa.timetrack/de.garten.akaitimetrack.MainActivity
@@ -188,13 +188,13 @@ Releases are built by GitHub Actions when a version tag is pushed. The repo is p
    git push origin v1.0.1
    ```
 4. The release workflow (`.github/workflows/release.yml`) checks that the tag matches the pubspec version, runs analyze and tests, builds the signed APK and creates the release "TimeTrack 1.0.1" with `timetrack-1.0.1.apk` attached and the release notes as its text. It can also be started by hand in the Actions tab.
-5. On the phone the app finds the release by itself (on start or when opened again, at most every 6 hours; or Settings › App-Update › "Nach Updates suchen") and shows the popup with the notes. The APK can also still be downloaded from the release page and installed by hand.
+5. On the phone the app finds the release by itself (on start or when opened again, at most every 6 hours; or Settings › App update › "Check for updates") and shows the popup with the notes. The APK can also still be downloaded from the release page and installed by hand.
 
 **Release notes.** Since 2026-11-05 every commit subject starts with a type prefix. `scripts/release-notes.sh <tag>` collects the subjects since the tag before and sorts them into sections; the release workflow uses its output as the release text.
 
 | Prefix | Section | Use for |
 |---|---|---|
-| `Feature:` | New | new things she can do in the app |
+| `Feature:` | New | new things the user can do in the app |
 | `Bugfix:` | Fixed | something that was broken works again |
 | `Improvement:` | Improved | existing behaviour or looks got better |
 | `Dev:`, `Docs:` | Behind the scenes | build, CI, tooling, tests, dev container; docs |
@@ -206,7 +206,7 @@ Releases are built by GitHub Actions when a version tag is pushed. The repo is p
 
 **Key files** (all git-ignored, in `android/`): `timetrack-release.jks` (the keystore, alias `timetrack`), `key.properties` (its settings) and `timetrack-release.jks.base64` (copy for GitHub; delete after use). Never commit or share them.
 
-**Back up the key.** Every update must be signed with the same key. Keep `timetrack-release.jks` and the password in a password manager plus an offline copy. If the key is lost, the app on her phone can only be replaced by uninstalling it, which deletes its data. The GitHub secret is not a backup: secrets can't be read back.
+**Back up the key.** Every update must be signed with the same key. Keep `timetrack-release.jks` and the password in a password manager plus an offline copy. If the key is lost, the app on the user's phone can only be replaced by uninstalling it, which deletes its data. The GitHub secret is not a backup: secrets can't be read back.
 
 **Testing the in-app update.** The app on the emulator is debug-signed, so the real (release-signed) APK from GitHub can't replace it. Point a debug build at a fake release instead:
 1. Build the "new" version and keep it: `flutter build apk --debug --dart-define=UPDATE_RELEASE_URL=http://127.0.0.1:8765/latest.json --build-name=1.0.1 --build-number=2`, copy `build/app/outputs/flutter-apk/app-debug.apk` aside.
