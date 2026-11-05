@@ -2,7 +2,7 @@
 
 Android app (Flutter) for one person: the user's partner, who waits tables at the restaurant AKAI. She plans lunch and evening shifts, the shifts appear in a shared Google calendar, she records her working time from a notification, and she sends the week's hours as text. The app is a surprise. It runs on her Xiaomi only after the handover (milestone M6). Until then, the user tests it on a Pixel 7 Pro and on the emulator.
 
-Status: version 1.0.0 is released (tag `v1.0.0`). **Read [docs/HANDOFF.md](docs/HANDOFF.md) first.** It has the current state, the open points and the code map.
+Status: version 1.0.1 is released (tag `v1.0.1`). **Read [docs/HANDOFF.md](docs/HANDOFF.md) first.** It has the current state, the open points and the code map.
 
 The UI is German first, English second. The user writes in German or English; answer in English unless they switch.
 
