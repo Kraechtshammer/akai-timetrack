@@ -25,12 +25,9 @@ The UI is German first, English second. The user writes in German or English; an
 ## Environment
 
 - **Everything builds in the dev container.** In the VS Code extension inside the container, run `flutter`, `dart` and `adb` directly in `/workspaces/akai-timetrack`. From a Windows shell, go through WSL: `wsl.exe -e docker ps` for the container name, then `wsl.exe -e docker exec <name> bash -lc 'cd /workspaces/akai-timetrack && …'`.
-- **Builds are slow.** The repo stays on `C:\` (the user's decision) and is mounted over 9p:
-  - `flutter analyze` takes 5–7 min;
-  - a debug APK about 2 min;
-  - a release APK about 5 min.
+- **The repo lives in WSL** since 2026-11-05: `/home/paga/Projects/akai-timetrack` (ext4). `C:\Users\paga\Projects\akai-timetrack` is only a link to it, so reading through it from Windows is the slow side now. Run git and builds in WSL or the container. Build times there: `flutter analyze` 20–30 s, `flutter test` 25 s, a debug APK about 25 s incremental, about 3 min clean (03-dev-setup.md §8).
 
-  Run these in the background and do other work meanwhile. When you wait, wait on the process you started. VS Code's own Dart analysis server always runs, so a loop on "is the analyzer running" never ends.
+  Run long builds in the background and do other work meanwhile. When you wait, wait on the process you started. VS Code's own Dart analysis server always runs, so a loop on "is the analyzer running" never ends.
 - **Emulator:** `emulator-5554`, inside the container (task *Emulator: Start*). It has a local test calendar (`scripts/emulator-test-calendar.sh`) and is in dark mode.
   - The user tests in it too, so don't drive the UI blindly. Take a screenshot first: `adb exec-out screencap -p > build/shot.png`, then read the PNG.
   - Tap coordinates are device pixels (1440×3120).
