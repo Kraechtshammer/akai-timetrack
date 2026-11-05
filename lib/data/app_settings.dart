@@ -1,5 +1,6 @@
 import '../core/time.dart';
 import '../domain/rounding.dart';
+import 'database.dart' show TeamShift;
 
 enum ThemeSeed { system, akaiRed, terracotta, blue, green, violet }
 
@@ -34,6 +35,95 @@ class ShiftTimes {
   }
 }
 
+/// Team planner: staff needed per weekday and shift by default (F11).
+/// 0 means the shift is closed. See docs/02-design.md §3 and §4.9.
+class StaffNeeds {
+  /// [values]: 14 numbers, Monday lunch, Monday evening, … Sunday evening.
+  const StaffNeeds(this.values);
+
+  /// 2 at lunch and 3 in the evening, closed on Sunday.
+  static const standard = StaffNeeds([
+    2,
+    3,
+    2,
+    3,
+    2,
+    3,
+    2,
+    3,
+    2,
+    3,
+    2,
+    3,
+    0,
+    0,
+  ]);
+
+  final List<int> values;
+
+  /// [weekday]: `DateTime.monday` … `DateTime.sunday`.
+  int needed(int weekday, TeamShift shift) =>
+      values[(weekday - 1) * 2 + shift.index];
+
+  StaffNeeds withNeeded(int weekday, TeamShift shift, int needed) =>
+      StaffNeeds([...values]..[(weekday - 1) * 2 + shift.index] = needed);
+
+  /// Parses `2,3;2,3;…` (seven days of `lunch,evening`).
+  static StaffNeeds? parse(String? text) {
+    final days = text?.split(';');
+    if (days == null || days.length != 7) return null;
+    final values = <int>[];
+    for (final day in days) {
+      final pair = day.split(',').map(int.tryParse).toList();
+      if (pair.length != 2 || pair.any((n) => n == null || n < 0)) return null;
+      values.addAll(pair.cast<int>());
+    }
+    return StaffNeeds(values);
+  }
+
+  @override
+  String toString() =>
+      [for (var d = 0; d < 7; d++) '${values[d * 2]},${values[d * 2 + 1]}']
+          .join(';');
+
+  @override
+  bool operator ==(Object other) =>
+      other is StaffNeeds && other.toString() == toString();
+
+  @override
+  int get hashCode => toString().hashCode;
+}
+
+/// Team planner: the normal start of lunch and evening (F11).
+class TeamStarts {
+  const TeamStarts(this.lunch, this.evening);
+
+  final Minutes lunch;
+  final Minutes evening;
+
+  Minutes of(TeamShift shift) => switch (shift) {
+    TeamShift.lunch => lunch,
+    TeamShift.evening => evening,
+  };
+
+  TeamStarts withStart(TeamShift shift, Minutes start) => switch (shift) {
+    TeamShift.lunch => TeamStarts(start, evening),
+    TeamShift.evening => TeamStarts(lunch, start),
+  };
+
+  /// Parses `HH:mm,HH:mm`.
+  static TeamStarts? parse(String? text) {
+    final parts = text?.split(',');
+    if (parts == null || parts.length != 2) return null;
+    final lunch = ShiftTimes._parseHm(parts[0]);
+    final evening = ShiftTimes._parseHm(parts[1]);
+    return lunch == null || evening == null ? null : TeamStarts(lunch, evening);
+  }
+
+  @override
+  String toString() => '${minutesToHhmm(lunch)},${minutesToHhmm(evening)}';
+}
+
 /// All settings, with their defaults. Stored as text in the settings table.
 class AppSettings {
   const AppSettings({
@@ -55,6 +145,9 @@ class AppSettings {
     this.onboardingDone = false,
     this.autostartConfirmed = false,
     this.appIconChosen = false,
+    this.teamPlanner = false,
+    this.teamStaffNeeded = StaffNeeds.standard,
+    this.teamStarts = const TeamStarts(12 * 60, 17 * 60 + 30),
   });
 
   final ShiftTimes lunch;
@@ -89,6 +182,15 @@ class AppSettings {
   /// itself lives in Android's package manager, see AppIcons.
   final bool appIconChosen;
 
+  /// Team planner (F11): shows the fifth tab.
+  final bool teamPlanner;
+
+  /// Team planner: staff needed per weekday and shift by default.
+  final StaffNeeds teamStaffNeeded;
+
+  /// Team planner: the normal start of lunch and evening.
+  final TeamStarts teamStarts;
+
   /// Reads settings from the stored key-value pairs. Unknown or broken
   /// values fall back to the defaults.
   factory AppSettings.fromMap(Map<String, String> m) {
@@ -117,6 +219,10 @@ class AppSettings {
       onboardingDone: m['onboardingDone'] == 'true',
       autostartConfirmed: m['autostartConfirmed'] == 'true',
       appIconChosen: m['appIconChosen'] == 'true',
+      teamPlanner: m['teamPlanner'] == 'true',
+      teamStaffNeeded:
+          StaffNeeds.parse(m['teamStaffNeeded']) ?? d.teamStaffNeeded,
+      teamStarts: TeamStarts.parse(m['teamStarts']) ?? d.teamStarts,
     );
   }
 
@@ -140,6 +246,9 @@ class AppSettings {
     'onboardingDone': '$onboardingDone',
     'autostartConfirmed': '$autostartConfirmed',
     'appIconChosen': '$appIconChosen',
+    'teamPlanner': '$teamPlanner',
+    'teamStaffNeeded': '$teamStaffNeeded',
+    'teamStarts': '$teamStarts',
   };
 
   /// Copy with some values changed. Nullable values are wrapped in a
@@ -163,6 +272,9 @@ class AppSettings {
     bool? onboardingDone,
     bool? autostartConfirmed,
     bool? appIconChosen,
+    bool? teamPlanner,
+    StaffNeeds? teamStaffNeeded,
+    TeamStarts? teamStarts,
   }) => AppSettings(
     lunch: lunch ?? this.lunch,
     lunchBeforeEvening: lunchBeforeEvening ?? this.lunchBeforeEvening,
@@ -182,5 +294,8 @@ class AppSettings {
     onboardingDone: onboardingDone ?? this.onboardingDone,
     autostartConfirmed: autostartConfirmed ?? this.autostartConfirmed,
     appIconChosen: appIconChosen ?? this.appIconChosen,
+    teamPlanner: teamPlanner ?? this.teamPlanner,
+    teamStaffNeeded: teamStaffNeeded ?? this.teamStaffNeeded,
+    teamStarts: teamStarts ?? this.teamStarts,
   );
 }

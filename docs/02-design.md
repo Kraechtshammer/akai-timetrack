@@ -169,6 +169,62 @@ The user's gross hourly wage. Each rate is valid from a day on, so a raise (for 
 - One row per start day at most. Saving a rate for a day that already has one updates it.
 - Zero is not a valid rate.
 
+### Team planner tables (F11, schema version 4)
+
+The team planner (§4.9) has its own tables and no link to `shifts`, calendar sync or reminders. Research and decisions: `01-research.md` §10. Shift kinds are stored as `TeamShift` (`lunch` = 0, `evening` = 1), not as `ShiftType`, because the planner has no custom shifts.
+
+| Table `team_members` | Type | Meaning |
+|---|---|---|
+| `id` | text PK (UUID v4) | |
+| `name` | text | as shown on the board and in the image |
+| `core` | bool, default false | **core worker**: experienced; each shift should have one |
+| `isMe` | bool, default false | this person is the user. At most one row; setting it clears it on the others |
+| `active` | bool, default true | **unused** since 2026-11-05 (always true). The developer dropped "inactive" as confusing: people who leave are deleted and added again later. The column stays because migrations only add. |
+| `createdAt`, `updatedAt` | DateTime | |
+
+| Table `team_answers` | Type | Meaning |
+|---|---|---|
+| `id` | text PK (UUID v4) | |
+| `weekStart` | text `yyyy-MM-dd` | the Monday of the planned week |
+| `memberId` | text | `team_members.id` |
+| `mode` | enum `canWork` / `cantWork` | what the marks mean |
+| `marks` | int, default 0 | bit `(weekday − 1) × 2 + shift` is set for each marked shift (Monday lunch = bit 0, Sunday evening = bit 13) |
+| `maxShifts` | int? | "At most N shifts"; null = no limit |
+| `createdAt`, `updatedAt` | DateTime | |
+
+- Unique on (`weekStart`, `memberId`). **No row = "No answer yet".** "Remove answer" deletes the row.
+
+| Table `team_assignments` | Type | Meaning |
+|---|---|---|
+| `id` | text PK (UUID v4) | |
+| `day` | text `yyyy-MM-dd` | |
+| `shift` | enum `TeamShift` | |
+| `memberId` | text | `team_members.id` |
+| `startMinutes` | int? | special start time (minutes after midnight); null = the shift's normal start |
+| `createdAt`, `updatedAt` | DateTime | |
+
+- Unique on (`day`, `shift`, `memberId`): a person is in a shift at most once.
+- A special start equal to the normal start is stored as null.
+
+| Table `team_needs` | Type | Meaning |
+|---|---|---|
+| `id` | text PK (UUID v4) | |
+| `day` | text `yyyy-MM-dd` | |
+| `shift` | enum `TeamShift` | |
+| `needed` | int | staff needed in this shift, for this one week |
+
+- Only changes made on the board are stored here (unique on `day`, `shift`). Everything else comes from the setting `teamStaffNeeded`, so the defaults can still be set after a week has been planned. Setting a count back to the default deletes the row.
+
+**Settings keys** (in the `settings` table, §3):
+
+| Key | Default | Meaning |
+|---|---|---|
+| `teamPlanner` | false | shows the fifth tab |
+| `teamStaffNeeded` | `2,3;2,3;2,3;2,3;2,3;2,3;0,0` | staff needed per weekday (Monday first), lunch then evening. 0 = closed |
+| `teamStarts` | `12:00,17:30` | the normal start of lunch and evening, shown on the board and in the image |
+
+The team start times are separate from the user's "Default shift times", because those are the user's own times (lunch may end at 15:30, the evening may start later), and changing them shouldn't change the team plan.
+
 ## 4. Domain logic
 
 ### 4.1 Planning (Plan tab)
@@ -304,6 +360,71 @@ Gross pay only: no tax, no deductions, no tips. Salary is paid per calendar mont
 - **"Earned"** = recorded hours × rate.
 - **"Expected"** = "Earned" plus the planned hours of all planned, running and missed shifts × rate. It matches "Planned (incl. recorded)" for the hours, so missed shifts count until they are recorded or deleted.
 - Each shift is paid at the rate of its day. Minutes are summed per rate and rounded to cents once per rate, not per shift.
+
+### 4.9 Team planner (F11, `domain/roster.dart`)
+
+Pure functions over people, answers, assignments and staff counts; the repository is `data/roster_repository.dart`. Research and the developer's decisions: `01-research.md` §10.
+
+**Week and shifts.** A plan covers an ISO week, Monday to Sunday. Each day has a Lunch and an Evening shift. The staff needed comes from `team_needs`, else from `teamStaffNeeded`. A shift with 0 needed is **closed**. A day is **open** if one of its shifts is open or has people in it; the board and the image show open days only, and a closed shift only while people are in it.
+
+**Answers.** For a person, a week and a shift:
+- no `team_answers` row → **no answer**;
+- `canWork` → available if the shift is marked;
+- `cantWork` → available if the shift is not marked.
+
+Closed shifts are never available. Switching the mode keeps the marks and flips their meaning. The summary line lists the available open shifts grouped by day: a day with both shifts is named once ("Thu"), otherwise with the shift ("Mon evening"). All of them: "Every shift"; none: "No shift".
+
+**Counts per person** (for sorting and the "Shifts per person" list):
+- **shifts**: the person's assignments in the week;
+- **possible**: the open shifts the person is available for.
+
+**Order in the shift sheet** (who to pick for shift S):
+1. **Available** people, sorted by fewest shifts this week, then by name (case-insensitive). If S has no core worker yet, the available core workers come first. Once S has one, the people who aren't core workers come first, because core workers cost more. Each part is sorted the same way.
+2. **No answer yet**, by name.
+3. **Can't work**, by name.
+
+People already in S are listed in their group, ticked.
+
+**Fill** (`fillWeek`). Adds people to open places and never removes or moves anyone. Person P is **eligible** for shift S if:
+- P has an answer that makes P available for S;
+- P isn't in S yet;
+- P has fewer shifts than their "At most N" (if set).
+
+It runs in two passes, each a loop that adds one person at a time:
+1. **Core pass:** over the open shifts with a free place and no core worker. Take the shift with the fewest eligible core workers (at least one); ties go to the earlier day, then lunch. Add the best eligible core worker.
+2. **Normal pass:** over the open shifts with a free place. Take the shift with the fewest eligible people (at least one), with the same ties. Add the best eligible person, but prefer people who **aren't core workers** over everything else, because core workers cost more (developer decision, 2026-11-05). Core workers only get a place here when nobody else is eligible.
+
+"Best" means, in this order (after the core rule of the normal pass):
+- fewest shifts this week;
+- not already working the other shift that day;
+- fewest other open places they are eligible for, because people with many options can still fill a place later;
+- name.
+
+The rules are deterministic: the same input gives the same plan. Fill returns the added assignments, the number of places still open and the shifts without a core worker. The board's snack bar reads "Filled 9 places · 2 still open" ("All places filled" when none are open), with "Undo".
+
+**Away:** a person who has answered, is available for no shift and isn't in the plan (`isAway`). The answer page's "Away this week" button saves exactly that ("Can work" with nothing marked). The summary line and the "Shifts per person" list show "Away this week" / "Away" instead of "0 shifts · 0 possible".
+
+**Warnings on the board:**
+- the count "2/3" in the error colour when short;
+- in the tertiary colour when over;
+- "No core worker" when an open shift has nobody marked core, but only if at least one person is a core worker at all.
+
+**Clear** removes all assignments of the week. Answers and staff counts stay. Undo puts the old assignments back (with their ids and start times).
+
+**Add my shifts to Plan.** For each assignment of the person marked `isMe` in the week:
+- if the user already has a Lunch or Evening shift of that kind on that day, skip it;
+- otherwise create it through `PlanningService` with the user's default times, so the lunch-before-evening rule applies (§4.1);
+- with a special start time, the planned start is moved to it, the end stays, and the shift counts as edited by hand (`plannedCustomized`).
+
+The new shifts sync to the calendar as usual. Snack bar: "Added 3 shifts to Plan" or "Already on Plan". Nothing on the Plan tab is ever removed by the planner.
+
+**Image** (`ui/roster/plan_image.dart`). A widget at a fixed 1600 × 900 logical pixels, rendered with `RepaintBoundary.toImage(pixelRatio: 1.2)` to a 1920 × 1080 PNG.
+- **Colours:** always light (white background, dark text, AKAI red `#C62828` for the headers), whatever the app's theme.
+- **Title:** "Shift plan" and "Week 46 · 9–14 Nov", in the app's language.
+- **Grid:** one column per open day (weekday and date); one row for Lunch and one for Evening, each labelled with its start time from `teamStarts`. Each cell lists the names, one per line. A special start time follows the name in a smaller grey font ("from 18:30"). A closed cell is light grey.
+- **Fitting:** one font size for all names. It shrinks from 30 px until the fullest cell fits, but not below 18 px. Below that the cell is cut off, which a plan of 6–8 people never reaches.
+- **Left out:** open places, core worker marks, warnings.
+- The file is written to the app's cache as `team-plan-<weekStart>.png`, replacing an earlier one, and shared with `share_plus`.
 
 ## 5. Calendar sync
 
@@ -475,6 +596,49 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
 - **Summary card:** "Month total" with the hours, shifts and days of the month.
 - **Copy** puts the text on the clipboard. **Share** opens the share sheet (WhatsApp etc.).
 
+### Team (F11)
+
+The fifth tab, last in the bar, shown only while Settings › Team planner is on. Turning the switch off hides the tab and keeps the data. The label is provisional: "Team" in English, "Dienstplan" in German, icon `groups`. The developer decides on the name once the screen is built. Last in the bar, so the other tabs keep their places when it is switched on or off. Rules: §4.9.
+
+**Board** (`ui/roster/team_screen.dart`). It opens on **next week** on each visit to the tab, like Pay opens on the current week.
+- **Header:** `PageHeader` and the `WeekSwitcher` (arrows, swipe, a button back to next week). A menu (⋮) has "People" and, if a person is marked "This is me" and has shifts this week, "Add my shifts to Plan".
+- **Answers card:** "Answers: 5 of 7" and the button "Enter answers". It starts the walk-through at the first person without an answer, or at the first person if everyone has answered. Without any people, the card reads "Add the people you plan for" with an "Add people" button instead.
+- **Action row:** "Fill" (tonal), "Clear" (text) and "Share" (filled). "Clear" is disabled on an empty board. "Share" opens the preview.
+- **Day cards:** one per open day, in the style of the Plan tab's cards.
+  - Each card has a row for Lunch and one for Evening: the shift name and normal start, the people as chips, and the count "2/3".
+  - A chip shows the name, a small star for a core worker, and a special start time ("18:30"). A person who can't work or hasn't answered gets a warning icon on the chip.
+  - Under the chips, "No core worker" when it applies.
+  - Tap a row → the shift sheet.
+- **"Shifts per person"** card: one row per person. Each row has the name with the core star and "3 shifts · 5 possible", "Away", or "No answer yet" in the error colour. Tap → that person's answer page alone.
+
+**Shift sheet** (bottom sheet, `ui/roster/shift_sheet.dart`):
+- Title: "Fri, Nov 13 · Evening".
+- "Staff needed" with − and + buttons and the number; 0 shows "Closed". Changes are saved at once (`team_needs`).
+- The people in the order of §4.9, each as a row with a check box: name, core star, "2 shifts". Ticking adds the person at once, unticking removes them.
+- A ticked row also shows a time button with the start ("17:30", or the special time in bold). It opens the 24 h time picker. Picking the normal start clears the special time.
+- "No answer yet" and "Can't work" are collapsed sections, closed by default. Their rows are dimmed but can be ticked.
+- No "Save" button; the sheet closes with a swipe or tap outside.
+
+**Answer page** (pushed, `ui/roster/answer_screen.dart`):
+- App bar: "Answers · Week 46". During the walk-through, a line "3 of 7" and a thin progress bar.
+- The person's name, big, with the core star.
+- A segmented button **"Can work" / "Can't work"** with no selection while there is no answer. Choosing one saves the answer.
+- **"Away this week"** (outlined button): one tap for vacation. It saves "Can work" with nothing marked and no limit. Disabled while the person is already away.
+- **The grid:** one row per day (Monday to Sunday) with a Lunch and an Evening toggle (sun and moon icons as on the Home tab). Tapping the day name toggles both. Closed shifts are disabled. Tapping a shift while there is no answer first chooses "Can work".
+- **Summary line:** "Available: Mon evening, Thu, Sat lunch", "Available: every shift", "Away this week" or "No answer yet". "Available: no shift" remains for someone who is in the plan by hand although no shift fits.
+- **"At most"** tile: "No limit", or 1–12 shifts, chosen with `pickOption`.
+- A menu (⋮) with "Remove answer" (back to no answer).
+- **Bottom:** "Back" and "Next" ("Done" on the last person, which returns to the board). Opened from "Shifts per person", only "Done". The order is everyone by name.
+
+**People** (pushed from the board's menu and from Settings, `ui/roster/people_screen.dart`):
+- Everyone by name.
+- Each row has the name, a core star and "This is me" as a subtitle.
+- "Add person" opens the person sheet.
+- **Person sheet:** a name field (focused), switches "Core worker" and "This is me", then "Save" and, for an existing person, "Delete". Deleting someone with answers or shifts asks first ("Delete Anna?"), because their answers and shifts in all weeks go too; otherwise a week would count a person the board can't show.
+- Names must not be empty. Two people with the same name are allowed, but the sheet warns, because the image would show the name twice.
+
+**Share preview** (pushed, `ui/roster/share_screen.dart`): the image (§4.9) scaled to the screen width inside a `FittedBox`. Below it "Share", which writes the PNG and opens the share sheet. A hint below the image: "Open places and warnings are not in the picture."
+
 ### Settings
 - **Sections:**
   - Calendar: calendar, Event title, **Event color**
@@ -482,6 +646,10 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
   - Reminders
   - Recording & export
   - Appearance & language
+  - Team planner (F11): the switch "Team planner" (subtitle "Plan the team's shifts and share the plan as a picture"). While it is on, also:
+    - "Staff needed": a sheet with one row per weekday and − / + for Lunch and Evening; 0 shows "Closed";
+    - "Start times": Lunch and Evening (`teamStarts`);
+    - "People" (opens the People screen).
   - App update: "Check for updates" (installed version, last check), the found update, "Restart update", "Delete update file" (§12)
   - An about section
 - **Reliability card** appears at the top only while something is missing:
@@ -676,3 +844,4 @@ Possible later extensions:
 - **Tips** (2026-11-05, F10): the per-shift `tips` table planned in §14.2 was replaced by `tip_days` (the day's pool total) and `tip_payouts` (the weekly cash payout), because AKAI pools tips per day and pays weekly. A fourth tab, "Pay", was added between Plan and Export. Schema version 2.
 - **Salary** (2026-11-05): built with the `wage_rates` table planned in §14.2 (schema version 3). The planned `salaryFor(month, shifts, wageRates, payouts)` became `payForMonth(shifts, rates, now)` in `domain/salary.dart`; tips stay separate (`TipMonth`), because they are counted by week, not by calendar month.
 - **Home tab:** the "Today" tab was renamed to "Home", with a `home` icon, when the pay row was added (developer decision, 2026-11-05).
+- **Team planner** (F11, planned 2026-11-05): not in the original scope. The user stands in for the boss's weekly service shift plan. Built into the app behind a Settings switch rather than as a separate app (`01-research.md` §10). Tables in §3, rules in §4.9, screens in §7. Schema version 4.

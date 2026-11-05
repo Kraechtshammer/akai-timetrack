@@ -5,11 +5,11 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 ## Layers
 
 - `core/`: pure helpers. Time (`time.dart`: day keys, ISO weeks, minutes), `format.dart` (HH:mm, `formatHours`, `formatEuros`).
-- `data/`: drift database `database.dart` (+ generated `database.g.dart` and `database.steps.dart`), `database_connection.dart` (opens the file), `shift_repository.dart`, `tip_repository.dart`, `wage_repository.dart`, `settings_repository.dart`, `app_settings.dart`.
-- `domain/`: pure Dart logic (planning, recording, rounding, month summary, export text, reminder planner, tips, salary). No Flutter imports. Unit-tested.
+- `data/`: drift database `database.dart` (+ generated `database.g.dart` and `database.steps.dart`), `database_connection.dart` (opens the file), `shift_repository.dart`, `tip_repository.dart`, `wage_repository.dart`, `roster_repository.dart` (team planner), `settings_repository.dart`, `app_settings.dart`.
+- `domain/`: pure Dart logic (planning, recording, rounding, month summary, export text, reminder planner, tips, salary, team planner `roster.dart`). No Flutter imports. Unit-tested.
 - `platform/`: Android integration. `notification_service.dart`, `calendar_sync.dart`, `device_setup.dart`, `app_icon.dart`.
 - `app/`: `AppServices` (`services.dart`, one per isolate), Riverpod `providers.dart`, `app.dart`, `theme.dart`.
-- `ui/`: screens. `material.dart` is the one UI import. `common.dart` has shared widgets.
+- `ui/`: screens. `material.dart` is the one UI import. `common.dart` has shared widgets. `ui/roster/` is the team planner (F11): board, shift sheet, answers, people, image and share preview, Settings tiles; shared bits in `roster_common.dart`.
 - `l10n/`: ARB files, generated `app_localizations*.dart` (committed), `labels.dart`.
 - Native code is in `packages/calendar_bridge` and `packages/running_progress` (Kotlin plugins).
 
@@ -58,6 +58,12 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 - Raise `schemaVersion` and add the step in `AppDatabase.migration`. Migrations only add. Never rename or reuse a column. Fill the generated data-integrity test with a row per old table.
 - `database.dart` must not import Flutter (drift's schema export runs it in plain Dart); the file is opened in `database_connection.dart`.
 - Money is integer cents. Show it with `formatEuros`; parse input with `parseEuroCents` (`domain/tips.dart`).
+
+### Team planner (F11)
+- Its own tables (`team_members`, `team_answers`, `team_assignments`, `team_needs`) and no link to `shifts`, calendar sync or reminders. The only bridge is `PlanningService.addFromTeamPlan` ("Add my shifts to Plan").
+- All rules are on `RosterWeek` in `domain/roster.dart` (availability, staff counts, sheet order, `fill()`); screens read it through `rosterWeekProvider(weekStart)`. Tests: `test/roster_test.dart`, `test/plan_image_test.dart`.
+- Answer marks are a bit mask: bit `(weekday - 1) * 2 + shift.index`. Use `withMark`/`isMarked`.
+- The shared PNG is `TeamPlanImage` (1600 × 900 logical, pixel ratio 1.2), always light, whatever the app theme.
 
 ### Change domain logic
 - Keep it in `domain/` as pure functions or small classes taking repositories/settings. Every domain change gets a test.

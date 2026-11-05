@@ -98,6 +98,42 @@ class PlanningService {
     await _onChanged();
   }
 
+  /// "Add my shifts to Plan" on the team board (docs/02-design.md §4.9).
+  /// Adds each shift unless the user already has one of that kind on that
+  /// day, with the default times, or with a special start (the end stays,
+  /// and the shift counts as edited by hand). Returns how many were added.
+  Future<int> addFromTeamPlan(
+    List<({DateTime day, ShiftType type, Minutes? start})> wanted,
+  ) async {
+    // Evenings first, so a lunch on the same day gets the shorter default.
+    final sorted = [...wanted]
+      ..sort(
+        (a, b) => (a.type == ShiftType.evening ? 0 : 1).compareTo(
+          b.type == ShiftType.evening ? 0 : 1,
+        ),
+      );
+    final settings = await _settings.load();
+    var added = 0;
+    for (final w in sorted) {
+      final shifts = await _shiftsOn(w.day);
+      if (shifts.any((s) => s.type == w.type)) continue;
+      final hasEvening = shifts.any((s) => s.type == ShiftType.evening);
+      final times = defaultTimes(w.type, settings, eveningSameDay: hasEvening);
+      final (start, end) = timesOn(w.day, w.start ?? times.start, times.end);
+      await _shifts.create(
+        day: w.day,
+        type: w.type,
+        plannedStart: start,
+        plannedEnd: end,
+        plannedCustomized: w.start != null && w.start != times.start,
+      );
+      await _adjustLunch(w.day);
+      added++;
+    }
+    if (added > 0) await _onChanged();
+    return added;
+  }
+
   /// Keeps an untouched lunch shift at the right default:
   /// 12:00–15:30 with an evening shift that day, otherwise 12:00–16:00.
   Future<void> _adjustLunch(DateTime day) async {

@@ -13,6 +13,7 @@ import '../../platform/calendar_sync.dart';
 import '../../l10n/labels.dart';
 import '../common.dart';
 import 'calendar_pickers.dart';
+import '../roster/team_settings.dart';
 import 'reliability.dart';
 import 'update_tiles.dart';
 
@@ -337,6 +338,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
           ]),
+          _Section(l10n.sectionTeam, const [TeamSettingsSection()]),
           _Section(l10n.sectionUpdate, const [UpdateTiles()]),
         ],
       ),

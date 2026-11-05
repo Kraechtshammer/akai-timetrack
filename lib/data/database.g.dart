@@ -2312,6 +2312,1774 @@ class WageRatesCompanion extends UpdateCompanion<WageRate> {
   }
 }
 
+class $TeamMembersTable extends TeamMembers
+    with TableInfo<$TeamMembersTable, TeamMember> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TeamMembersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _coreMeta = const VerificationMeta('core');
+  @override
+  late final GeneratedColumn<bool> core = GeneratedColumn<bool>(
+    'core',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("core" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isMeMeta = const VerificationMeta('isMe');
+  @override
+  late final GeneratedColumn<bool> isMe = GeneratedColumn<bool>(
+    'is_me',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_me" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _activeMeta = const VerificationMeta('active');
+  @override
+  late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
+    'active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    core,
+    isMe,
+    active,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'team_members';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TeamMember> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('core')) {
+      context.handle(
+        _coreMeta,
+        core.isAcceptableOrUnknown(data['core']!, _coreMeta),
+      );
+    }
+    if (data.containsKey('is_me')) {
+      context.handle(
+        _isMeMeta,
+        isMe.isAcceptableOrUnknown(data['is_me']!, _isMeMeta),
+      );
+    }
+    if (data.containsKey('active')) {
+      context.handle(
+        _activeMeta,
+        active.isAcceptableOrUnknown(data['active']!, _activeMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TeamMember map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TeamMember(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      core: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}core'],
+      )!,
+      isMe: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_me'],
+      )!,
+      active: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}active'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TeamMembersTable createAlias(String alias) {
+    return $TeamMembersTable(attachedDatabase, alias);
+  }
+}
+
+class TeamMember extends DataClass implements Insertable<TeamMember> {
+  /// UUID, so backups can be merged later.
+  final String id;
+  final String name;
+
+  /// Core worker: experienced; each shift should have one.
+  final bool core;
+
+  /// This person is the user. At most one row.
+  final bool isMe;
+
+  /// Inactive people are left out of new weeks but stay in old plans.
+  final bool active;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const TeamMember({
+    required this.id,
+    required this.name,
+    required this.core,
+    required this.isMe,
+    required this.active,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['core'] = Variable<bool>(core);
+    map['is_me'] = Variable<bool>(isMe);
+    map['active'] = Variable<bool>(active);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  TeamMembersCompanion toCompanion(bool nullToAbsent) {
+    return TeamMembersCompanion(
+      id: Value(id),
+      name: Value(name),
+      core: Value(core),
+      isMe: Value(isMe),
+      active: Value(active),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory TeamMember.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TeamMember(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      core: serializer.fromJson<bool>(json['core']),
+      isMe: serializer.fromJson<bool>(json['isMe']),
+      active: serializer.fromJson<bool>(json['active']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'core': serializer.toJson<bool>(core),
+      'isMe': serializer.toJson<bool>(isMe),
+      'active': serializer.toJson<bool>(active),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  TeamMember copyWith({
+    String? id,
+    String? name,
+    bool? core,
+    bool? isMe,
+    bool? active,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => TeamMember(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    core: core ?? this.core,
+    isMe: isMe ?? this.isMe,
+    active: active ?? this.active,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  TeamMember copyWithCompanion(TeamMembersCompanion data) {
+    return TeamMember(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      core: data.core.present ? data.core.value : this.core,
+      isMe: data.isMe.present ? data.isMe.value : this.isMe,
+      active: data.active.present ? data.active.value : this.active,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TeamMember(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('core: $core, ')
+          ..write('isMe: $isMe, ')
+          ..write('active: $active, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, core, isMe, active, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TeamMember &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.core == this.core &&
+          other.isMe == this.isMe &&
+          other.active == this.active &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class TeamMembersCompanion extends UpdateCompanion<TeamMember> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<bool> core;
+  final Value<bool> isMe;
+  final Value<bool> active;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const TeamMembersCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.core = const Value.absent(),
+    this.isMe = const Value.absent(),
+    this.active = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TeamMembersCompanion.insert({
+    required String id,
+    required String name,
+    this.core = const Value.absent(),
+    this.isMe = const Value.absent(),
+    this.active = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<TeamMember> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<bool>? core,
+    Expression<bool>? isMe,
+    Expression<bool>? active,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (core != null) 'core': core,
+      if (isMe != null) 'is_me': isMe,
+      if (active != null) 'active': active,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TeamMembersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<bool>? core,
+    Value<bool>? isMe,
+    Value<bool>? active,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return TeamMembersCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      core: core ?? this.core,
+      isMe: isMe ?? this.isMe,
+      active: active ?? this.active,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (core.present) {
+      map['core'] = Variable<bool>(core.value);
+    }
+    if (isMe.present) {
+      map['is_me'] = Variable<bool>(isMe.value);
+    }
+    if (active.present) {
+      map['active'] = Variable<bool>(active.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TeamMembersCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('core: $core, ')
+          ..write('isMe: $isMe, ')
+          ..write('active: $active, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TeamAnswersTable extends TeamAnswers
+    with TableInfo<$TeamAnswersTable, TeamAnswer> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TeamAnswersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _weekStartMeta = const VerificationMeta(
+    'weekStart',
+  );
+  @override
+  late final GeneratedColumn<String> weekStart = GeneratedColumn<String>(
+    'week_start',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _memberIdMeta = const VerificationMeta(
+    'memberId',
+  );
+  @override
+  late final GeneratedColumn<String> memberId = GeneratedColumn<String>(
+    'member_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<AnswerMode, int> mode =
+      GeneratedColumn<int>(
+        'mode',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<AnswerMode>($TeamAnswersTable.$convertermode);
+  static const VerificationMeta _marksMeta = const VerificationMeta('marks');
+  @override
+  late final GeneratedColumn<int> marks = GeneratedColumn<int>(
+    'marks',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _maxShiftsMeta = const VerificationMeta(
+    'maxShifts',
+  );
+  @override
+  late final GeneratedColumn<int> maxShifts = GeneratedColumn<int>(
+    'max_shifts',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    weekStart,
+    memberId,
+    mode,
+    marks,
+    maxShifts,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'team_answers';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TeamAnswer> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('week_start')) {
+      context.handle(
+        _weekStartMeta,
+        weekStart.isAcceptableOrUnknown(data['week_start']!, _weekStartMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_weekStartMeta);
+    }
+    if (data.containsKey('member_id')) {
+      context.handle(
+        _memberIdMeta,
+        memberId.isAcceptableOrUnknown(data['member_id']!, _memberIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_memberIdMeta);
+    }
+    if (data.containsKey('marks')) {
+      context.handle(
+        _marksMeta,
+        marks.isAcceptableOrUnknown(data['marks']!, _marksMeta),
+      );
+    }
+    if (data.containsKey('max_shifts')) {
+      context.handle(
+        _maxShiftsMeta,
+        maxShifts.isAcceptableOrUnknown(data['max_shifts']!, _maxShiftsMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {weekStart, memberId},
+  ];
+  @override
+  TeamAnswer map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TeamAnswer(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      weekStart: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}week_start'],
+      )!,
+      memberId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}member_id'],
+      )!,
+      mode: $TeamAnswersTable.$convertermode.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}mode'],
+        )!,
+      ),
+      marks: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}marks'],
+      )!,
+      maxShifts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}max_shifts'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TeamAnswersTable createAlias(String alias) {
+    return $TeamAnswersTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<AnswerMode, int, int> $convertermode =
+      const EnumIndexConverter<AnswerMode>(AnswerMode.values);
+}
+
+class TeamAnswer extends DataClass implements Insertable<TeamAnswer> {
+  final String id;
+
+  /// The week's Monday, `yyyy-MM-dd`.
+  final String weekStart;
+  final String memberId;
+  final AnswerMode mode;
+
+  /// Bit `(weekday - 1) * 2 + shift` for each marked shift.
+  final int marks;
+
+  /// "At most N shifts"; null = no limit.
+  final int? maxShifts;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const TeamAnswer({
+    required this.id,
+    required this.weekStart,
+    required this.memberId,
+    required this.mode,
+    required this.marks,
+    this.maxShifts,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['week_start'] = Variable<String>(weekStart);
+    map['member_id'] = Variable<String>(memberId);
+    {
+      map['mode'] = Variable<int>($TeamAnswersTable.$convertermode.toSql(mode));
+    }
+    map['marks'] = Variable<int>(marks);
+    if (!nullToAbsent || maxShifts != null) {
+      map['max_shifts'] = Variable<int>(maxShifts);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  TeamAnswersCompanion toCompanion(bool nullToAbsent) {
+    return TeamAnswersCompanion(
+      id: Value(id),
+      weekStart: Value(weekStart),
+      memberId: Value(memberId),
+      mode: Value(mode),
+      marks: Value(marks),
+      maxShifts: maxShifts == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maxShifts),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory TeamAnswer.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TeamAnswer(
+      id: serializer.fromJson<String>(json['id']),
+      weekStart: serializer.fromJson<String>(json['weekStart']),
+      memberId: serializer.fromJson<String>(json['memberId']),
+      mode: $TeamAnswersTable.$convertermode.fromJson(
+        serializer.fromJson<int>(json['mode']),
+      ),
+      marks: serializer.fromJson<int>(json['marks']),
+      maxShifts: serializer.fromJson<int?>(json['maxShifts']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'weekStart': serializer.toJson<String>(weekStart),
+      'memberId': serializer.toJson<String>(memberId),
+      'mode': serializer.toJson<int>(
+        $TeamAnswersTable.$convertermode.toJson(mode),
+      ),
+      'marks': serializer.toJson<int>(marks),
+      'maxShifts': serializer.toJson<int?>(maxShifts),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  TeamAnswer copyWith({
+    String? id,
+    String? weekStart,
+    String? memberId,
+    AnswerMode? mode,
+    int? marks,
+    Value<int?> maxShifts = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => TeamAnswer(
+    id: id ?? this.id,
+    weekStart: weekStart ?? this.weekStart,
+    memberId: memberId ?? this.memberId,
+    mode: mode ?? this.mode,
+    marks: marks ?? this.marks,
+    maxShifts: maxShifts.present ? maxShifts.value : this.maxShifts,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  TeamAnswer copyWithCompanion(TeamAnswersCompanion data) {
+    return TeamAnswer(
+      id: data.id.present ? data.id.value : this.id,
+      weekStart: data.weekStart.present ? data.weekStart.value : this.weekStart,
+      memberId: data.memberId.present ? data.memberId.value : this.memberId,
+      mode: data.mode.present ? data.mode.value : this.mode,
+      marks: data.marks.present ? data.marks.value : this.marks,
+      maxShifts: data.maxShifts.present ? data.maxShifts.value : this.maxShifts,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TeamAnswer(')
+          ..write('id: $id, ')
+          ..write('weekStart: $weekStart, ')
+          ..write('memberId: $memberId, ')
+          ..write('mode: $mode, ')
+          ..write('marks: $marks, ')
+          ..write('maxShifts: $maxShifts, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    weekStart,
+    memberId,
+    mode,
+    marks,
+    maxShifts,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TeamAnswer &&
+          other.id == this.id &&
+          other.weekStart == this.weekStart &&
+          other.memberId == this.memberId &&
+          other.mode == this.mode &&
+          other.marks == this.marks &&
+          other.maxShifts == this.maxShifts &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class TeamAnswersCompanion extends UpdateCompanion<TeamAnswer> {
+  final Value<String> id;
+  final Value<String> weekStart;
+  final Value<String> memberId;
+  final Value<AnswerMode> mode;
+  final Value<int> marks;
+  final Value<int?> maxShifts;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const TeamAnswersCompanion({
+    this.id = const Value.absent(),
+    this.weekStart = const Value.absent(),
+    this.memberId = const Value.absent(),
+    this.mode = const Value.absent(),
+    this.marks = const Value.absent(),
+    this.maxShifts = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TeamAnswersCompanion.insert({
+    required String id,
+    required String weekStart,
+    required String memberId,
+    required AnswerMode mode,
+    this.marks = const Value.absent(),
+    this.maxShifts = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       weekStart = Value(weekStart),
+       memberId = Value(memberId),
+       mode = Value(mode),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<TeamAnswer> custom({
+    Expression<String>? id,
+    Expression<String>? weekStart,
+    Expression<String>? memberId,
+    Expression<int>? mode,
+    Expression<int>? marks,
+    Expression<int>? maxShifts,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (weekStart != null) 'week_start': weekStart,
+      if (memberId != null) 'member_id': memberId,
+      if (mode != null) 'mode': mode,
+      if (marks != null) 'marks': marks,
+      if (maxShifts != null) 'max_shifts': maxShifts,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TeamAnswersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? weekStart,
+    Value<String>? memberId,
+    Value<AnswerMode>? mode,
+    Value<int>? marks,
+    Value<int?>? maxShifts,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return TeamAnswersCompanion(
+      id: id ?? this.id,
+      weekStart: weekStart ?? this.weekStart,
+      memberId: memberId ?? this.memberId,
+      mode: mode ?? this.mode,
+      marks: marks ?? this.marks,
+      maxShifts: maxShifts ?? this.maxShifts,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (weekStart.present) {
+      map['week_start'] = Variable<String>(weekStart.value);
+    }
+    if (memberId.present) {
+      map['member_id'] = Variable<String>(memberId.value);
+    }
+    if (mode.present) {
+      map['mode'] = Variable<int>(
+        $TeamAnswersTable.$convertermode.toSql(mode.value),
+      );
+    }
+    if (marks.present) {
+      map['marks'] = Variable<int>(marks.value);
+    }
+    if (maxShifts.present) {
+      map['max_shifts'] = Variable<int>(maxShifts.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TeamAnswersCompanion(')
+          ..write('id: $id, ')
+          ..write('weekStart: $weekStart, ')
+          ..write('memberId: $memberId, ')
+          ..write('mode: $mode, ')
+          ..write('marks: $marks, ')
+          ..write('maxShifts: $maxShifts, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TeamAssignmentsTable extends TeamAssignments
+    with TableInfo<$TeamAssignmentsTable, TeamAssignment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TeamAssignmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dayMeta = const VerificationMeta('day');
+  @override
+  late final GeneratedColumn<String> day = GeneratedColumn<String>(
+    'day',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<TeamShift, int> shift =
+      GeneratedColumn<int>(
+        'shift',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<TeamShift>($TeamAssignmentsTable.$convertershift);
+  static const VerificationMeta _memberIdMeta = const VerificationMeta(
+    'memberId',
+  );
+  @override
+  late final GeneratedColumn<String> memberId = GeneratedColumn<String>(
+    'member_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startMinutesMeta = const VerificationMeta(
+    'startMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> startMinutes = GeneratedColumn<int>(
+    'start_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    day,
+    shift,
+    memberId,
+    startMinutes,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'team_assignments';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TeamAssignment> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('day')) {
+      context.handle(
+        _dayMeta,
+        day.isAcceptableOrUnknown(data['day']!, _dayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dayMeta);
+    }
+    if (data.containsKey('member_id')) {
+      context.handle(
+        _memberIdMeta,
+        memberId.isAcceptableOrUnknown(data['member_id']!, _memberIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_memberIdMeta);
+    }
+    if (data.containsKey('start_minutes')) {
+      context.handle(
+        _startMinutesMeta,
+        startMinutes.isAcceptableOrUnknown(
+          data['start_minutes']!,
+          _startMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {day, shift, memberId},
+  ];
+  @override
+  TeamAssignment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TeamAssignment(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      day: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}day'],
+      )!,
+      shift: $TeamAssignmentsTable.$convertershift.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}shift'],
+        )!,
+      ),
+      memberId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}member_id'],
+      )!,
+      startMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_minutes'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TeamAssignmentsTable createAlias(String alias) {
+    return $TeamAssignmentsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<TeamShift, int, int> $convertershift =
+      const EnumIndexConverter<TeamShift>(TeamShift.values);
+}
+
+class TeamAssignment extends DataClass implements Insertable<TeamAssignment> {
+  final String id;
+
+  /// `yyyy-MM-dd`
+  final String day;
+  final TeamShift shift;
+  final String memberId;
+
+  /// Special start, minutes after midnight; null = the shift's normal start.
+  final int? startMinutes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const TeamAssignment({
+    required this.id,
+    required this.day,
+    required this.shift,
+    required this.memberId,
+    this.startMinutes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['day'] = Variable<String>(day);
+    {
+      map['shift'] = Variable<int>(
+        $TeamAssignmentsTable.$convertershift.toSql(shift),
+      );
+    }
+    map['member_id'] = Variable<String>(memberId);
+    if (!nullToAbsent || startMinutes != null) {
+      map['start_minutes'] = Variable<int>(startMinutes);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  TeamAssignmentsCompanion toCompanion(bool nullToAbsent) {
+    return TeamAssignmentsCompanion(
+      id: Value(id),
+      day: Value(day),
+      shift: Value(shift),
+      memberId: Value(memberId),
+      startMinutes: startMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startMinutes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory TeamAssignment.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TeamAssignment(
+      id: serializer.fromJson<String>(json['id']),
+      day: serializer.fromJson<String>(json['day']),
+      shift: $TeamAssignmentsTable.$convertershift.fromJson(
+        serializer.fromJson<int>(json['shift']),
+      ),
+      memberId: serializer.fromJson<String>(json['memberId']),
+      startMinutes: serializer.fromJson<int?>(json['startMinutes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'day': serializer.toJson<String>(day),
+      'shift': serializer.toJson<int>(
+        $TeamAssignmentsTable.$convertershift.toJson(shift),
+      ),
+      'memberId': serializer.toJson<String>(memberId),
+      'startMinutes': serializer.toJson<int?>(startMinutes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  TeamAssignment copyWith({
+    String? id,
+    String? day,
+    TeamShift? shift,
+    String? memberId,
+    Value<int?> startMinutes = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => TeamAssignment(
+    id: id ?? this.id,
+    day: day ?? this.day,
+    shift: shift ?? this.shift,
+    memberId: memberId ?? this.memberId,
+    startMinutes: startMinutes.present ? startMinutes.value : this.startMinutes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  TeamAssignment copyWithCompanion(TeamAssignmentsCompanion data) {
+    return TeamAssignment(
+      id: data.id.present ? data.id.value : this.id,
+      day: data.day.present ? data.day.value : this.day,
+      shift: data.shift.present ? data.shift.value : this.shift,
+      memberId: data.memberId.present ? data.memberId.value : this.memberId,
+      startMinutes: data.startMinutes.present
+          ? data.startMinutes.value
+          : this.startMinutes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TeamAssignment(')
+          ..write('id: $id, ')
+          ..write('day: $day, ')
+          ..write('shift: $shift, ')
+          ..write('memberId: $memberId, ')
+          ..write('startMinutes: $startMinutes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, day, shift, memberId, startMinutes, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TeamAssignment &&
+          other.id == this.id &&
+          other.day == this.day &&
+          other.shift == this.shift &&
+          other.memberId == this.memberId &&
+          other.startMinutes == this.startMinutes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class TeamAssignmentsCompanion extends UpdateCompanion<TeamAssignment> {
+  final Value<String> id;
+  final Value<String> day;
+  final Value<TeamShift> shift;
+  final Value<String> memberId;
+  final Value<int?> startMinutes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const TeamAssignmentsCompanion({
+    this.id = const Value.absent(),
+    this.day = const Value.absent(),
+    this.shift = const Value.absent(),
+    this.memberId = const Value.absent(),
+    this.startMinutes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TeamAssignmentsCompanion.insert({
+    required String id,
+    required String day,
+    required TeamShift shift,
+    required String memberId,
+    this.startMinutes = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       day = Value(day),
+       shift = Value(shift),
+       memberId = Value(memberId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<TeamAssignment> custom({
+    Expression<String>? id,
+    Expression<String>? day,
+    Expression<int>? shift,
+    Expression<String>? memberId,
+    Expression<int>? startMinutes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (day != null) 'day': day,
+      if (shift != null) 'shift': shift,
+      if (memberId != null) 'member_id': memberId,
+      if (startMinutes != null) 'start_minutes': startMinutes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TeamAssignmentsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? day,
+    Value<TeamShift>? shift,
+    Value<String>? memberId,
+    Value<int?>? startMinutes,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return TeamAssignmentsCompanion(
+      id: id ?? this.id,
+      day: day ?? this.day,
+      shift: shift ?? this.shift,
+      memberId: memberId ?? this.memberId,
+      startMinutes: startMinutes ?? this.startMinutes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (day.present) {
+      map['day'] = Variable<String>(day.value);
+    }
+    if (shift.present) {
+      map['shift'] = Variable<int>(
+        $TeamAssignmentsTable.$convertershift.toSql(shift.value),
+      );
+    }
+    if (memberId.present) {
+      map['member_id'] = Variable<String>(memberId.value);
+    }
+    if (startMinutes.present) {
+      map['start_minutes'] = Variable<int>(startMinutes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TeamAssignmentsCompanion(')
+          ..write('id: $id, ')
+          ..write('day: $day, ')
+          ..write('shift: $shift, ')
+          ..write('memberId: $memberId, ')
+          ..write('startMinutes: $startMinutes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TeamNeedsTable extends TeamNeeds
+    with TableInfo<$TeamNeedsTable, TeamNeed> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TeamNeedsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dayMeta = const VerificationMeta('day');
+  @override
+  late final GeneratedColumn<String> day = GeneratedColumn<String>(
+    'day',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<TeamShift, int> shift =
+      GeneratedColumn<int>(
+        'shift',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<TeamShift>($TeamNeedsTable.$convertershift);
+  static const VerificationMeta _neededMeta = const VerificationMeta('needed');
+  @override
+  late final GeneratedColumn<int> needed = GeneratedColumn<int>(
+    'needed',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, day, shift, needed];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'team_needs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TeamNeed> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('day')) {
+      context.handle(
+        _dayMeta,
+        day.isAcceptableOrUnknown(data['day']!, _dayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dayMeta);
+    }
+    if (data.containsKey('needed')) {
+      context.handle(
+        _neededMeta,
+        needed.isAcceptableOrUnknown(data['needed']!, _neededMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_neededMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {day, shift},
+  ];
+  @override
+  TeamNeed map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TeamNeed(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      day: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}day'],
+      )!,
+      shift: $TeamNeedsTable.$convertershift.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}shift'],
+        )!,
+      ),
+      needed: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}needed'],
+      )!,
+    );
+  }
+
+  @override
+  $TeamNeedsTable createAlias(String alias) {
+    return $TeamNeedsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<TeamShift, int, int> $convertershift =
+      const EnumIndexConverter<TeamShift>(TeamShift.values);
+}
+
+class TeamNeed extends DataClass implements Insertable<TeamNeed> {
+  final String id;
+
+  /// `yyyy-MM-dd`
+  final String day;
+  final TeamShift shift;
+  final int needed;
+  const TeamNeed({
+    required this.id,
+    required this.day,
+    required this.shift,
+    required this.needed,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['day'] = Variable<String>(day);
+    {
+      map['shift'] = Variable<int>(
+        $TeamNeedsTable.$convertershift.toSql(shift),
+      );
+    }
+    map['needed'] = Variable<int>(needed);
+    return map;
+  }
+
+  TeamNeedsCompanion toCompanion(bool nullToAbsent) {
+    return TeamNeedsCompanion(
+      id: Value(id),
+      day: Value(day),
+      shift: Value(shift),
+      needed: Value(needed),
+    );
+  }
+
+  factory TeamNeed.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TeamNeed(
+      id: serializer.fromJson<String>(json['id']),
+      day: serializer.fromJson<String>(json['day']),
+      shift: $TeamNeedsTable.$convertershift.fromJson(
+        serializer.fromJson<int>(json['shift']),
+      ),
+      needed: serializer.fromJson<int>(json['needed']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'day': serializer.toJson<String>(day),
+      'shift': serializer.toJson<int>(
+        $TeamNeedsTable.$convertershift.toJson(shift),
+      ),
+      'needed': serializer.toJson<int>(needed),
+    };
+  }
+
+  TeamNeed copyWith({String? id, String? day, TeamShift? shift, int? needed}) =>
+      TeamNeed(
+        id: id ?? this.id,
+        day: day ?? this.day,
+        shift: shift ?? this.shift,
+        needed: needed ?? this.needed,
+      );
+  TeamNeed copyWithCompanion(TeamNeedsCompanion data) {
+    return TeamNeed(
+      id: data.id.present ? data.id.value : this.id,
+      day: data.day.present ? data.day.value : this.day,
+      shift: data.shift.present ? data.shift.value : this.shift,
+      needed: data.needed.present ? data.needed.value : this.needed,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TeamNeed(')
+          ..write('id: $id, ')
+          ..write('day: $day, ')
+          ..write('shift: $shift, ')
+          ..write('needed: $needed')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, day, shift, needed);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TeamNeed &&
+          other.id == this.id &&
+          other.day == this.day &&
+          other.shift == this.shift &&
+          other.needed == this.needed);
+}
+
+class TeamNeedsCompanion extends UpdateCompanion<TeamNeed> {
+  final Value<String> id;
+  final Value<String> day;
+  final Value<TeamShift> shift;
+  final Value<int> needed;
+  final Value<int> rowid;
+  const TeamNeedsCompanion({
+    this.id = const Value.absent(),
+    this.day = const Value.absent(),
+    this.shift = const Value.absent(),
+    this.needed = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TeamNeedsCompanion.insert({
+    required String id,
+    required String day,
+    required TeamShift shift,
+    required int needed,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       day = Value(day),
+       shift = Value(shift),
+       needed = Value(needed);
+  static Insertable<TeamNeed> custom({
+    Expression<String>? id,
+    Expression<String>? day,
+    Expression<int>? shift,
+    Expression<int>? needed,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (day != null) 'day': day,
+      if (shift != null) 'shift': shift,
+      if (needed != null) 'needed': needed,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TeamNeedsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? day,
+    Value<TeamShift>? shift,
+    Value<int>? needed,
+    Value<int>? rowid,
+  }) {
+    return TeamNeedsCompanion(
+      id: id ?? this.id,
+      day: day ?? this.day,
+      shift: shift ?? this.shift,
+      needed: needed ?? this.needed,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (day.present) {
+      map['day'] = Variable<String>(day.value);
+    }
+    if (shift.present) {
+      map['shift'] = Variable<int>(
+        $TeamNeedsTable.$convertershift.toSql(shift.value),
+      );
+    }
+    if (needed.present) {
+      map['needed'] = Variable<int>(needed.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TeamNeedsCompanion(')
+          ..write('id: $id, ')
+          ..write('day: $day, ')
+          ..write('shift: $shift, ')
+          ..write('needed: $needed, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2320,6 +4088,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TipDaysTable tipDays = $TipDaysTable(this);
   late final $TipPayoutsTable tipPayouts = $TipPayoutsTable(this);
   late final $WageRatesTable wageRates = $WageRatesTable(this);
+  late final $TeamMembersTable teamMembers = $TeamMembersTable(this);
+  late final $TeamAnswersTable teamAnswers = $TeamAnswersTable(this);
+  late final $TeamAssignmentsTable teamAssignments = $TeamAssignmentsTable(
+    this,
+  );
+  late final $TeamNeedsTable teamNeeds = $TeamNeedsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2330,6 +4104,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     tipDays,
     tipPayouts,
     wageRates,
+    teamMembers,
+    teamAnswers,
+    teamAssignments,
+    teamNeeds,
   ];
 }
 
@@ -3528,6 +5306,959 @@ typedef $$WageRatesTableProcessedTableManager =
       WageRate,
       PrefetchHooks Function()
     >;
+typedef $$TeamMembersTableCreateCompanionBuilder =
+    TeamMembersCompanion Function({
+      required String id,
+      required String name,
+      Value<bool> core,
+      Value<bool> isMe,
+      Value<bool> active,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$TeamMembersTableUpdateCompanionBuilder =
+    TeamMembersCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<bool> core,
+      Value<bool> isMe,
+      Value<bool> active,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$TeamMembersTableFilterComposer
+    extends Composer<_$AppDatabase, $TeamMembersTable> {
+  $$TeamMembersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get core => $composableBuilder(
+    column: $table.core,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isMe => $composableBuilder(
+    column: $table.isMe,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get active => $composableBuilder(
+    column: $table.active,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TeamMembersTableOrderingComposer
+    extends Composer<_$AppDatabase, $TeamMembersTable> {
+  $$TeamMembersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get core => $composableBuilder(
+    column: $table.core,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isMe => $composableBuilder(
+    column: $table.isMe,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get active => $composableBuilder(
+    column: $table.active,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TeamMembersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TeamMembersTable> {
+  $$TeamMembersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<bool> get core =>
+      $composableBuilder(column: $table.core, builder: (column) => column);
+
+  GeneratedColumn<bool> get isMe =>
+      $composableBuilder(column: $table.isMe, builder: (column) => column);
+
+  GeneratedColumn<bool> get active =>
+      $composableBuilder(column: $table.active, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$TeamMembersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TeamMembersTable,
+          TeamMember,
+          $$TeamMembersTableFilterComposer,
+          $$TeamMembersTableOrderingComposer,
+          $$TeamMembersTableAnnotationComposer,
+          $$TeamMembersTableCreateCompanionBuilder,
+          $$TeamMembersTableUpdateCompanionBuilder,
+          (
+            TeamMember,
+            BaseReferences<_$AppDatabase, $TeamMembersTable, TeamMember>,
+          ),
+          TeamMember,
+          PrefetchHooks Function()
+        > {
+  $$TeamMembersTableTableManager(_$AppDatabase db, $TeamMembersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TeamMembersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TeamMembersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TeamMembersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<bool> core = const Value.absent(),
+                Value<bool> isMe = const Value.absent(),
+                Value<bool> active = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TeamMembersCompanion(
+                id: id,
+                name: name,
+                core: core,
+                isMe: isMe,
+                active: active,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                Value<bool> core = const Value.absent(),
+                Value<bool> isMe = const Value.absent(),
+                Value<bool> active = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => TeamMembersCompanion.insert(
+                id: id,
+                name: name,
+                core: core,
+                isMe: isMe,
+                active: active,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TeamMembersTable, TeamMember>(table),
+                  BaseReferences<_$AppDatabase, $TeamMembersTable, TeamMember>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TeamMembersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TeamMembersTable,
+      TeamMember,
+      $$TeamMembersTableFilterComposer,
+      $$TeamMembersTableOrderingComposer,
+      $$TeamMembersTableAnnotationComposer,
+      $$TeamMembersTableCreateCompanionBuilder,
+      $$TeamMembersTableUpdateCompanionBuilder,
+      (
+        TeamMember,
+        BaseReferences<_$AppDatabase, $TeamMembersTable, TeamMember>,
+      ),
+      TeamMember,
+      PrefetchHooks Function()
+    >;
+typedef $$TeamAnswersTableCreateCompanionBuilder =
+    TeamAnswersCompanion Function({
+      required String id,
+      required String weekStart,
+      required String memberId,
+      required AnswerMode mode,
+      Value<int> marks,
+      Value<int?> maxShifts,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$TeamAnswersTableUpdateCompanionBuilder =
+    TeamAnswersCompanion Function({
+      Value<String> id,
+      Value<String> weekStart,
+      Value<String> memberId,
+      Value<AnswerMode> mode,
+      Value<int> marks,
+      Value<int?> maxShifts,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$TeamAnswersTableFilterComposer
+    extends Composer<_$AppDatabase, $TeamAnswersTable> {
+  $$TeamAnswersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get weekStart => $composableBuilder(
+    column: $table.weekStart,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get memberId => $composableBuilder(
+    column: $table.memberId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<AnswerMode, AnswerMode, int> get mode =>
+      $composableBuilder(
+        column: $table.mode,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<int> get marks => $composableBuilder(
+    column: $table.marks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get maxShifts => $composableBuilder(
+    column: $table.maxShifts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TeamAnswersTableOrderingComposer
+    extends Composer<_$AppDatabase, $TeamAnswersTable> {
+  $$TeamAnswersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get weekStart => $composableBuilder(
+    column: $table.weekStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get memberId => $composableBuilder(
+    column: $table.memberId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get mode => $composableBuilder(
+    column: $table.mode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get marks => $composableBuilder(
+    column: $table.marks,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get maxShifts => $composableBuilder(
+    column: $table.maxShifts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TeamAnswersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TeamAnswersTable> {
+  $$TeamAnswersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get weekStart =>
+      $composableBuilder(column: $table.weekStart, builder: (column) => column);
+
+  GeneratedColumn<String> get memberId =>
+      $composableBuilder(column: $table.memberId, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<AnswerMode, int> get mode =>
+      $composableBuilder(column: $table.mode, builder: (column) => column);
+
+  GeneratedColumn<int> get marks =>
+      $composableBuilder(column: $table.marks, builder: (column) => column);
+
+  GeneratedColumn<int> get maxShifts =>
+      $composableBuilder(column: $table.maxShifts, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$TeamAnswersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TeamAnswersTable,
+          TeamAnswer,
+          $$TeamAnswersTableFilterComposer,
+          $$TeamAnswersTableOrderingComposer,
+          $$TeamAnswersTableAnnotationComposer,
+          $$TeamAnswersTableCreateCompanionBuilder,
+          $$TeamAnswersTableUpdateCompanionBuilder,
+          (
+            TeamAnswer,
+            BaseReferences<_$AppDatabase, $TeamAnswersTable, TeamAnswer>,
+          ),
+          TeamAnswer,
+          PrefetchHooks Function()
+        > {
+  $$TeamAnswersTableTableManager(_$AppDatabase db, $TeamAnswersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TeamAnswersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TeamAnswersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TeamAnswersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> weekStart = const Value.absent(),
+                Value<String> memberId = const Value.absent(),
+                Value<AnswerMode> mode = const Value.absent(),
+                Value<int> marks = const Value.absent(),
+                Value<int?> maxShifts = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TeamAnswersCompanion(
+                id: id,
+                weekStart: weekStart,
+                memberId: memberId,
+                mode: mode,
+                marks: marks,
+                maxShifts: maxShifts,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String weekStart,
+                required String memberId,
+                required AnswerMode mode,
+                Value<int> marks = const Value.absent(),
+                Value<int?> maxShifts = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => TeamAnswersCompanion.insert(
+                id: id,
+                weekStart: weekStart,
+                memberId: memberId,
+                mode: mode,
+                marks: marks,
+                maxShifts: maxShifts,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TeamAnswersTable, TeamAnswer>(table),
+                  BaseReferences<_$AppDatabase, $TeamAnswersTable, TeamAnswer>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TeamAnswersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TeamAnswersTable,
+      TeamAnswer,
+      $$TeamAnswersTableFilterComposer,
+      $$TeamAnswersTableOrderingComposer,
+      $$TeamAnswersTableAnnotationComposer,
+      $$TeamAnswersTableCreateCompanionBuilder,
+      $$TeamAnswersTableUpdateCompanionBuilder,
+      (
+        TeamAnswer,
+        BaseReferences<_$AppDatabase, $TeamAnswersTable, TeamAnswer>,
+      ),
+      TeamAnswer,
+      PrefetchHooks Function()
+    >;
+typedef $$TeamAssignmentsTableCreateCompanionBuilder =
+    TeamAssignmentsCompanion Function({
+      required String id,
+      required String day,
+      required TeamShift shift,
+      required String memberId,
+      Value<int?> startMinutes,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$TeamAssignmentsTableUpdateCompanionBuilder =
+    TeamAssignmentsCompanion Function({
+      Value<String> id,
+      Value<String> day,
+      Value<TeamShift> shift,
+      Value<String> memberId,
+      Value<int?> startMinutes,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$TeamAssignmentsTableFilterComposer
+    extends Composer<_$AppDatabase, $TeamAssignmentsTable> {
+  $$TeamAssignmentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get day => $composableBuilder(
+    column: $table.day,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TeamShift, TeamShift, int> get shift =>
+      $composableBuilder(
+        column: $table.shift,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get memberId => $composableBuilder(
+    column: $table.memberId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startMinutes => $composableBuilder(
+    column: $table.startMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TeamAssignmentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TeamAssignmentsTable> {
+  $$TeamAssignmentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get day => $composableBuilder(
+    column: $table.day,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get shift => $composableBuilder(
+    column: $table.shift,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get memberId => $composableBuilder(
+    column: $table.memberId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startMinutes => $composableBuilder(
+    column: $table.startMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TeamAssignmentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TeamAssignmentsTable> {
+  $$TeamAssignmentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get day =>
+      $composableBuilder(column: $table.day, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<TeamShift, int> get shift =>
+      $composableBuilder(column: $table.shift, builder: (column) => column);
+
+  GeneratedColumn<String> get memberId =>
+      $composableBuilder(column: $table.memberId, builder: (column) => column);
+
+  GeneratedColumn<int> get startMinutes => $composableBuilder(
+    column: $table.startMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$TeamAssignmentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TeamAssignmentsTable,
+          TeamAssignment,
+          $$TeamAssignmentsTableFilterComposer,
+          $$TeamAssignmentsTableOrderingComposer,
+          $$TeamAssignmentsTableAnnotationComposer,
+          $$TeamAssignmentsTableCreateCompanionBuilder,
+          $$TeamAssignmentsTableUpdateCompanionBuilder,
+          (
+            TeamAssignment,
+            BaseReferences<
+              _$AppDatabase,
+              $TeamAssignmentsTable,
+              TeamAssignment
+            >,
+          ),
+          TeamAssignment,
+          PrefetchHooks Function()
+        > {
+  $$TeamAssignmentsTableTableManager(
+    _$AppDatabase db,
+    $TeamAssignmentsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TeamAssignmentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TeamAssignmentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TeamAssignmentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> day = const Value.absent(),
+                Value<TeamShift> shift = const Value.absent(),
+                Value<String> memberId = const Value.absent(),
+                Value<int?> startMinutes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TeamAssignmentsCompanion(
+                id: id,
+                day: day,
+                shift: shift,
+                memberId: memberId,
+                startMinutes: startMinutes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String day,
+                required TeamShift shift,
+                required String memberId,
+                Value<int?> startMinutes = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => TeamAssignmentsCompanion.insert(
+                id: id,
+                day: day,
+                shift: shift,
+                memberId: memberId,
+                startMinutes: startMinutes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TeamAssignmentsTable, TeamAssignment>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $TeamAssignmentsTable,
+                    TeamAssignment
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TeamAssignmentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TeamAssignmentsTable,
+      TeamAssignment,
+      $$TeamAssignmentsTableFilterComposer,
+      $$TeamAssignmentsTableOrderingComposer,
+      $$TeamAssignmentsTableAnnotationComposer,
+      $$TeamAssignmentsTableCreateCompanionBuilder,
+      $$TeamAssignmentsTableUpdateCompanionBuilder,
+      (
+        TeamAssignment,
+        BaseReferences<_$AppDatabase, $TeamAssignmentsTable, TeamAssignment>,
+      ),
+      TeamAssignment,
+      PrefetchHooks Function()
+    >;
+typedef $$TeamNeedsTableCreateCompanionBuilder = TeamNeedsCompanion Function({
+  required String id,
+  required String day,
+  required TeamShift shift,
+  required int needed,
+  Value<int> rowid,
+});
+typedef $$TeamNeedsTableUpdateCompanionBuilder = TeamNeedsCompanion Function({
+  Value<String> id,
+  Value<String> day,
+  Value<TeamShift> shift,
+  Value<int> needed,
+  Value<int> rowid,
+});
+
+class $$TeamNeedsTableFilterComposer
+    extends Composer<_$AppDatabase, $TeamNeedsTable> {
+  $$TeamNeedsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get day => $composableBuilder(
+    column: $table.day,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TeamShift, TeamShift, int> get shift =>
+      $composableBuilder(
+        column: $table.shift,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<int> get needed => $composableBuilder(
+    column: $table.needed,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TeamNeedsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TeamNeedsTable> {
+  $$TeamNeedsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get day => $composableBuilder(
+    column: $table.day,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get shift => $composableBuilder(
+    column: $table.shift,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get needed => $composableBuilder(
+    column: $table.needed,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TeamNeedsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TeamNeedsTable> {
+  $$TeamNeedsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get day =>
+      $composableBuilder(column: $table.day, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<TeamShift, int> get shift =>
+      $composableBuilder(column: $table.shift, builder: (column) => column);
+
+  GeneratedColumn<int> get needed =>
+      $composableBuilder(column: $table.needed, builder: (column) => column);
+}
+
+class $$TeamNeedsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TeamNeedsTable,
+          TeamNeed,
+          $$TeamNeedsTableFilterComposer,
+          $$TeamNeedsTableOrderingComposer,
+          $$TeamNeedsTableAnnotationComposer,
+          $$TeamNeedsTableCreateCompanionBuilder,
+          $$TeamNeedsTableUpdateCompanionBuilder,
+          (TeamNeed, BaseReferences<_$AppDatabase, $TeamNeedsTable, TeamNeed>),
+          TeamNeed,
+          PrefetchHooks Function()
+        > {
+  $$TeamNeedsTableTableManager(_$AppDatabase db, $TeamNeedsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TeamNeedsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TeamNeedsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TeamNeedsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> day = const Value.absent(),
+                Value<TeamShift> shift = const Value.absent(),
+                Value<int> needed = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TeamNeedsCompanion(
+                id: id,
+                day: day,
+                shift: shift,
+                needed: needed,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String day,
+                required TeamShift shift,
+                required int needed,
+                Value<int> rowid = const Value.absent(),
+              }) => TeamNeedsCompanion.insert(
+                id: id,
+                day: day,
+                shift: shift,
+                needed: needed,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TeamNeedsTable, TeamNeed>(table),
+                  BaseReferences<_$AppDatabase, $TeamNeedsTable, TeamNeed>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TeamNeedsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TeamNeedsTable,
+      TeamNeed,
+      $$TeamNeedsTableFilterComposer,
+      $$TeamNeedsTableOrderingComposer,
+      $$TeamNeedsTableAnnotationComposer,
+      $$TeamNeedsTableCreateCompanionBuilder,
+      $$TeamNeedsTableUpdateCompanionBuilder,
+      (TeamNeed, BaseReferences<_$AppDatabase, $TeamNeedsTable, TeamNeed>),
+      TeamNeed,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3542,4 +6273,12 @@ class $AppDatabaseManager {
       $$TipPayoutsTableTableManager(_db, _db.tipPayouts);
   $$WageRatesTableTableManager get wageRates =>
       $$WageRatesTableTableManager(_db, _db.wageRates);
+  $$TeamMembersTableTableManager get teamMembers =>
+      $$TeamMembersTableTableManager(_db, _db.teamMembers);
+  $$TeamAnswersTableTableManager get teamAnswers =>
+      $$TeamAnswersTableTableManager(_db, _db.teamAnswers);
+  $$TeamAssignmentsTableTableManager get teamAssignments =>
+      $$TeamAssignmentsTableTableManager(_db, _db.teamAssignments);
+  $$TeamNeedsTableTableManager get teamNeeds =>
+      $$TeamNeedsTableTableManager(_db, _db.teamNeeds);
 }

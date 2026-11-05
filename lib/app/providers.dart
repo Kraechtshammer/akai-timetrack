@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/app_settings.dart';
 import '../data/database.dart';
 import '../data/settings_repository.dart';
+import '../domain/roster.dart';
 import '../platform/app_icon.dart';
 import 'services.dart';
 
@@ -48,6 +49,52 @@ final tipPromptDismissedProvider = StreamProvider<String?>(
       .settings
       .watchStatus(SettingsRepository.tipPromptDismissed),
 );
+
+/// Team planner (F11): everyone on the team list.
+final teamMembersProvider = StreamProvider<List<TeamMember>>(
+  (ref) => ref.watch(servicesProvider).roster.watchMembers(),
+);
+
+/// Team planner: the answers of the week starting on the given Monday.
+final teamAnswersProvider = StreamProvider.family<List<TeamAnswer>, DateTime>(
+  (ref, week) => ref.watch(servicesProvider).roster.watchAnswers(week),
+);
+
+/// Team planner: who is in which shift that week.
+final teamAssignmentsProvider =
+    StreamProvider.family<List<TeamAssignment>, DateTime>(
+      (ref, week) => ref.watch(servicesProvider).roster.watchAssignments(week),
+    );
+
+/// Team planner: the week's own staff counts.
+final teamNeedsProvider = StreamProvider.family<List<TeamNeed>, DateTime>(
+  (ref, week) => ref.watch(servicesProvider).roster.watchNeeds(week),
+);
+
+/// Team planner: the whole week with its rules (docs/02-design.md §4.9).
+/// null while loading.
+final rosterWeekProvider = Provider.family<RosterWeek?, DateTime>((ref, week) {
+  final members = ref.watch(teamMembersProvider).value;
+  final answers = ref.watch(teamAnswersProvider(week)).value;
+  final assignments = ref.watch(teamAssignmentsProvider(week)).value;
+  final needs = ref.watch(teamNeedsProvider(week)).value;
+  final settings = ref.watch(settingsProvider).value;
+  if (members == null ||
+      answers == null ||
+      assignments == null ||
+      needs == null ||
+      settings == null) {
+    return null;
+  }
+  return RosterWeek(
+    weekStart: week,
+    members: members,
+    answers: answers,
+    assignments: assignments,
+    needs: needs,
+    defaults: settings.teamStaffNeeded,
+  );
+});
 
 final runningShiftProvider = StreamProvider<Shift?>(
   (ref) => ref.watch(servicesProvider).shifts.watchRunning(),

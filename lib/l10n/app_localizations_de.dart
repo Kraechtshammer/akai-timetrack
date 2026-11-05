@@ -1035,4 +1035,232 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get updateFailed => 'Android hat das Update abgelehnt.';
+
+  @override
+  String get tabTeam => 'Dienstplan';
+
+  @override
+  String get teamTitle => 'Dienstplan';
+
+  @override
+  String get teamSubtitle => 'Schichten fürs Team planen';
+
+  @override
+  String teamAnswersCount(int answered, int total) {
+    return 'Antworten: $answered von $total';
+  }
+
+  @override
+  String get teamEnterAnswers => 'Antworten eintragen';
+
+  @override
+  String get teamNoPeople => 'Leg die Leute an, für die du planst.';
+
+  @override
+  String get teamAddPeople => 'Leute anlegen';
+
+  @override
+  String get teamFill => 'Auffüllen';
+
+  @override
+  String get teamClear => 'Leeren';
+
+  @override
+  String get teamPeople => 'Leute';
+
+  @override
+  String get teamAddMyShifts => 'Meine Schichten in den Plan';
+
+  @override
+  String teamAddedMyShifts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Schichten in den Plan übernommen',
+      one: '1 Schicht in den Plan übernommen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teamMyShiftsAlready => 'Schon alle im Plan';
+
+  @override
+  String get teamNoCore => 'Keine Stammkraft';
+
+  @override
+  String get teamCore => 'Stammkraft';
+
+  @override
+  String get teamCoreHint => 'Erfahren; in jede Schicht kommt möglichst eine';
+
+  @override
+  String get teamShiftsPerPerson => 'Schichten pro Person';
+
+  @override
+  String teamShiftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Schichten',
+      one: '1 Schicht',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teamPossible(int count) {
+    return '$count möglich';
+  }
+
+  @override
+  String get teamNoAnswer => 'Noch keine Antwort';
+
+  @override
+  String get teamCanWork => 'Hat Zeit';
+
+  @override
+  String get teamCantWork => 'Hat keine Zeit';
+
+  @override
+  String teamFilled(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Plätze besetzt',
+      one: '1 Platz besetzt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teamStillOpen(int count) {
+    return '$count noch offen';
+  }
+
+  @override
+  String get teamAllFilled => 'Alle Plätze besetzt';
+
+  @override
+  String get teamNobodyFits => 'Für die offenen Plätze hat niemand Zeit';
+
+  @override
+  String get teamCleared => 'Plan geleert';
+
+  @override
+  String get teamStaffNeeded => 'Benötigt';
+
+  @override
+  String get teamClosed => 'Geschlossen';
+
+  @override
+  String teamStartAt(String time) {
+    return 'ab $time';
+  }
+
+  @override
+  String teamAnswersTitle(int week) {
+    return 'Antworten · KW $week';
+  }
+
+  @override
+  String teamProgress(int index, int total) {
+    return '$index von $total';
+  }
+
+  @override
+  String teamAvailable(String list) {
+    return 'Hat Zeit: $list';
+  }
+
+  @override
+  String get teamAvailableAll => 'Hat Zeit: jede Schicht';
+
+  @override
+  String get teamAvailableNone => 'Hat Zeit: keine Schicht';
+
+  @override
+  String get teamLunchShort => 'Mittag';
+
+  @override
+  String get teamEveningShort => 'Abend';
+
+  @override
+  String get teamChooseMode =>
+      'Wähl zuerst, ob die Antwort sagt, wann die Person Zeit hat oder wann nicht.';
+
+  @override
+  String get teamAtMost => 'Höchstens';
+
+  @override
+  String get teamNoLimit => 'Keine Grenze';
+
+  @override
+  String get teamRemoveAnswer => 'Antwort entfernen';
+
+  @override
+  String get teamAddPerson => 'Person hinzufügen';
+
+  @override
+  String get teamName => 'Name';
+
+  @override
+  String get teamIsMe => 'Das bin ich';
+
+  @override
+  String get teamDuplicateName =>
+      'Den Namen gibt es schon. Im Bild stünde er zweimal.';
+
+  @override
+  String get teamNobodyYet => 'Noch niemand angelegt.';
+
+  @override
+  String get teamShareTitle => 'Plan teilen';
+
+  @override
+  String get teamShareHint => 'Offene Plätze und Warnungen sind nicht im Bild.';
+
+  @override
+  String get teamImageTitle => 'Dienstplan';
+
+  @override
+  String teamImageWeek(int week, String range) {
+    return 'KW $week · $range';
+  }
+
+  @override
+  String get teamNextWeek => 'Nächste Woche';
+
+  @override
+  String get sectionTeam => 'Dienstplan';
+
+  @override
+  String get teamPlannerSwitch => 'Dienstplan';
+
+  @override
+  String get teamPlannerSubtitle =>
+      'Schichten fürs Team planen und den Plan als Bild teilen';
+
+  @override
+  String get teamStartTimes => 'Startzeiten';
+
+  @override
+  String teamDayNeeded(String lunch, String evening) {
+    return 'Mittag $lunch · Abend $evening';
+  }
+
+  @override
+  String get teamAway => 'Diese Woche nicht da';
+
+  @override
+  String get teamAwayShort => 'Nicht da';
+
+  @override
+  String teamDeleteTitle(String name) {
+    return '$name löschen?';
+  }
+
+  @override
+  String get teamDeleteBody =>
+      'Die Antworten und Schichten dieser Person werden in allen Wochen mit gelöscht.';
 }

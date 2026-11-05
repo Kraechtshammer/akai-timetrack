@@ -9,10 +9,12 @@ import 'common.dart';
 import 'export/export_screen.dart';
 import 'pay/pay_screen.dart';
 import 'plan/plan_screen.dart';
+import 'roster/team_screen.dart';
 import 'settings/update_tiles.dart';
 import 'today/today_screen.dart';
 
-/// The four tabs: Home, Plan, Pay, Export.
+/// The tabs: Home, Plan, Pay, Export, and Team while the team planner is
+/// switched on in Settings (docs/02-design.md §7).
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
 
@@ -31,6 +33,9 @@ class _HomeShellState extends ConsumerState<HomeShell>
 
   /// The same for the Pay tab: it always opens on the current week.
   var _payVisits = 0;
+
+  /// The same for the Team tab: it always opens on next week.
+  var _teamVisits = 0;
 
   var _updatePopupOpen = false;
 
@@ -79,11 +84,14 @@ class _HomeShellState extends ConsumerState<HomeShell>
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final team = ref.settings.teamPlanner;
+    // The Team tab disappears when switched off in Settings.
+    final tab = !team && _tab == 4 ? 0 : _tab;
     return Scaffold(
       body: SafeArea(
         bottom: false,
         child: IndexedStack(
-          index: _tab,
+          index: tab,
           children: [
             TodayScreen(onOpenPlan: _openPlan),
             PlanScreen(
@@ -92,15 +100,17 @@ class _HomeShellState extends ConsumerState<HomeShell>
             ),
             PayScreen(key: ValueKey(_payVisits)),
             ExportScreen(key: ValueKey(_exportVisits)),
+            if (team) TeamScreen(key: ValueKey(_teamVisits)),
           ],
         ),
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (tab) => setState(() {
-          if (tab == 2 && _tab != 2) _payVisits++;
-          if (tab == 3 && _tab != 3) _exportVisits++;
-          _tab = tab;
+        selectedIndex: tab,
+        onDestinationSelected: (next) => setState(() {
+          if (next == 2 && tab != 2) _payVisits++;
+          if (next == 3 && tab != 3) _exportVisits++;
+          if (next == 4 && tab != 4) _teamVisits++;
+          _tab = next;
         }),
         destinations: [
           NavigationDestination(
@@ -123,6 +133,12 @@ class _HomeShellState extends ConsumerState<HomeShell>
             selectedIcon: const Icon(Icons.send),
             label: l10n.tabExport,
           ),
+          if (team)
+            NavigationDestination(
+              icon: const Icon(Icons.groups_outlined),
+              selectedIcon: const Icon(Icons.groups),
+              label: l10n.tabTeam,
+            ),
         ],
       ),
     );

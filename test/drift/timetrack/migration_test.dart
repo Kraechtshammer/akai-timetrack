@@ -10,6 +10,7 @@ import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
+import 'generated/schema_v4.dart' as v4;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -221,6 +222,144 @@ void main() {
         expect(
           expectedNewTipPayoutsData,
           await newDb.select(newDb.tipPayouts).get(),
+        );
+      },
+    );
+  });
+  // v3 -> v4 only adds the team planner tables; everything else must survive.
+  test('migration from v3 to v4 does not corrupt data', () async {
+    final start = DateTime.utc(2026, 11, 2, 11).millisecondsSinceEpoch ~/ 1000;
+    final end = DateTime.utc(2026, 11, 2, 15).millisecondsSinceEpoch ~/ 1000;
+    final oldShiftsData = [
+      v3.ShiftsData(
+        id: 'a1b2',
+        notifId: 7,
+        day: '2026-11-02',
+        type: 0,
+        plannedStart: start,
+        plannedEnd: end,
+        plannedCustomized: 0,
+        actualStart: start,
+        actualEnd: end,
+        breakMinutes: 15,
+        calendarEventId: '42',
+        calendarId: '3',
+        syncState: 0,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final expectedNewShiftsData = [
+      v4.ShiftsData(
+        id: 'a1b2',
+        notifId: 7,
+        day: '2026-11-02',
+        type: 0,
+        plannedStart: start,
+        plannedEnd: end,
+        plannedCustomized: 0,
+        actualStart: start,
+        actualEnd: end,
+        breakMinutes: 15,
+        calendarEventId: '42',
+        calendarId: '3',
+        syncState: 0,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final oldSettingsData = [
+      const v3.SettingsData(key: 'eventTitle', value: 'Kellnern'),
+    ];
+    final expectedNewSettingsData = [
+      const v4.SettingsData(key: 'eventTitle', value: 'Kellnern'),
+    ];
+    final oldTipDaysData = [
+      v3.TipDaysData(
+        id: 't1',
+        day: '2026-11-02',
+        poolCents: 4000,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final expectedNewTipDaysData = [
+      v4.TipDaysData(
+        id: 't1',
+        day: '2026-11-02',
+        poolCents: 4000,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final oldTipPayoutsData = [
+      v3.TipPayoutsData(
+        id: 'p1',
+        weekStart: '2026-11-02',
+        amountCents: 12000,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final expectedNewTipPayoutsData = [
+      v4.TipPayoutsData(
+        id: 'p1',
+        weekStart: '2026-11-02',
+        amountCents: 12000,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final oldWageRatesData = [
+      v3.WageRatesData(
+        id: 'w1',
+        validFrom: '2026-11-01',
+        hourlyCents: 1450,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final expectedNewWageRatesData = [
+      v4.WageRatesData(
+        id: 'w1',
+        validFrom: '2026-11-01',
+        hourlyCents: 1450,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 3,
+      newVersion: 4,
+      createOld: v3.DatabaseAtV3.new,
+      createNew: v4.DatabaseAtV4.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insertAll(oldDb.shifts, oldShiftsData);
+        batch.insertAll(oldDb.settings, oldSettingsData);
+        batch.insertAll(oldDb.tipDays, oldTipDaysData);
+        batch.insertAll(oldDb.tipPayouts, oldTipPayoutsData);
+        batch.insertAll(oldDb.wageRates, oldWageRatesData);
+      },
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.teamMembers).get(), isEmpty);
+        expect(await newDb.select(newDb.teamAnswers).get(), isEmpty);
+        expect(await newDb.select(newDb.teamAssignments).get(), isEmpty);
+        expect(await newDb.select(newDb.teamNeeds).get(), isEmpty);
+        expect(expectedNewShiftsData, await newDb.select(newDb.shifts).get());
+        expect(
+          expectedNewSettingsData,
+          await newDb.select(newDb.settings).get(),
+        );
+        expect(expectedNewTipDaysData, await newDb.select(newDb.tipDays).get());
+        expect(
+          expectedNewTipPayoutsData,
+          await newDb.select(newDb.tipPayouts).get(),
+        );
+        expect(
+          expectedNewWageRatesData,
+          await newDb.select(newDb.wageRates).get(),
         );
       },
     );

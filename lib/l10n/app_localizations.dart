@@ -1813,6 +1813,366 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Android hat das Update abgelehnt.'**
   String get updateFailed;
+
+  /// No description provided for @tabTeam.
+  ///
+  /// In de, this message translates to:
+  /// **'Dienstplan'**
+  String get tabTeam;
+
+  /// No description provided for @teamTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Dienstplan'**
+  String get teamTitle;
+
+  /// No description provided for @teamSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Schichten fürs Team planen'**
+  String get teamSubtitle;
+
+  /// No description provided for @teamAnswersCount.
+  ///
+  /// In de, this message translates to:
+  /// **'Antworten: {answered} von {total}'**
+  String teamAnswersCount(int answered, int total);
+
+  /// No description provided for @teamEnterAnswers.
+  ///
+  /// In de, this message translates to:
+  /// **'Antworten eintragen'**
+  String get teamEnterAnswers;
+
+  /// No description provided for @teamNoPeople.
+  ///
+  /// In de, this message translates to:
+  /// **'Leg die Leute an, für die du planst.'**
+  String get teamNoPeople;
+
+  /// No description provided for @teamAddPeople.
+  ///
+  /// In de, this message translates to:
+  /// **'Leute anlegen'**
+  String get teamAddPeople;
+
+  /// No description provided for @teamFill.
+  ///
+  /// In de, this message translates to:
+  /// **'Auffüllen'**
+  String get teamFill;
+
+  /// No description provided for @teamClear.
+  ///
+  /// In de, this message translates to:
+  /// **'Leeren'**
+  String get teamClear;
+
+  /// No description provided for @teamPeople.
+  ///
+  /// In de, this message translates to:
+  /// **'Leute'**
+  String get teamPeople;
+
+  /// No description provided for @teamAddMyShifts.
+  ///
+  /// In de, this message translates to:
+  /// **'Meine Schichten in den Plan'**
+  String get teamAddMyShifts;
+
+  /// No description provided for @teamAddedMyShifts.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Schicht in den Plan übernommen} other{{count} Schichten in den Plan übernommen}}'**
+  String teamAddedMyShifts(int count);
+
+  /// No description provided for @teamMyShiftsAlready.
+  ///
+  /// In de, this message translates to:
+  /// **'Schon alle im Plan'**
+  String get teamMyShiftsAlready;
+
+  /// No description provided for @teamNoCore.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Stammkraft'**
+  String get teamNoCore;
+
+  /// No description provided for @teamCore.
+  ///
+  /// In de, this message translates to:
+  /// **'Stammkraft'**
+  String get teamCore;
+
+  /// No description provided for @teamCoreHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Erfahren; in jede Schicht kommt möglichst eine'**
+  String get teamCoreHint;
+
+  /// No description provided for @teamShiftsPerPerson.
+  ///
+  /// In de, this message translates to:
+  /// **'Schichten pro Person'**
+  String get teamShiftsPerPerson;
+
+  /// No description provided for @teamShiftCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Schicht} other{{count} Schichten}}'**
+  String teamShiftCount(int count);
+
+  /// No description provided for @teamPossible.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} möglich'**
+  String teamPossible(int count);
+
+  /// No description provided for @teamNoAnswer.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch keine Antwort'**
+  String get teamNoAnswer;
+
+  /// No description provided for @teamCanWork.
+  ///
+  /// In de, this message translates to:
+  /// **'Hat Zeit'**
+  String get teamCanWork;
+
+  /// No description provided for @teamCantWork.
+  ///
+  /// In de, this message translates to:
+  /// **'Hat keine Zeit'**
+  String get teamCantWork;
+
+  /// No description provided for @teamFilled.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Platz besetzt} other{{count} Plätze besetzt}}'**
+  String teamFilled(int count);
+
+  /// No description provided for @teamStillOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} noch offen'**
+  String teamStillOpen(int count);
+
+  /// No description provided for @teamAllFilled.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Plätze besetzt'**
+  String get teamAllFilled;
+
+  /// No description provided for @teamNobodyFits.
+  ///
+  /// In de, this message translates to:
+  /// **'Für die offenen Plätze hat niemand Zeit'**
+  String get teamNobodyFits;
+
+  /// No description provided for @teamCleared.
+  ///
+  /// In de, this message translates to:
+  /// **'Plan geleert'**
+  String get teamCleared;
+
+  /// No description provided for @teamStaffNeeded.
+  ///
+  /// In de, this message translates to:
+  /// **'Benötigt'**
+  String get teamStaffNeeded;
+
+  /// No description provided for @teamClosed.
+  ///
+  /// In de, this message translates to:
+  /// **'Geschlossen'**
+  String get teamClosed;
+
+  /// No description provided for @teamStartAt.
+  ///
+  /// In de, this message translates to:
+  /// **'ab {time}'**
+  String teamStartAt(String time);
+
+  /// No description provided for @teamAnswersTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Antworten · KW {week}'**
+  String teamAnswersTitle(int week);
+
+  /// No description provided for @teamProgress.
+  ///
+  /// In de, this message translates to:
+  /// **'{index} von {total}'**
+  String teamProgress(int index, int total);
+
+  /// No description provided for @teamAvailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Hat Zeit: {list}'**
+  String teamAvailable(String list);
+
+  /// No description provided for @teamAvailableAll.
+  ///
+  /// In de, this message translates to:
+  /// **'Hat Zeit: jede Schicht'**
+  String get teamAvailableAll;
+
+  /// No description provided for @teamAvailableNone.
+  ///
+  /// In de, this message translates to:
+  /// **'Hat Zeit: keine Schicht'**
+  String get teamAvailableNone;
+
+  /// No description provided for @teamLunchShort.
+  ///
+  /// In de, this message translates to:
+  /// **'Mittag'**
+  String get teamLunchShort;
+
+  /// No description provided for @teamEveningShort.
+  ///
+  /// In de, this message translates to:
+  /// **'Abend'**
+  String get teamEveningShort;
+
+  /// No description provided for @teamChooseMode.
+  ///
+  /// In de, this message translates to:
+  /// **'Wähl zuerst, ob die Antwort sagt, wann die Person Zeit hat oder wann nicht.'**
+  String get teamChooseMode;
+
+  /// No description provided for @teamAtMost.
+  ///
+  /// In de, this message translates to:
+  /// **'Höchstens'**
+  String get teamAtMost;
+
+  /// No description provided for @teamNoLimit.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Grenze'**
+  String get teamNoLimit;
+
+  /// No description provided for @teamRemoveAnswer.
+  ///
+  /// In de, this message translates to:
+  /// **'Antwort entfernen'**
+  String get teamRemoveAnswer;
+
+  /// No description provided for @teamAddPerson.
+  ///
+  /// In de, this message translates to:
+  /// **'Person hinzufügen'**
+  String get teamAddPerson;
+
+  /// No description provided for @teamName.
+  ///
+  /// In de, this message translates to:
+  /// **'Name'**
+  String get teamName;
+
+  /// No description provided for @teamIsMe.
+  ///
+  /// In de, this message translates to:
+  /// **'Das bin ich'**
+  String get teamIsMe;
+
+  /// No description provided for @teamDuplicateName.
+  ///
+  /// In de, this message translates to:
+  /// **'Den Namen gibt es schon. Im Bild stünde er zweimal.'**
+  String get teamDuplicateName;
+
+  /// No description provided for @teamNobodyYet.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch niemand angelegt.'**
+  String get teamNobodyYet;
+
+  /// No description provided for @teamShareTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Plan teilen'**
+  String get teamShareTitle;
+
+  /// No description provided for @teamShareHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Offene Plätze und Warnungen sind nicht im Bild.'**
+  String get teamShareHint;
+
+  /// No description provided for @teamImageTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Dienstplan'**
+  String get teamImageTitle;
+
+  /// No description provided for @teamImageWeek.
+  ///
+  /// In de, this message translates to:
+  /// **'KW {week} · {range}'**
+  String teamImageWeek(int week, String range);
+
+  /// No description provided for @teamNextWeek.
+  ///
+  /// In de, this message translates to:
+  /// **'Nächste Woche'**
+  String get teamNextWeek;
+
+  /// No description provided for @sectionTeam.
+  ///
+  /// In de, this message translates to:
+  /// **'Dienstplan'**
+  String get sectionTeam;
+
+  /// No description provided for @teamPlannerSwitch.
+  ///
+  /// In de, this message translates to:
+  /// **'Dienstplan'**
+  String get teamPlannerSwitch;
+
+  /// No description provided for @teamPlannerSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Schichten fürs Team planen und den Plan als Bild teilen'**
+  String get teamPlannerSubtitle;
+
+  /// No description provided for @teamStartTimes.
+  ///
+  /// In de, this message translates to:
+  /// **'Startzeiten'**
+  String get teamStartTimes;
+
+  /// No description provided for @teamDayNeeded.
+  ///
+  /// In de, this message translates to:
+  /// **'Mittag {lunch} · Abend {evening}'**
+  String teamDayNeeded(String lunch, String evening);
+
+  /// No description provided for @teamAway.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Woche nicht da'**
+  String get teamAway;
+
+  /// No description provided for @teamAwayShort.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht da'**
+  String get teamAwayShort;
+
+  /// No description provided for @teamDeleteTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'{name} löschen?'**
+  String teamDeleteTitle(String name);
+
+  /// No description provided for @teamDeleteBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Antworten und Schichten dieser Person werden in allen Wochen mit gelöscht.'**
+  String get teamDeleteBody;
 }
 
 class _AppLocalizationsDelegate

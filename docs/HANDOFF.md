@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-05; the version is now 1.3.1 (`1.3.1+6`). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-05; the version is now 1.4.0 (`1.4.0+7`). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -87,12 +87,27 @@ Automated checks:
 - Checked: 90 tests pass (15 for salary rules, 6 for the wage repository, 3 more for migrations to v3). The debug APK was installed on the emulator over 1.2.0 data; the app starts, the migration ran (old tips still shown), and the Home tab shows "Add hourly wage". Not checked yet: entering and changing rates in the app, a rate change within a month, dark mode, a phone.
 - Docs: from this session on, docs, code comments and release notes are English only and say "the user" for the person using the app (`docs/CLAUDE.md`).
 
+## Done in the sixth session (2026-11-05): team planner (F11), first version
+
+- Research in `01-research.md` §10 (feasibility, in-app vs. separate app, decisions 1–12), design in `02-design.md` §3 (tables), §4.9 (rules), §7 (screens).
+- **Why:** while the boss is away in November 2026, the user plans the weekly shifts of the service staff. The planner collects who can work, helps fill the shifts and shares the plan as a picture in the team chat.
+- **Off by default:** Settings › Team planner turns on a fifth tab, "Team" (German "Dienstplan"), last in the bar. The same section has "Staff needed" (per weekday and shift, 0 = closed; default 2 at lunch, 3 in the evening, Sunday closed), "Start times" (12:00, 17:30) and "People". The real staff counts are still to be set by the user.
+- **Flow:** People (name, "Core worker", "This is me") → "Enter answers" walks through everyone ("Can work" / "Can't work", whole days or single shifts, "At most N shifts", "Away this week") → the board (one card per open day, "2/3" counts, "No core worker" warning) → tap a shift for the sheet (staff needed, people with check boxes, special start times) → "Fill" / "Clear" with "Undo" → "Share" (preview, 1920 × 1080 PNG, always light) → ⋮ "Add my shifts to Plan".
+- **Fill:** hardest shift first (fewest possible people); one core worker per shift first; then people who aren't core workers, fewest shifts first. People without an answer are never used.
+- Developer decisions while testing: core workers cost more, so after a shift has one the others come first; vacation is the "Away this week" answer; no "inactive" state (people who leave are deleted with their answers and shifts and added again later; the `team_members.active` column stays unused).
+- **Database schema version 4:** tables `team_members`, `team_answers`, `team_assignments`, `team_needs`, with a migration test from v3. Settings keys `teamPlanner`, `teamStaffNeeded`, `teamStarts`.
+- Built with four Sonnet subagents in parallel (settings and people, answer page, board and shift sheet, image and share), on top of the data, rules and strings written first; reviewed afterwards. Fixes in review: the shift sheet keeps its order while open (rows jumped when the first core worker was ticked), the image ignores the phone's font size.
+- **Checked:** 121 tests pass (23 for the planner rules and repository, 3 for the image layout, 1 more migration test); `flutter analyze` clean. The developer went through the test steps on the emulator (settings, people, answers, Fill, shift sheet, Share, "Add my shifts to Plan", "Away this week", deleting) and found it working. Installed over 1.3.1 data, so the migration ran on a real database.
+- **Not checked:** the shared PNG at full size and in a real chat; light mode for the new screens; a phone.
+
 ## Open points (in rough priority)
 
-0. **In-app update on real phones:** 1.1.0 is the first version with the updater, so it is installed by hand; the first real in-app update is 1.2.0 (tips). Until then the path with the release key and GitHub is only checked with debug builds and the fake server on the emulator. On the Xiaomi: some MIUI versions had trouble with session installs from third-party apps; if it fails there, fall back to the system installer intent (FileProvider + ACTION_VIEW).
+0. **Team planner in real use:** look at the shared picture in WhatsApp (Standard quality shrinks it to about 1600 px); set the real staff counts; maybe later: drag and drop, "Same as last week", kitchen staff (`01-research.md` §10).
 
-1. **Check on the Pixel 7 Pro:** Live Update promotion, launcher icon shape, release APK.
-2. **Not tested yet:**
+1. **In-app update on real phones:** 1.1.0 is the first version with the updater, so it is installed by hand; the first real in-app update is 1.2.0 (tips). Until then the path with the release key and GitHub is only checked with debug builds and the fake server on the emulator. On the Xiaomi: some MIUI versions had trouble with session installs from third-party apps; if it fails there, fall back to the system installer intent (FileProvider + ACTION_VIEW).
+
+2. **Check on the Pixel 7 Pro:** Live Update promotion, launcher icon shape, release APK.
+3. **Not tested yet:**
    - notification buttons "Start recording" and "End 23:00" with the app killed. "Stop" works with the app killed: checked on the emulator, where Android starts the process for the button, the shift is recorded and the event updated;
    - the "Still at work?" overrun question;
    - "Later" snooze;
@@ -100,7 +115,7 @@ Automated checks:
    - light mode with the new AKAI red, the System color;
    - reboot (rescheduling; the progress alarm is not restored after a reboot until the app re-posts the notification on start);
    - the progress tick firing with the app killed (it fired on its own while the app was in the background: progress 24 → 59, next alarm set).
-3. **Before handover (M6):**
+4. **Before handover (M6):**
    - Done: release signing key created, final package name `de.gartenpa.timetrack`, app name "TimeTrack" kept (see `02-design.md` §12).
    - Still to do by the developer: back up `android/timetrack-release.jks` and its password, and set the three GitHub secrets (`03-dev-setup.md` section 9).
    - Pending: the first tagged release `v1.0.0`.
@@ -119,15 +134,18 @@ lib/
   data/ database.dart (+ .g.dart, .steps.dart)  drift tables Shifts, Settings, TipDays, TipPayouts, WageRates; migrations
         database_connection.dart     opens the database file (kept out of database.dart for drift's schema export)
         shift_repository.dart, tip_repository.dart, wage_repository.dart,
+        roster_repository.dart (team planner tables),
         settings_repository.dart (also status keys: lastCalendarSync, tipPromptDismissedDay), app_settings.dart
   domain/ planning.dart, recording.dart, rounding.dart, month_summary.dart,
           export_text.dart, reminder_planner.dart, shift_info.dart,
           tips.dart (money parsing, tip weeks and months, Home prompt),
-          salary.dart (rate of a day, month pay)   (pure logic, tested)
+          salary.dart (rate of a day, month pay),
+          roster.dart (team planner: availability, sheet order, Fill)   (pure logic, tested)
   platform/ notification_service.dart, calendar_sync.dart, device_setup.dart
   l10n/ app_de.arb (source), app_en.arb, labels.dart (+ generated app_localizations*.dart)
   ui/   material.dart (the one UI import), home_shell, common (header, Panel, Figure, WavyProgress, WeekSwitcher, pickers),
-        today/ (Home tab), plan/, shift_sheet.dart, pay/ (Pay tab, money sheet, wage sheet), export/, settings/, onboarding/
+        today/ (Home tab), plan/, shift_sheet.dart, pay/ (Pay tab, money sheet, wage sheet), export/, settings/, onboarding/,
+        roster/ (Team tab: board, shift sheet, answers, people, plan image, share preview, Settings tiles)
 packages/calendar_bridge/   Kotlin CalendarContract plugin (calendars incl. sync flag, event colours, events, enableSync, requestSync)
 packages/running_progress/  Kotlin plugin: moves the running notification's progress bar (Live Update on Android 16)
 test/                       unit tests (helpers.dart builds test shifts); test/drift/ generated migration tests
