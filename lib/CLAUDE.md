@@ -5,8 +5,8 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 ## Layers
 
 - `core/`: pure helpers. Time (`time.dart`: day keys, ISO weeks, minutes), `format.dart` (HH:mm, `formatHours`, `formatEuros`).
-- `data/`: drift database `database.dart` (+ generated `database.g.dart` and `database.steps.dart`), `database_connection.dart` (opens the file), `shift_repository.dart`, `tip_repository.dart`, `settings_repository.dart`, `app_settings.dart`.
-- `domain/`: pure Dart logic (planning, recording, rounding, month summary, export text, reminder planner, tips). No Flutter imports. Unit-tested.
+- `data/`: drift database `database.dart` (+ generated `database.g.dart` and `database.steps.dart`), `database_connection.dart` (opens the file), `shift_repository.dart`, `tip_repository.dart`, `wage_repository.dart`, `settings_repository.dart`, `app_settings.dart`.
+- `domain/`: pure Dart logic (planning, recording, rounding, month summary, export text, reminder planner, tips, salary). No Flutter imports. Unit-tested.
 - `platform/`: Android integration. `notification_service.dart`, `calendar_sync.dart`, `device_setup.dart`, `app_icon.dart`.
 - `app/`: `AppServices` (`services.dart`, one per isolate), Riverpod `providers.dart`, `app.dart`, `theme.dart`.
 - `ui/`: screens. `material.dart` is the one UI import. `common.dart` has shared widgets.
@@ -46,7 +46,7 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 - The wavy bar is `WavyProgress` (wraps `M3EProgressIndicator.linearWavy`).
 - Segmented buttons, chips, sheets and dialogs are still plain Material.
 - `app.dart` wraps the app in `M3ETheme(data: M3EThemeData.fromMaterial(Theme.of(context)))`.
-- Use the helpers in `ui/common.dart`: `PageHeader`, `Panel`, `WeekSwitcher`, `TimeField`, `pickTime`, `pickOption`, and `context.l10n/colors/text/locale/showSnack`.
+- Use the helpers in `ui/common.dart`: `PageHeader`, `Panel`, `Figure`, `WeekSwitcher`, `TimeField`, `pickTime`, `pickOption`, and `context.l10n/colors/text/locale/showSnack`.
 - Check the screen in dark and in light mode.
 
 ### Change colours

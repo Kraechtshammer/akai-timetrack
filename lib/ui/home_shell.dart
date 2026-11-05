@@ -12,7 +12,7 @@ import 'plan/plan_screen.dart';
 import 'settings/update_tiles.dart';
 import 'today/today_screen.dart';
 
-/// The four tabs: Heute, Plan, Lohn, Export.
+/// The four tabs: Home, Plan, Pay, Export.
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
 
@@ -29,7 +29,7 @@ class _HomeShellState extends ConsumerState<HomeShell>
   /// screen, so it always opens on the current month.
   var _exportVisits = 0;
 
-  /// The same for the Lohn tab: it always opens on the current week.
+  /// The same for the Pay tab: it always opens on the current week.
   var _payVisits = 0;
 
   var _updatePopupOpen = false;
@@ -104,9 +104,9 @@ class _HomeShellState extends ConsumerState<HomeShell>
         }),
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.today_outlined),
-            selectedIcon: const Icon(Icons.today),
-            label: l10n.tabToday,
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: l10n.tabHome,
           ),
           NavigationDestination(
             icon: const Icon(Icons.calendar_month_outlined),

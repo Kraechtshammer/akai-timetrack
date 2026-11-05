@@ -104,11 +104,11 @@ abstract class AppLocalizations {
   /// **'TimeTrack'**
   String get appTitle;
 
-  /// No description provided for @tabToday.
+  /// No description provided for @tabHome.
   ///
   /// In de, this message translates to:
-  /// **'Heute'**
-  String get tabToday;
+  /// **'Start'**
+  String get tabHome;
 
   /// No description provided for @tabPlan.
   ///
@@ -131,7 +131,7 @@ abstract class AppLocalizations {
   /// No description provided for @paySubtitle.
   ///
   /// In de, this message translates to:
-  /// **'Trinkgeld Woche für Woche'**
+  /// **'Monatslohn und Trinkgeld'**
   String get paySubtitle;
 
   /// No description provided for @tips.
@@ -235,6 +235,126 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Nicht jetzt'**
   String get tipNotNow;
+
+  /// No description provided for @paySalary.
+  ///
+  /// In de, this message translates to:
+  /// **'Lohn'**
+  String get paySalary;
+
+  /// No description provided for @payGross.
+  ///
+  /// In de, this message translates to:
+  /// **'brutto'**
+  String get payGross;
+
+  /// No description provided for @payExpectedSalary.
+  ///
+  /// In de, this message translates to:
+  /// **'Erwarteter Lohn'**
+  String get payExpectedSalary;
+
+  /// No description provided for @payTotal.
+  ///
+  /// In de, this message translates to:
+  /// **'Gesamt'**
+  String get payTotal;
+
+  /// No description provided for @payWithTips.
+  ///
+  /// In de, this message translates to:
+  /// **'mit Trinkgeld'**
+  String get payWithTips;
+
+  /// No description provided for @payEarned.
+  ///
+  /// In de, this message translates to:
+  /// **'Verdient'**
+  String get payEarned;
+
+  /// No description provided for @payExpected.
+  ///
+  /// In de, this message translates to:
+  /// **'Erwartet'**
+  String get payExpected;
+
+  /// No description provided for @payEarnedSoFar.
+  ///
+  /// In de, this message translates to:
+  /// **'{amount} verdient · {recorded} von {expected} h'**
+  String payEarnedSoFar(String amount, String recorded, String expected);
+
+  /// No description provided for @payForHours.
+  ///
+  /// In de, this message translates to:
+  /// **'für {hours} h'**
+  String payForHours(String hours);
+
+  /// No description provided for @payOfExpected.
+  ///
+  /// In de, this message translates to:
+  /// **'von {amount}'**
+  String payOfExpected(String amount);
+
+  /// No description provided for @wageRate.
+  ///
+  /// In de, this message translates to:
+  /// **'Stundenlohn'**
+  String get wageRate;
+
+  /// No description provided for @wageAdd.
+  ///
+  /// In de, this message translates to:
+  /// **'Stundenlohn eintragen'**
+  String get wageAdd;
+
+  /// No description provided for @wageMissing.
+  ///
+  /// In de, this message translates to:
+  /// **'Trag deinen Stundenlohn ein, dann siehst du hier, was du im Monat verdienst.'**
+  String get wageMissing;
+
+  /// No description provided for @wageSheetHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Brutto pro Stunde, ohne Trinkgeld.'**
+  String get wageSheetHint;
+
+  /// No description provided for @wageFirstHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Gilt auch für frühere Monate.'**
+  String get wageFirstHint;
+
+  /// No description provided for @wageValidFrom.
+  ///
+  /// In de, this message translates to:
+  /// **'Gilt ab'**
+  String get wageValidFrom;
+
+  /// No description provided for @wageSince.
+  ///
+  /// In de, this message translates to:
+  /// **'ab {date}'**
+  String wageSince(String date);
+
+  /// No description provided for @wageAll.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Stundenlöhne'**
+  String get wageAll;
+
+  /// No description provided for @wageDeleteTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Stundenlohn ab {date} löschen?'**
+  String wageDeleteTitle(String date);
+
+  /// No description provided for @wageInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte einen Betrag wie 14,50 eingeben.'**
+  String get wageInvalid;
 
   /// No description provided for @settings.
   ///

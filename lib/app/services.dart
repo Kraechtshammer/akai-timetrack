@@ -12,6 +12,7 @@ import '../data/database_connection.dart';
 import '../data/settings_repository.dart';
 import '../data/shift_repository.dart';
 import '../data/tip_repository.dart';
+import '../data/wage_repository.dart';
 import '../domain/planning.dart';
 import '../domain/recording.dart';
 import '../l10n/app_localizations.dart';
@@ -26,6 +27,7 @@ class AppServices {
     required this.shifts,
     required this.settings,
     required this.tips,
+    required this.wages,
     required this.notifications,
     required this.calendar,
   }) {
@@ -37,6 +39,7 @@ class AppServices {
   final ShiftRepository shifts;
   final SettingsRepository settings;
   final TipRepository tips;
+  final WageRepository wages;
   final NotificationService notifications;
   final CalendarSync calendar;
   late final PlanningService planning;
@@ -58,6 +61,7 @@ class AppServices {
       shifts: shifts,
       settings: settings,
       tips: TipRepository(db),
+      wages: WageRepository(db),
       notifications: NotificationService(),
       calendar: CalendarSync(shifts, settings),
     );

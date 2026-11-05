@@ -155,6 +155,20 @@ Tips are kept apart from shifts. The pool total belongs to a day, not to a shift
 - Zero is a valid amount (stored), an empty field is not (no row).
 - A note column is left out for now. It can be added later as a nullable column.
 
+### Table `wage_rates` (salary, schema version 3)
+
+The user's gross hourly wage. Each rate is valid from a day on, so a raise (for example the minimum wage step on 2027-01-01) doesn't change past months. It goes into a later backup (§14.1).
+
+| Table `wage_rates` | Type | Meaning |
+|---|---|---|
+| `id` | text PK (UUID v4) | |
+| `validFrom` | text `yyyy-MM-dd`, unique | the first day the rate applies to |
+| `hourlyCents` | int | gross hourly wage in cents |
+| `createdAt`, `updatedAt` | DateTime | |
+
+- One row per start day at most. Saving a rate for a day that already has one updates it.
+- Zero is not a valid rate.
+
 ## 4. Domain logic
 
 ### 4.1 Planning (Plan tab)
@@ -280,6 +294,17 @@ Pure function `desiredNotifications(shifts, settings, now) → Set<ScheduledNoti
 
 **Not in this version:** an estimate of the user's share. It would need the number of people working each day (§14.2).
 
+### 4.8 Salary (`domain/salary.dart`)
+
+Gross pay only: no tax, no deductions, no tips. Salary is paid per calendar month, so a shift's pay counts for the month of its `day` (unlike tips, which use the Thursday rule).
+
+**Rate of a day:** the newest rate whose `validFrom` is on or before the day. Days before the first rate use the first rate, so the first rate entered also counts for earlier months. Without any rate there is no pay figure.
+
+**Month figures**, from the same shifts as the month summary (§4.4):
+- **"Earned"** = recorded hours × rate.
+- **"Expected"** = "Earned" plus the planned hours of all planned, running and missed shifts × rate. It matches "Planned (incl. recorded)" for the hours, so missed shifts count until they are recorded or deleted.
+- Each shift is paid at the rate of its day. Minutes are summed per rate and rounded to cents once per rate, not per shift.
+
 ## 5. Calendar sync
 
 ### 5.1 Why our own bridge
@@ -392,10 +417,15 @@ The last loop is limited to the current week onward, so old shifts the user deli
 All screens follow the concept canvas. Behaviour that isn't visible in the mockups:
 
 ### Home
+
+The first tab, "Home" (it was "Today" until 2026-11-05). Icon: `home`. It was renamed when pay was added, because most of the page is now a month overview, not today.
+
 - **Next-shift card** shows the next `planned` shift today or later. It turns into the running card while recording.
 - **When there's no plan:** "No shift planned" with a "Start anyway" button.
 - **Missed shifts:** if a past shift wasn't recorded, a chip "1 shift not recorded" opens it.
-- **Month card:** wavy progress bar, recorded vs expected. Uses Flutter's indicator if it ships a wavy variant, otherwise a `CustomPainter`. Below the bar, a row **"Tips"** shows the month's payouts (§4.7); "€0" until the first payout. The developer saw both prototypes (2026-11-05). A third column next to the hours looked good too, but a row leaves room for the salary rows planned later (§14.2).
+- **Month card:** wavy progress bar, recorded vs expected. Uses Flutter's indicator if it ships a wavy variant, otherwise a `CustomPainter`. Below the bar, two rows:
+  - **"Pay"**: "Earned" of "Expected" for the current month (§4.8), e.g. "€412 of €980". Without a rate, an "Add hourly wage" button opens the wage sheet.
+  - **"Tips"**: the month's payouts (§4.7); "€0" until the first payout. The developer saw both prototypes (2026-11-05). A third column next to the hours looked good too, but rows leave room for the pay row.
 - **Tip prompt:** a small card "Add the tips" below the next-shift card, by the rule in §4.7, with "Add" and "Not now".
 - **Week strip:** tap a day → Plan tab at that week. Under each day, lunch and evening shifts are marked either with icons (sun, moon, clock for custom; the default) or with two bars (left lunch, right evening; custom shifts by start time). Grey = planned, coloured = recorded. Chosen in Settings › Appearance & language › Week overview.
 
@@ -417,9 +447,13 @@ All screens follow the concept canvas. Behaviour that isn't visible in the mocku
 
 ### Pay (F10)
 
-The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments`. It opens on the current week on each visit, like Export opens on the current month. Salary will be added to this tab later (§14.2).
+The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments`. It opens on the current week on each visit, like Export opens on the current month.
 
-- **Month card:** the month of the shown week (by the Thursday rule), with the "Tips" figure and the number of weeks with a payout ("from 3 weeks"). Later it gets the salary figures.
+- **Month card:** the month of the shown week (by the Thursday rule). Chosen by the developer on 2026-11-05 from three prototypes (a two-column receipt, a big total on top, the old card plus a total). The receipt was dropped because tips have no forecast, so its "Expected" column only repeated them.
+  - **Header:** the month, and a chip with the hourly wage ("€14.50/h", the rate at the end of the month). Tap opens the wage sheet. Without a rate the chip reads "Hourly wage" with a plus.
+  - **Pay** (§4.8), the biggest number, because it is what reaches the bank account at the end of the month. The current month shows "Expected pay · gross" with the expected amount, "€412 earned · 28.5 of 67.5 h" below it, and the wavy bar. A past month shows "Pay · gross" with the amount earned, unless shifts were missed; a future month shows the expected amount and "for 67.5 h". Without a rate: a hint and an "Add hourly wage" button.
+  - **"Tips"** with the number of weeks with a payout ("from 3 weeks").
+  - **"Total · with tips":** "Earned" and "Expected" side by side, in the style of the hours on the Home tab; one of them for past and future months, by the same rule as the pay. Hidden without a rate.
 - **Week switcher:** the same as on Plan (arrows, swipe, "today" button).
 - **"Paid out" card:** the week's payout, or an "Add" button if there is none. Tap opens the money sheet.
 - **"Daily pool" list:** one row per workday (§4.7): weekday and date, the shift types worked (sun/moon icons as on the Home tab), and the pool total or "–". Tap opens the money sheet for that day. Below the list: "Total" with the sum of the week's pool totals.
@@ -429,6 +463,12 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
   - a hint: "Everyone's tips combined that day" or "The cash you got for this week";
   - one text field with the decimal keyboard and a "€" suffix, focused when the sheet opens;
   - "Save", plus "Delete" if there is a value. Delete doesn't ask; a snack bar offers "Undo" (with `persist: false`).
+- **Wage sheet** (bottom sheet, `ui/pay/wage_sheet.dart`):
+  - title "Hourly wage" and the hint "Gross per hour, without tips."; for the very first rate also "Also counts for earlier months.";
+  - one money field with a "€/h" suffix, filled with the rate of the month on screen;
+  - "Valid from" with a date chip, set to the 1st of the month on screen; shown only once a rate exists, because the first rate counts for every month anyway;
+  - "Save" stores the rate for that day (or updates the rate already starting that day);
+  - "All hourly wages": every rate, newest first, each with a delete button that asks first. Not a snack bar with "Undo", because the sheet would cover it.
 
 ### Export
 - **Month picker:** always opens on the **current month**, also when coming back to the tab (developer decision 2026-11-04). Earlier months are one tap back.
@@ -602,18 +642,11 @@ akai_timetrack/
 
 Tips are built (F10, §3 and §4.7). The model planned here first (one tip entry per shift, kinds cash/card/pool) was dropped because AKAI pools tips per day and pays weekly.
 
-**Wage rates** are valid from a date, so a raise doesn't change past months:
+Salary is built too (2026-11-05): the `wage_rates` table (§3), the rules in §4.8, and the screens in §7.
 
-| Table `wage_rates` | Type | Meaning |
-|---|---|---|
-| `id` | text UUID | |
-| `validFrom` | text `yyyy-MM-dd` | |
-| `hourlyCents` | int | gross hourly wage |
-| `createdAt`, `updatedAt` | DateTime | |
-
-Possible later extension: a `surcharge_rules` table for Sunday, holiday and night surcharges, which are common in restaurants. Each rule would have a weekday or holiday flag, a time window and a percentage.
-
-**Salary calculation:** a pure domain function `salaryFor(month, shifts, wageRates, payouts)` returning hours × the rate valid on each shift's day, tips, and the totals with and without tips. It goes on the Pay tab and the month card there.
+Possible later extensions:
+- tax and deductions, for example a Minijob limit or a net estimate;
+- a `surcharge_rules` table for Sunday, holiday and night surcharges, which are common in restaurants. Each rule would have a weekday or holiday flag, a time window and a percentage.
 
 **Tip-share estimate (maybe):** the user's expected share of a day's pool needs the kitchen/service split and the number of servers that day. Both change, so it would be a per-day input next to "Daily pool" (a nullable column on `tip_days`).
 
@@ -641,3 +674,5 @@ Possible later extension: a `surcharge_rules` table for Sunday, holiday and nigh
 - **In-app update** (2026-11-05, §12): not in the original design. No new Flutter packages: dart:io for HTTP, the installer in `MainActivity.kt`. Needs the `INTERNET` permission in the main manifest (Flutter only adds it to debug builds) and `REQUEST_INSTALL_PACKAGES`.
 - **Database:** schema snapshots in `drift_schemas/` since schema version 2 (2026-11-05), configured in `build.yaml`. Migration steps come from the generated `lib/data/database.steps.dart`; tests are in `test/drift/`. Opening the database file moved to `lib/data/database_connection.dart`, because drift's schema export runs `database.dart` without Flutter.
 - **Tips** (2026-11-05, F10): the per-shift `tips` table planned in §14.2 was replaced by `tip_days` (the day's pool total) and `tip_payouts` (the weekly cash payout), because AKAI pools tips per day and pays weekly. A fourth tab, "Pay", was added between Plan and Export. Schema version 2.
+- **Salary** (2026-11-05): built with the `wage_rates` table planned in §14.2 (schema version 3). The planned `salaryFor(month, shifts, wageRates, payouts)` became `payForMonth(shifts, rates, now)` in `domain/salary.dart`; tips stay separate (`TipMonth`), because they are counted by week, not by calendar month.
+- **Home tab:** the "Today" tab was renamed to "Home", with a `home` icon, when the pay row was added (developer decision, 2026-11-05).

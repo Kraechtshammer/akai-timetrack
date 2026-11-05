@@ -251,3 +251,33 @@ Future<T?> pickOption<T>(
 );
 
 const tabularFigures = [FontFeature.tabularFigures()];
+
+/// A small label above a big number, as on the month cards.
+class Figure extends StatelessWidget {
+  const Figure({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: context.text.labelMedium),
+      Text(
+        value,
+        style: context.text.headlineMedium?.copyWith(
+          fontWeight: FontWeight.w800,
+          color: color,
+          fontFeatures: tabularFigures,
+        ),
+      ),
+    ],
+  );
+}

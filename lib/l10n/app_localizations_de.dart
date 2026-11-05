@@ -13,7 +13,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get appTitle => 'TimeTrack';
 
   @override
-  String get tabToday => 'Heute';
+  String get tabHome => 'Start';
 
   @override
   String get tabPlan => 'Plan';
@@ -25,7 +25,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get tabPay => 'Lohn';
 
   @override
-  String get paySubtitle => 'Trinkgeld Woche für Woche';
+  String get paySubtitle => 'Monatslohn und Trinkgeld';
 
   @override
   String get tips => 'Trinkgeld';
@@ -92,6 +92,77 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get tipNotNow => 'Nicht jetzt';
+
+  @override
+  String get paySalary => 'Lohn';
+
+  @override
+  String get payGross => 'brutto';
+
+  @override
+  String get payExpectedSalary => 'Erwarteter Lohn';
+
+  @override
+  String get payTotal => 'Gesamt';
+
+  @override
+  String get payWithTips => 'mit Trinkgeld';
+
+  @override
+  String get payEarned => 'Verdient';
+
+  @override
+  String get payExpected => 'Erwartet';
+
+  @override
+  String payEarnedSoFar(String amount, String recorded, String expected) {
+    return '$amount verdient · $recorded von $expected h';
+  }
+
+  @override
+  String payForHours(String hours) {
+    return 'für $hours h';
+  }
+
+  @override
+  String payOfExpected(String amount) {
+    return 'von $amount';
+  }
+
+  @override
+  String get wageRate => 'Stundenlohn';
+
+  @override
+  String get wageAdd => 'Stundenlohn eintragen';
+
+  @override
+  String get wageMissing =>
+      'Trag deinen Stundenlohn ein, dann siehst du hier, was du im Monat verdienst.';
+
+  @override
+  String get wageSheetHint => 'Brutto pro Stunde, ohne Trinkgeld.';
+
+  @override
+  String get wageFirstHint => 'Gilt auch für frühere Monate.';
+
+  @override
+  String get wageValidFrom => 'Gilt ab';
+
+  @override
+  String wageSince(String date) {
+    return 'ab $date';
+  }
+
+  @override
+  String get wageAll => 'Alle Stundenlöhne';
+
+  @override
+  String wageDeleteTitle(String date) {
+    return 'Stundenlohn ab $date löschen?';
+  }
+
+  @override
+  String get wageInvalid => 'Bitte einen Betrag wie 14,50 eingeben.';
 
   @override
   String get settings => 'Einstellungen';

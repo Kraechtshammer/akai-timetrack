@@ -1940,6 +1940,378 @@ class TipPayoutsCompanion extends UpdateCompanion<TipPayout> {
   }
 }
 
+class $WageRatesTable extends WageRates
+    with TableInfo<$WageRatesTable, WageRate> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WageRatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _validFromMeta = const VerificationMeta(
+    'validFrom',
+  );
+  @override
+  late final GeneratedColumn<String> validFrom = GeneratedColumn<String>(
+    'valid_from',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _hourlyCentsMeta = const VerificationMeta(
+    'hourlyCents',
+  );
+  @override
+  late final GeneratedColumn<int> hourlyCents = GeneratedColumn<int>(
+    'hourly_cents',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    validFrom,
+    hourlyCents,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'wage_rates';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WageRate> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('valid_from')) {
+      context.handle(
+        _validFromMeta,
+        validFrom.isAcceptableOrUnknown(data['valid_from']!, _validFromMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_validFromMeta);
+    }
+    if (data.containsKey('hourly_cents')) {
+      context.handle(
+        _hourlyCentsMeta,
+        hourlyCents.isAcceptableOrUnknown(
+          data['hourly_cents']!,
+          _hourlyCentsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_hourlyCentsMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WageRate map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WageRate(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      validFrom: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}valid_from'],
+      )!,
+      hourlyCents: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hourly_cents'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $WageRatesTable createAlias(String alias) {
+    return $WageRatesTable(attachedDatabase, alias);
+  }
+}
+
+class WageRate extends DataClass implements Insertable<WageRate> {
+  /// UUID, so backups can be merged later.
+  final String id;
+
+  /// The first day this rate applies to, `yyyy-MM-dd`.
+  final String validFrom;
+  final int hourlyCents;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const WageRate({
+    required this.id,
+    required this.validFrom,
+    required this.hourlyCents,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['valid_from'] = Variable<String>(validFrom);
+    map['hourly_cents'] = Variable<int>(hourlyCents);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  WageRatesCompanion toCompanion(bool nullToAbsent) {
+    return WageRatesCompanion(
+      id: Value(id),
+      validFrom: Value(validFrom),
+      hourlyCents: Value(hourlyCents),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory WageRate.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WageRate(
+      id: serializer.fromJson<String>(json['id']),
+      validFrom: serializer.fromJson<String>(json['validFrom']),
+      hourlyCents: serializer.fromJson<int>(json['hourlyCents']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'validFrom': serializer.toJson<String>(validFrom),
+      'hourlyCents': serializer.toJson<int>(hourlyCents),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  WageRate copyWith({
+    String? id,
+    String? validFrom,
+    int? hourlyCents,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => WageRate(
+    id: id ?? this.id,
+    validFrom: validFrom ?? this.validFrom,
+    hourlyCents: hourlyCents ?? this.hourlyCents,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  WageRate copyWithCompanion(WageRatesCompanion data) {
+    return WageRate(
+      id: data.id.present ? data.id.value : this.id,
+      validFrom: data.validFrom.present ? data.validFrom.value : this.validFrom,
+      hourlyCents: data.hourlyCents.present
+          ? data.hourlyCents.value
+          : this.hourlyCents,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WageRate(')
+          ..write('id: $id, ')
+          ..write('validFrom: $validFrom, ')
+          ..write('hourlyCents: $hourlyCents, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, validFrom, hourlyCents, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WageRate &&
+          other.id == this.id &&
+          other.validFrom == this.validFrom &&
+          other.hourlyCents == this.hourlyCents &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class WageRatesCompanion extends UpdateCompanion<WageRate> {
+  final Value<String> id;
+  final Value<String> validFrom;
+  final Value<int> hourlyCents;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const WageRatesCompanion({
+    this.id = const Value.absent(),
+    this.validFrom = const Value.absent(),
+    this.hourlyCents = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WageRatesCompanion.insert({
+    required String id,
+    required String validFrom,
+    required int hourlyCents,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       validFrom = Value(validFrom),
+       hourlyCents = Value(hourlyCents),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<WageRate> custom({
+    Expression<String>? id,
+    Expression<String>? validFrom,
+    Expression<int>? hourlyCents,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (validFrom != null) 'valid_from': validFrom,
+      if (hourlyCents != null) 'hourly_cents': hourlyCents,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WageRatesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? validFrom,
+    Value<int>? hourlyCents,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return WageRatesCompanion(
+      id: id ?? this.id,
+      validFrom: validFrom ?? this.validFrom,
+      hourlyCents: hourlyCents ?? this.hourlyCents,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (validFrom.present) {
+      map['valid_from'] = Variable<String>(validFrom.value);
+    }
+    if (hourlyCents.present) {
+      map['hourly_cents'] = Variable<int>(hourlyCents.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WageRatesCompanion(')
+          ..write('id: $id, ')
+          ..write('validFrom: $validFrom, ')
+          ..write('hourlyCents: $hourlyCents, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1947,6 +2319,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SettingsTable settings = $SettingsTable(this);
   late final $TipDaysTable tipDays = $TipDaysTable(this);
   late final $TipPayoutsTable tipPayouts = $TipPayoutsTable(this);
+  late final $WageRatesTable wageRates = $WageRatesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1956,6 +2329,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     settings,
     tipDays,
     tipPayouts,
+    wageRates,
   ];
 }
 
@@ -2951,6 +3325,209 @@ typedef $$TipPayoutsTableProcessedTableManager =
       TipPayout,
       PrefetchHooks Function()
     >;
+typedef $$WageRatesTableCreateCompanionBuilder = WageRatesCompanion Function({
+  required String id,
+  required String validFrom,
+  required int hourlyCents,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$WageRatesTableUpdateCompanionBuilder = WageRatesCompanion Function({
+  Value<String> id,
+  Value<String> validFrom,
+  Value<int> hourlyCents,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$WageRatesTableFilterComposer
+    extends Composer<_$AppDatabase, $WageRatesTable> {
+  $$WageRatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get validFrom => $composableBuilder(
+    column: $table.validFrom,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hourlyCents => $composableBuilder(
+    column: $table.hourlyCents,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$WageRatesTableOrderingComposer
+    extends Composer<_$AppDatabase, $WageRatesTable> {
+  $$WageRatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get validFrom => $composableBuilder(
+    column: $table.validFrom,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get hourlyCents => $composableBuilder(
+    column: $table.hourlyCents,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$WageRatesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WageRatesTable> {
+  $$WageRatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get validFrom =>
+      $composableBuilder(column: $table.validFrom, builder: (column) => column);
+
+  GeneratedColumn<int> get hourlyCents => $composableBuilder(
+    column: $table.hourlyCents,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$WageRatesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WageRatesTable,
+          WageRate,
+          $$WageRatesTableFilterComposer,
+          $$WageRatesTableOrderingComposer,
+          $$WageRatesTableAnnotationComposer,
+          $$WageRatesTableCreateCompanionBuilder,
+          $$WageRatesTableUpdateCompanionBuilder,
+          (WageRate, BaseReferences<_$AppDatabase, $WageRatesTable, WageRate>),
+          WageRate,
+          PrefetchHooks Function()
+        > {
+  $$WageRatesTableTableManager(_$AppDatabase db, $WageRatesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WageRatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WageRatesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WageRatesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> validFrom = const Value.absent(),
+                Value<int> hourlyCents = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WageRatesCompanion(
+                id: id,
+                validFrom: validFrom,
+                hourlyCents: hourlyCents,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String validFrom,
+                required int hourlyCents,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => WageRatesCompanion.insert(
+                id: id,
+                validFrom: validFrom,
+                hourlyCents: hourlyCents,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$WageRatesTable, WageRate>(table),
+                  BaseReferences<_$AppDatabase, $WageRatesTable, WageRate>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$WageRatesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WageRatesTable,
+      WageRate,
+      $$WageRatesTableFilterComposer,
+      $$WageRatesTableOrderingComposer,
+      $$WageRatesTableAnnotationComposer,
+      $$WageRatesTableCreateCompanionBuilder,
+      $$WageRatesTableUpdateCompanionBuilder,
+      (WageRate, BaseReferences<_$AppDatabase, $WageRatesTable, WageRate>),
+      WageRate,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2963,4 +3540,6 @@ class $AppDatabaseManager {
       $$TipDaysTableTableManager(_db, _db.tipDays);
   $$TipPayoutsTableTableManager get tipPayouts =>
       $$TipPayoutsTableTableManager(_db, _db.tipPayouts);
+  $$WageRatesTableTableManager get wageRates =>
+      $$WageRatesTableTableManager(_db, _db.wageRates);
 }

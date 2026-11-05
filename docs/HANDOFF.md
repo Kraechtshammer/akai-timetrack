@@ -75,6 +75,18 @@ Automated checks:
 - Not checked: light mode for the new screens; on a phone.
 - Trap: the dev container's Python has no `json` module. ARB edits were done with a Dart script.
 
+## Done in the fifth session (2026-11-05): salary
+
+- Design in `02-design.md` §3 (table `wage_rates`), §4.8 (rules), §7 (screens).
+- **Hourly wage:** set on the Pay tab. A rate is valid from a day on (default: the 1st of the month on screen), so a raise doesn't change past months. The first rate also counts for earlier months. The wage sheet lists all rates; each can be deleted.
+- **Pay tab month card:** the expected gross pay for the calendar month as the big number, with the amount earned so far (recorded shifts) and a wavy bar; "Expected" adds planned, running and missed shifts. Then "Tips", then "Total · with tips" as "Earned" and "Expected". Past months show what was earned, future months what is expected. The hourly wage is a chip in the header. The developer picked this layout from three prototypes.
+- **Home tab:** the "Today" tab is now "Home" (icon `home`), and the month card has a "Pay" row above "Tips": "€412 of €980", or "Add hourly wage".
+- No tax or deductions (developer decision). Tips have no forecast: "Expected" totals add the tips paid out so far.
+- **Database schema version 3:** table `wage_rates`, with a migration test from v2.
+- Developer decisions: rates with a valid-from day (not a single setting), set on the Pay tab (not in Settings), the tab renamed to "Home".
+- Checked: 90 tests pass (15 for salary rules, 6 for the wage repository, 3 more for migrations to v3). The debug APK was installed on the emulator over 1.2.0 data; the app starts, the migration ran (old tips still shown), and the Home tab shows "Add hourly wage". Not checked yet: entering and changing rates in the app, a rate change within a month, dark mode, a phone.
+- Docs: from this session on, docs, code comments and release notes are English only and say "the user" for the person using the app (`docs/CLAUDE.md`).
+
 ## Open points (in rough priority)
 
 0. **In-app update on real phones:** 1.1.0 is the first version with the updater, so it is installed by hand; the first real in-app update is 1.2.0 (tips). Until then the path with the release key and GitHub is only checked with debug builds and the fake server on the emulator. On the Xiaomi: some MIUI versions had trouble with session installs from third-party apps; if it fails there, fall back to the system installer intent (FileProvider + ACTION_VIEW).
@@ -104,17 +116,18 @@ lib/
         providers.dart      Riverpod providers (settings, shifts by day range, running shift, clock, sync status)
         app.dart, theme.dart (M3ETheme wrapper, seed colours)
   core/ time.dart, format.dart        dates, ISO weeks, minutes, HH:mm, decimal hours
-  data/ database.dart (+ .g.dart, .steps.dart)  drift tables Shifts, Settings, TipDays, TipPayouts; migrations
+  data/ database.dart (+ .g.dart, .steps.dart)  drift tables Shifts, Settings, TipDays, TipPayouts, WageRates; migrations
         database_connection.dart     opens the database file (kept out of database.dart for drift's schema export)
-        shift_repository.dart, tip_repository.dart,
+        shift_repository.dart, tip_repository.dart, wage_repository.dart,
         settings_repository.dart (also status keys: lastCalendarSync, tipPromptDismissedDay), app_settings.dart
   domain/ planning.dart, recording.dart, rounding.dart, month_summary.dart,
           export_text.dart, reminder_planner.dart, shift_info.dart,
-          tips.dart (money parsing, tip weeks and months, Home prompt)   (pure logic, tested)
+          tips.dart (money parsing, tip weeks and months, Home prompt),
+          salary.dart (rate of a day, month pay)   (pure logic, tested)
   platform/ notification_service.dart, calendar_sync.dart, device_setup.dart
   l10n/ app_de.arb (source), app_en.arb, labels.dart (+ generated app_localizations*.dart)
-  ui/   material.dart (the one UI import), home_shell, common (header, Panel, WavyProgress, WeekSwitcher, pickers),
-        today/, plan/, shift_sheet.dart, pay/ (Pay tab, money sheet), export/, settings/, onboarding/
+  ui/   material.dart (the one UI import), home_shell, common (header, Panel, Figure, WavyProgress, WeekSwitcher, pickers),
+        today/ (Home tab), plan/, shift_sheet.dart, pay/ (Pay tab, money sheet, wage sheet), export/, settings/, onboarding/
 packages/calendar_bridge/   Kotlin CalendarContract plugin (calendars incl. sync flag, event colours, events, enableSync, requestSync)
 packages/running_progress/  Kotlin plugin: moves the running notification's progress bar (Live Update on Android 16)
 test/                       unit tests (helpers.dart builds test shifts); test/drift/ generated migration tests

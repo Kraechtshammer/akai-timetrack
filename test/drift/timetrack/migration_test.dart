@@ -9,6 +9,7 @@ import 'generated/schema.dart';
 
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v3.dart' as v3;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -104,6 +105,122 @@ void main() {
         expect(
           expectedNewSettingsData,
           await newDb.select(newDb.settings).get(),
+        );
+      },
+    );
+  });
+
+  // v2 -> v3 only adds the wage rates table; everything else must survive.
+  test('migration from v2 to v3 does not corrupt data', () async {
+    final start = DateTime.utc(2026, 11, 2, 11).millisecondsSinceEpoch ~/ 1000;
+    final end = DateTime.utc(2026, 11, 2, 15).millisecondsSinceEpoch ~/ 1000;
+    final oldShiftsData = [
+      v2.ShiftsData(
+        id: 'a1b2',
+        notifId: 7,
+        day: '2026-11-02',
+        type: 0,
+        plannedStart: start,
+        plannedEnd: end,
+        plannedCustomized: 0,
+        actualStart: start,
+        actualEnd: end,
+        breakMinutes: 15,
+        calendarEventId: '42',
+        calendarId: '3',
+        syncState: 0,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final expectedNewShiftsData = [
+      v3.ShiftsData(
+        id: 'a1b2',
+        notifId: 7,
+        day: '2026-11-02',
+        type: 0,
+        plannedStart: start,
+        plannedEnd: end,
+        plannedCustomized: 0,
+        actualStart: start,
+        actualEnd: end,
+        breakMinutes: 15,
+        calendarEventId: '42',
+        calendarId: '3',
+        syncState: 0,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+
+    final oldSettingsData = [
+      const v2.SettingsData(key: 'eventTitle', value: 'Kellnern'),
+    ];
+    final expectedNewSettingsData = [
+      const v3.SettingsData(key: 'eventTitle', value: 'Kellnern'),
+    ];
+
+    final oldTipDaysData = [
+      v2.TipDaysData(
+        id: 't1',
+        day: '2026-11-02',
+        poolCents: 4000,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final expectedNewTipDaysData = [
+      v3.TipDaysData(
+        id: 't1',
+        day: '2026-11-02',
+        poolCents: 4000,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+
+    final oldTipPayoutsData = [
+      v2.TipPayoutsData(
+        id: 'p1',
+        weekStart: '2026-11-02',
+        amountCents: 12000,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final expectedNewTipPayoutsData = [
+      v3.TipPayoutsData(
+        id: 'p1',
+        weekStart: '2026-11-02',
+        amountCents: 12000,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 2,
+      newVersion: 3,
+      createOld: v2.DatabaseAtV2.new,
+      createNew: v3.DatabaseAtV3.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insertAll(oldDb.shifts, oldShiftsData);
+        batch.insertAll(oldDb.settings, oldSettingsData);
+        batch.insertAll(oldDb.tipDays, oldTipDaysData);
+        batch.insertAll(oldDb.tipPayouts, oldTipPayoutsData);
+      },
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.wageRates).get(), isEmpty);
+        expect(expectedNewShiftsData, await newDb.select(newDb.shifts).get());
+        expect(
+          expectedNewSettingsData,
+          await newDb.select(newDb.settings).get(),
+        );
+        expect(expectedNewTipDaysData, await newDb.select(newDb.tipDays).get());
+        expect(
+          expectedNewTipPayoutsData,
+          await newDb.select(newDb.tipPayouts).get(),
         );
       },
     );

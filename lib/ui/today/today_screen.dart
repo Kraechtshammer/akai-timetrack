@@ -14,13 +14,15 @@ import '../../data/settings_repository.dart';
 import '../../domain/month_summary.dart';
 import '../../domain/recording.dart';
 import '../../domain/rounding.dart';
+import '../../domain/salary.dart';
 import '../../domain/shift_info.dart';
 import '../../domain/tips.dart';
 import '../../l10n/labels.dart';
 import '../common.dart';
 import '../pay/money_sheet.dart';
+import '../pay/wage_sheet.dart';
 
-/// "Heute": next shift or running recording, month overview, this week.
+/// "Home": next shift or running recording, month overview, this week.
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key, required this.onOpenPlan});
 
@@ -65,6 +67,8 @@ class TodayScreen extends ConsumerWidget {
             tipDays: recentTips,
             dismissedDay: dismissed.value,
           );
+    // Null while loading, so "Add hourly wage" doesn't flash up.
+    final rates = ref.watch(wageRatesProvider).value;
     final monthTips = TipMonth.of(
       ref.watch(tipPayoutsProvider(tipWeeksOf(now))).value ?? const [],
     );
@@ -73,7 +77,7 @@ class TodayScreen extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 16),
       children: [
         PageHeader(
-          title: context.l10n.tabToday,
+          title: context.l10n.tabHome,
           subtitle: DateFormat.MMMMEEEEd(context.locale).format(now),
         ),
         Padding(
@@ -103,6 +107,10 @@ class TodayScreen extends ConsumerWidget {
               _MonthCard(
                 summary: summary,
                 tipCents: monthTips.totalCents,
+                ratesLoaded: rates != null,
+                pay: rates == null
+                    ? null
+                    : payForMonth(monthShifts, rates, now),
                 now: now,
                 running: running != null,
               ),
@@ -417,6 +425,8 @@ class _MonthCard extends StatelessWidget {
   const _MonthCard({
     required this.summary,
     required this.tipCents,
+    required this.ratesLoaded,
+    required this.pay,
     required this.now,
     required this.running,
   });
@@ -425,6 +435,10 @@ class _MonthCard extends StatelessWidget {
 
   /// The month's tip payouts (docs/02-design.md §4.7).
   final int tipCents;
+
+  /// The month's gross pay, or null without an hourly wage (§4.8).
+  final MonthPay? pay;
+  final bool ratesLoaded;
   final DateTime now;
   final bool running;
 
@@ -432,20 +446,7 @@ class _MonthCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final locale = context.locale;
-    Widget figure(String label, String value, Color color) => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: context.text.labelMedium),
-        Text(
-          value,
-          style: context.text.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: color,
-            fontFeatures: tabularFigures,
-          ),
-        ),
-      ],
-    );
+    final pay = this.pay;
 
     return Panel(
       color: context.colors.surfaceContainer,
@@ -467,17 +468,21 @@ class _MonthCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: figure(
-                  l10n.monthRecorded,
-                  l10n.hours(formatHours(summary.recordedMinutes, locale)),
-                  context.colors.primary,
+                child: Figure(
+                  label: l10n.monthRecorded,
+                  value: l10n.hours(
+                    formatHours(summary.recordedMinutes, locale),
+                  ),
+                  color: context.colors.primary,
                 ),
               ),
               Expanded(
-                child: figure(
-                  l10n.monthExpected,
-                  l10n.hours(formatHours(summary.expectedMinutes, locale)),
-                  context.colors.onSurface,
+                child: Figure(
+                  label: l10n.monthExpected,
+                  value: l10n.hours(
+                    formatHours(summary.expectedMinutes, locale),
+                  ),
+                  color: context.colors.onSurface,
                 ),
               ),
             ],
@@ -493,8 +498,45 @@ class _MonthCard extends StatelessWidget {
                   ),
             style: context.text.bodySmall,
           ),
-          // Tips get their own row; salary rows go below it later.
           Divider(height: 8, color: context.colors.outlineVariant),
+          // Pay so far "of" the expected pay; a button without a wage.
+          if (ratesLoaded)
+            Row(
+              spacing: 8,
+              children: [
+                Icon(Icons.euro, size: 20, color: context.colors.primary),
+                Expanded(
+                  child: Text(l10n.paySalary, style: context.text.labelLarge),
+                ),
+                if (pay == null)
+                  M3EButton(
+                    style: M3EButtonStyle.text,
+                    onPressed: () => showWageSheet(context, month: now),
+                    child: Text(l10n.wageAdd),
+                  )
+                else
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: formatEuros(pay.earnedCents, locale)),
+                        TextSpan(
+                          text:
+                              ' ${l10n.payOfExpected(formatEuros(pay.expectedCents, locale))}',
+                          style: context.text.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w400,
+                            color: context.colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                    style: context.text.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: context.colors.primary,
+                      fontFeatures: tabularFigures,
+                    ),
+                  ),
+              ],
+            ),
           Row(
             spacing: 8,
             children: [
@@ -520,7 +562,7 @@ class _MonthCard extends StatelessWidget {
   }
 }
 
-/// "Trinkgeld eintragen": asks for the pool total of a day she just worked
+/// "Add the tips": asks for the pool total of a day the user just worked
 /// (docs/02-design.md §4.7).
 class _TipPromptCard extends ConsumerWidget {
   const _TipPromptCard({required this.day, required this.today});

@@ -13,7 +13,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'TimeTrack';
 
   @override
-  String get tabToday => 'Today';
+  String get tabHome => 'Home';
 
   @override
   String get tabPlan => 'Plan';
@@ -25,7 +25,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabPay => 'Pay';
 
   @override
-  String get paySubtitle => 'Tips week by week';
+  String get paySubtitle => 'Monthly pay and tips';
 
   @override
   String get tips => 'Tips';
@@ -92,6 +92,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipNotNow => 'Not now';
+
+  @override
+  String get paySalary => 'Pay';
+
+  @override
+  String get payGross => 'gross';
+
+  @override
+  String get payExpectedSalary => 'Expected pay';
+
+  @override
+  String get payTotal => 'Total';
+
+  @override
+  String get payWithTips => 'with tips';
+
+  @override
+  String get payEarned => 'Earned';
+
+  @override
+  String get payExpected => 'Expected';
+
+  @override
+  String payEarnedSoFar(String amount, String recorded, String expected) {
+    return '$amount earned · $recorded of $expected h';
+  }
+
+  @override
+  String payForHours(String hours) {
+    return 'for $hours h';
+  }
+
+  @override
+  String payOfExpected(String amount) {
+    return 'of $amount';
+  }
+
+  @override
+  String get wageRate => 'Hourly wage';
+
+  @override
+  String get wageAdd => 'Add hourly wage';
+
+  @override
+  String get wageMissing =>
+      'Add your hourly wage to see what you earn each month.';
+
+  @override
+  String get wageSheetHint => 'Gross per hour, without tips.';
+
+  @override
+  String get wageFirstHint => 'Also counts for earlier months.';
+
+  @override
+  String get wageValidFrom => 'Valid from';
+
+  @override
+  String wageSince(String date) {
+    return 'from $date';
+  }
+
+  @override
+  String get wageAll => 'All hourly wages';
+
+  @override
+  String wageDeleteTitle(String date) {
+    return 'Delete the hourly wage from $date?';
+  }
+
+  @override
+  String get wageInvalid => 'Enter an amount like 14.50.';
 
   @override
   String get settings => 'Settings';

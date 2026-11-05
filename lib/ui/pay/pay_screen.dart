@@ -7,12 +7,14 @@ import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/time.dart';
 import '../../data/database.dart';
+import '../../domain/salary.dart';
 import '../../domain/tips.dart';
 import '../common.dart';
 import 'money_sheet.dart';
+import 'wage_sheet.dart';
 
-/// "Lohn": the tips of one week, and the month's total. Salary comes later
-/// (docs/02-design.md §7 and §14.2).
+/// "Pay": the month's gross pay and tips, and the tips of one week
+/// (docs/02-design.md §7).
 class PayScreen extends ConsumerStatefulWidget {
   const PayScreen({super.key});
 
@@ -67,7 +69,7 @@ class _PayScreenState extends ConsumerState<PayScreen> {
             spacing: 12,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _TipMonthCard(month: tipMonthOf(week)),
+              _MonthCard(month: tipMonthOf(week)),
               WeekSwitcher(
                 title: l10n.weekLabel(isoWeekNumber(week)),
                 subtitle:
@@ -85,9 +87,12 @@ class _PayScreenState extends ConsumerState<PayScreen> {
   }
 }
 
-/// "November · Trinkgeld 312 € · aus 3 Wochen"
-class _TipMonthCard extends ConsumerWidget {
-  const _TipMonthCard({required this.month});
+/// The month of the shown week (docs/02-design.md §7): the expected gross
+/// pay on top (what reaches the bank account), then tips, then the totals
+/// with tips. The hourly wage is a chip in the header. Pay is for the
+/// calendar month; tips for the weeks whose Thursday is in it (§4.7, §4.8).
+class _MonthCard extends ConsumerWidget {
+  const _MonthCard({required this.month});
 
   final DateTime month;
 
@@ -95,36 +100,212 @@ class _TipMonthCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final locale = context.locale;
-    final payouts =
-        ref.watch(tipPayoutsProvider(tipWeeksOf(month))).value ?? const [];
-    final total = TipMonth.of(payouts);
+    final colors = context.colors;
+    final now = ref.now;
+    final shifts =
+        ref
+            .watch(shiftsProvider((monthStart(month), nextMonthStart(month))))
+            .value ??
+        const [];
+    // Null while loading, so "Add hourly wage" doesn't flash up.
+    final rates = ref.watch(wageRatesProvider).value;
+    final tips = TipMonth.of(
+      ref.watch(tipPayoutsProvider(tipWeeksOf(month))).value ?? const [],
+    );
+    final pay = rates == null ? null : payForMonth(shifts, rates, now);
+    final rate = rates == null ? null : ratesInMonth(month, rates).lastOrNull;
+    // The current month shows both; a past month only what was earned,
+    // unless shifts are missing; a future month only what is expected.
+    final current = monthStart(now);
+    final showEarned = !month.isAfter(current);
+    final showExpected =
+        !month.isBefore(current) ||
+        (pay != null && pay.expectedCents != pay.earnedCents);
+    final divider = Divider(height: 8, color: colors.outlineVariant);
+    String hours(int minutes) => formatHours(minutes, locale);
+
     return Panel(
-      color: context.colors.surfaceContainer,
+      color: colors.surfaceContainer,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 4,
+        spacing: 8,
         children: [
-          Text(
-            DateFormat.yMMMM(locale).format(month),
-            style: context.text.titleMedium,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  DateFormat.yMMMM(locale).format(month),
+                  style: context.text.titleMedium,
+                ),
+              ),
+              if (rates != null)
+                ActionChip(
+                  avatar: Icon(
+                    rate == null ? Icons.add : Icons.edit_outlined,
+                    size: 16,
+                  ),
+                  label: Text(
+                    rate == null
+                        ? l10n.wageRate
+                        : '${formatEuros(rate.hourlyCents, locale)}/h',
+                  ),
+                  tooltip: l10n.wageRate,
+                  onPressed: () => showWageSheet(context, month: month),
+                ),
+            ],
           ),
-          Text(l10n.tips, style: context.text.labelMedium),
-          Text(
-            formatEuros(total.totalCents, locale),
-            style: context.text.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: context.colors.primary,
-              fontFeatures: tabularFigures,
+          if (rates != null) ...[
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: showExpected
+                        ? l10n.payExpectedSalary
+                        : l10n.paySalary,
+                  ),
+                  TextSpan(
+                    text: ' · ${l10n.payGross}',
+                    style: context.text.bodySmall,
+                  ),
+                ],
+              ),
+              style: context.text.labelLarge,
             ),
+            if (pay == null)
+              _NoWage(month: month)
+            else ...[
+              Text(
+                formatEuros(
+                  showExpected ? pay.expectedCents : pay.earnedCents,
+                  locale,
+                ),
+                style: context.text.displaySmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: colors.primary,
+                  fontFeatures: tabularFigures,
+                ),
+              ),
+              Text(
+                showEarned && showExpected
+                    ? l10n.payEarnedSoFar(
+                        formatEuros(pay.earnedCents, locale),
+                        hours(pay.earnedMinutes),
+                        hours(pay.expectedMinutes),
+                      )
+                    : l10n.payForHours(
+                        hours(
+                          showExpected
+                              ? pay.expectedMinutes
+                              : pay.earnedMinutes,
+                        ),
+                      ),
+                style: context.text.bodyMedium,
+              ),
+              if (showEarned && showExpected)
+                WavyProgress(
+                  value: pay.expectedCents == 0
+                      ? 0
+                      : pay.earnedCents / pay.expectedCents,
+                ),
+            ],
+            divider,
+          ],
+          Row(
+            spacing: 8,
+            children: [
+              Icon(Icons.payments_outlined, size: 20, color: colors.tertiary),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.tips, style: context.text.labelLarge),
+                    Text(
+                      l10n.tipsMonthWeeks(tips.weeks),
+                      style: context.text.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                formatEuros(tips.totalCents, locale),
+                style: context.text.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: colors.tertiary,
+                  fontFeatures: tabularFigures,
+                ),
+              ),
+            ],
           ),
-          Text(l10n.tipsMonthWeeks(total.weeks), style: context.text.bodySmall),
+          if (pay != null) ...[
+            divider,
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: l10n.payTotal),
+                  TextSpan(
+                    text: ' · ${l10n.payWithTips}',
+                    style: context.text.bodySmall,
+                  ),
+                ],
+              ),
+              style: context.text.labelLarge,
+            ),
+            Row(
+              children: [
+                if (showEarned)
+                  Expanded(
+                    child: Figure(
+                      label: l10n.payEarned,
+                      value: formatEuros(
+                        pay.earnedCents + tips.totalCents,
+                        locale,
+                      ),
+                      color: colors.primary,
+                    ),
+                  ),
+                if (showExpected)
+                  Expanded(
+                    child: Figure(
+                      label: l10n.payExpected,
+                      value: formatEuros(
+                        pay.expectedCents + tips.totalCents,
+                        locale,
+                      ),
+                      color: showEarned ? colors.onSurface : colors.primary,
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
-/// "Ausgezahlt": the week's cash payout, or "Eintragen".
+/// No hourly wage yet: a hint and "Add hourly wage".
+class _NoWage extends StatelessWidget {
+  const _NoWage({required this.month});
+
+  final DateTime month;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    spacing: 8,
+    children: [
+      Text(context.l10n.wageMissing, style: context.text.bodyMedium),
+      M3EButton.icon(
+        style: M3EButtonStyle.tonal,
+        onPressed: () => showWageSheet(context, month: month),
+        icon: const Icon(Icons.add),
+        label: Text(context.l10n.wageAdd),
+      ),
+    ],
+  );
+}
+
+/// "Paid out": the week's cash payout, or "Add".
 class _PayoutCard extends ConsumerWidget {
   const _PayoutCard({required this.week, required this.payout});
 
@@ -185,7 +366,7 @@ class _PayoutCard extends ConsumerWidget {
   }
 }
 
-/// "Tagestopf": one row per workday, and the week's sum.
+/// "Daily pool": one row per workday, and the week's sum.
 class _PoolCard extends ConsumerWidget {
   const _PoolCard({
     required this.workdays,

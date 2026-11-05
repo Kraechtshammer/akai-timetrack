@@ -36,6 +36,11 @@ final tipPayoutsProvider = StreamProvider.family<List<TipPayout>, DayRange>(
       ref.watch(servicesProvider).tips.watchPayouts(range.$1, range.$2),
 );
 
+/// The hourly wage rates, oldest first (docs/02-design.md §4.8).
+final wageRatesProvider = StreamProvider<List<WageRate>>(
+  (ref) => ref.watch(servicesProvider).wages.watchAll(),
+);
+
 /// The day whose tip prompt on Heute she closed (`yyyy-MM-dd`).
 final tipPromptDismissedProvider = StreamProvider<String?>(
   (ref) => ref
