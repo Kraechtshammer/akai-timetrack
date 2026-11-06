@@ -78,10 +78,19 @@ Off by default; turn it on in Settings › Features › "Team planner". It is fo
   <img src="docs/screenshots/team-share.png" width="640" alt="The shared shift plan picture for one week">
 </p>
 
+### Colours
+
+- Five colour themes, each in light and dark mode: "Red" (the default), "Terracotta", "Blue", "Green" and "Violet". "System color" takes the colours from the phone's wallpaper (Android 12 and newer).
+- Shifts have their own soft colours on top of the theme: green for recorded, honey for not recorded, grey for planned. On the Plan tab, lunch is apricot and evening is periwinkle.
+- When one of these would look like the theme colour, it moves to a neighbouring colour. With "Green", for example, recorded shifts are teal.
+
+<p align="center">
+  <img src="docs/screenshots/themes.png" width="800" alt="The Home tab's month card and week overview in the five themes, dark and light">
+</p>
+
 ### Other details
 
 - The restaurant's name is set in the setup. It goes into the calendar events' location, the export and the team plan picture.
-- Light and dark mode, and a few colour themes. A red is the default.
 - Launcher icons in a few designs (a serving cloche by default, and some secret ones), each in three shapes, because launchers use different icon shapes: round, squircle and small squircle.
 - The app checks GitHub for a new release, shows what changed, downloads the APK and hands it to Android's installer. After the update it shows what's new once more; Settings › App update › "What's new" shows it again.
 
