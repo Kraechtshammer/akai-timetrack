@@ -21,7 +21,7 @@
   <img src="docs/screenshots/team.png" width="190" alt="Team plan board">
 </p>
 
-TimeTrack was made for the service staff of the restaurant AKAI. A waiter there plans shifts on paper, records the hours worked and sends them to the boss at the end of the month. The app does those steps on the phone.
+TimeTrack was made for restaurant service staff. A waiter plans shifts on paper, records the hours worked and sends them to the boss at the end of the month. The app does those steps on the phone.
 
 - Android 10 or newer.
 - German by default, English in the settings.
@@ -81,8 +81,8 @@ Off by default; turn it on in Settings › "Team planner". It is for weeks when 
 ### Other details
 
 - The restaurant's name is set in the setup. It goes into the calendar events' location, the export and the team plan picture.
-- Light and dark mode, and a few colour themes. A red is the default ("AKAI red" at AKAI).
-- Launcher icons in a few designs (a serving cloche by default, the AKAI sign for AKAI, and some secret ones), each in three shapes, because launchers use different icon shapes: round, squircle and small squircle.
+- Light and dark mode, and a few colour themes. A red is the default.
+- Launcher icons in a few designs (a serving cloche by default, and some secret ones), each in three shapes, because launchers use different icon shapes: round, squircle and small squircle.
 - The app checks GitHub for a new release, shows what changed, downloads the APK and hands it to Android's installer. After the update it shows what's new once more; Settings › App update › "What's new" shows it again.
 
 ## Install

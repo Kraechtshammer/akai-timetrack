@@ -181,6 +181,7 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - **Code:** `ui/settings/settings_screen.dart` has the overview and the shared tiles (`SettingsSection`, `SettingsTile`, `DefaultTimesTiles`); `ui/settings/settings_pages.dart` has `SettingsCategory` and the pages. "Appearance & language" is now "Appearance"; "Language" moved to General with "Restaurant".
 - **Restaurant can stay empty:** it always could (storage, setup, export, calendar, picture and icons all handle it). The hint now starts with "Optional.", and the Settings dialog has a clear button.
 - **README:** shows `branding/icons/cloche-icon.svg`, the icon clipped to the squircle (the full canvas showed the red as a square).
+- **README without AKAI:** the restaurant is no longer named there, nor the AKAI sign icon or "AKAI red", because they are meant as a surprise. Only the repo URLs still contain it.
 
 **Checked:** `flutter analyze` clean, 133 tests pass. The developer checked the debug build on the emulator: the overview and its summaries, the Permissions list, clearing the restaurant. Not checked on a phone.
 
