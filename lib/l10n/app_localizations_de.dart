@@ -1069,6 +1069,32 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Neuerungen lassen sich gerade nicht laden. Versuch es später noch einmal.';
 
   @override
+  String get sectionWorkplace => 'Arbeitsplatz';
+
+  @override
+  String get restaurant => 'Restaurant';
+
+  @override
+  String get restaurantHint =>
+      'Steht im Kalender, im Export und auf dem Dienstplan-Bild.';
+
+  @override
+  String get notSet => 'Nicht festgelegt';
+
+  @override
+  String get colorRed => 'Rot';
+
+  @override
+  String exportHeaderAt(String month, String restaurant) {
+    return 'Arbeitszeiten $month – $restaurant';
+  }
+
+  @override
+  String teamImageTitleAt(String restaurant) {
+    return 'Dienstplan $restaurant';
+  }
+
+  @override
   String get tabTeam => 'Dienstplan';
 
   @override

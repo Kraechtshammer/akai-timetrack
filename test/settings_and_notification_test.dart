@@ -18,7 +18,29 @@ void main() {
       expect(read.weekMarks, WeekMarkStyle.bars);
     });
 
-    test('defaults: AKAI-Rot and icons', () {
+    test('restaurant: round trip, empty on a fresh install, AKAI on older '
+        'installs', () {
+      final stored = {
+        for (final MapEntry(:key, :value) in const AppSettings(
+          restaurant: 'Da Mario',
+        ).toMap().entries)
+          key: ?value,
+      };
+      expect(AppSettings.fromMap(stored).restaurant, 'Da Mario');
+      expect(AppSettings.fromMap(const {}).restaurant, '');
+      expect(
+        AppSettings.fromMap(const {'onboardingDone': 'true'}).restaurant,
+        'AKAI',
+      );
+      // Cleared on purpose: stays empty.
+      expect(
+        AppSettings.fromMap(const {'onboardingDone': 'true', 'restaurant': ''})
+            .restaurant,
+        '',
+      );
+    });
+
+    test('defaults: AKAI red and icons', () {
       final read = AppSettings.fromMap(const {});
       expect(read.themeSeed, ThemeSeed.akaiRed);
       expect(read.weekMarks, WeekMarkStyle.icons);

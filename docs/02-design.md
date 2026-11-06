@@ -131,6 +131,7 @@ Settings live in the database so the notification background isolate can read th
 | `themeMode` | `system` / `light` / `dark` |
 | `locale` | `system` / `de` / `en` |
 | `onboardingDone` | false |
+| `restaurant` | `''` (not set). Installs from 1.4.1 and earlier, which have no stored value but finished the setup, read `AKAI`. See §4.10. |
 | `tipPromptDismissedDay` | null; the `yyyy-MM-dd` day whose "Add the tips" prompt on the Home tab the user closed (§4.7). Device status like `lastCalendarSync`: `SettingsRepository.watch()` leaves it out, so closing the prompt doesn't rebuild the app. |
 
 ### Tables `tip_days` and `tip_payouts` (F10, schema version 2)
@@ -426,6 +427,13 @@ The new shifts sync to the calendar as usual. Snack bar: "Added 3 shifts to Plan
 - **Left out:** open places, core worker marks, warnings.
 - The file is written to the app's cache as `team-plan-<weekStart>.png`, replacing an earlier one, and shared with `share_plus`.
 
+### 4.10 Restaurant name (2026-11-06)
+
+- The `restaurant` setting: in the setup's first page and in Settings › Workplace › "Restaurant". Empty means not set; nothing shows then.
+- **Where it shows:** the calendar events' location (§5.4), the export header ("Working hours November 2026 – AKAI"), and the title of the shared team plan picture ("AKAI shift plan"). Not in the app's own screens: the developer chose these three, so the name costs no screen space.
+- **AKAI only:** when the name is `AKAI` (trimmed, any case; `isAkaiRestaurant` in `domain/app_icons.dart`), the "AKAI sign" icon design is offered, and the default colour is called "AKAI red". Otherwise the picker leaves the sign out (unless it's the current icon) and the colour is called "Red". The colour itself is the same, so nothing changes for installs at other restaurants.
+- Installs from 1.4.1 and earlier read `AKAI` when no value is stored, because all of them were set up at AKAI.
+
 ## 5. Calendar sync
 
 ### 5.1 Why our own bridge
@@ -475,6 +483,7 @@ This bridge is also the part that has to be rewritten for iOS later (EventKit). 
 - **Title:** the `eventTitle` setting (default `Kellnern`).
 - **Time:** actual times if recorded, otherwise planned times.
 - **Colour:** the `eventColorKey` setting.
+- **Location:** the `restaurant` setting, or none when it's empty. Changing it marks all events `dirty`.
 - **Reminders:** none (`HAS_ALARM = 0`). The app does the reminding, and the developer shouldn't get the user's reminders through the shared calendar.
 - **Availability:** busy.
 - **Description:**
@@ -659,7 +668,7 @@ The fifth tab, last in the bar, shown only while Settings › Team planner is on
   - Autostart, on Xiaomi only; it can't be read, so it's checked off by hand: "Done"
 
 ### Onboarding (first start, all skippable except the first page)
-1. **Welcome + language:** "AKAI Timetrack" with a short explanation.
+1. **Welcome + language:** "AKAI Timetrack" with a short explanation, and the "Restaurant" field (optional, saved as it's typed).
 2. **Notifications:** `POST_NOTIFICATIONS`.
 3. **Exact reminders:** on Android 14+, the "Alarms & reminders" settings page.
 4. **Calendar:** the hint about a separate calendar, the permission, the selection list, then the event colour.
@@ -846,3 +855,5 @@ Possible later extensions:
 - **Salary** (2026-11-05): built with the `wage_rates` table planned in §14.2 (schema version 3). The planned `salaryFor(month, shifts, wageRates, payouts)` became `payForMonth(shifts, rates, now)` in `domain/salary.dart`; tips stay separate (`TipMonth`), because they are counted by week, not by calendar month.
 - **Home tab:** the "Today" tab was renamed to "Home", with a `home` icon, when the pay row was added (developer decision, 2026-11-05).
 - **Team planner** (F11, planned 2026-11-05): not in the original scope. The user stands in for the boss's weekly service shift plan. Built into the app behind a Settings switch rather than as a separate app (`01-research.md` §10). Tables in §3, rules in §4.9, screens in §7. Schema version 4.
+- **Restaurant name** (2026-11-06, §4.10): not in the original design. The app was made for one restaurant and may be shared with colleagues, so the name became a setting. It goes into the event location, the export header and the team plan picture; the AKAI sign icon is offered only when the name is AKAI, and the default red is called "AKAI red" only then.
+- **What's new** (2026-11-06, §12): a popup after an update with the changes since the last version that ran, and the same popup from Settings › App update.

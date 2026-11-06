@@ -40,9 +40,15 @@ String weekMarksLabel(WeekMarkStyle style, AppLocalizations l10n) =>
       WeekMarkStyle.bars => l10n.weekMarksBars,
     };
 
-String themeSeedLabel(ThemeSeed seed, AppLocalizations l10n) => switch (seed) {
+/// The red is called "AKAI red" only when the restaurant is AKAI.
+String themeSeedLabel(
+  ThemeSeed seed,
+  AppLocalizations l10n, {
+  required String restaurant,
+}) => switch (seed) {
   ThemeSeed.system => l10n.colorSystem,
-  ThemeSeed.akaiRed => l10n.colorAkai,
+  ThemeSeed.akaiRed =>
+    isAkaiRestaurant(restaurant) ? l10n.colorAkai : l10n.colorRed,
   ThemeSeed.terracotta => l10n.colorTerracotta,
   ThemeSeed.blue => l10n.colorBlue,
   ThemeSeed.green => l10n.colorGreen,

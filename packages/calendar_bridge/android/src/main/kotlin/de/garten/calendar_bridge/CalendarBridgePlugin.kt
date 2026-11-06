@@ -196,6 +196,7 @@ class CalendarBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private fun eventValues(event: Map<String, Any?>) = ContentValues().apply {
         put(Events.TITLE, event["title"] as String)
         put(Events.DESCRIPTION, event["description"] as String?)
+        put(Events.EVENT_LOCATION, event["location"] as String?)
         put(Events.DTSTART, (event["startMs"] as Number).toLong())
         put(Events.DTEND, (event["endMs"] as Number).toLong())
         put(Events.EVENT_TIMEZONE, event["timeZone"] as String)

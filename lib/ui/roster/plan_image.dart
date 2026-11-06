@@ -18,11 +18,15 @@ class TeamPlanImage extends StatelessWidget {
     required this.week,
     required this.starts,
     required this.l10n,
+    this.restaurant = '',
   });
 
   final RosterWeek week;
   final TeamStarts starts;
   final AppLocalizations l10n;
+
+  /// Shown in the title when set.
+  final String restaurant;
 
   /// Layout size; rendered at [pixelRatio] this gives a 1920x1080 PNG.
   static const Size size = Size(1600, 900);
@@ -92,7 +96,9 @@ class TeamPlanImage extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            l10n.teamImageTitle,
+                            restaurant.trim().isEmpty
+                                ? l10n.teamImageTitle
+                                : l10n.teamImageTitleAt(restaurant.trim()),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(

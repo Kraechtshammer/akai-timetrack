@@ -167,11 +167,26 @@ class _StepTitle extends StatelessWidget {
   );
 }
 
-class _Welcome extends ConsumerWidget {
+class _Welcome extends ConsumerStatefulWidget {
   const _Welcome();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_Welcome> createState() => _WelcomeState();
+}
+
+class _WelcomeState extends ConsumerState<_Welcome> {
+  late final _restaurant = TextEditingController(
+    text: ref.read(settingsProvider).value?.restaurant ?? '',
+  );
+
+  @override
+  void dispose() {
+    _restaurant.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final locale = ref.settings.locale ?? context.locale;
     return Column(
@@ -216,6 +231,19 @@ class _Welcome extends ConsumerWidget {
           selected: {locale == 'en' ? 'en' : 'de'},
           onSelectionChanged: (choice) => ref.services.settings.update(
             (s) => s.copyWith(locale: () => choice.single),
+          ),
+        ),
+        TextField(
+          controller: _restaurant,
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(
+            labelText: l10n.restaurant,
+            helperText: l10n.restaurantHint,
+            helperMaxLines: 2,
+            prefixIcon: const Icon(Icons.storefront_outlined),
+          ),
+          onChanged: (name) => ref.services.settings.update(
+            (s) => s.copyWith(restaurant: name.trim()),
           ),
         ),
       ],

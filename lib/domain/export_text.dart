@@ -8,7 +8,7 @@ import 'shift_info.dart';
 
 /// The monthly message for the boss, grouped by ISO week, e.g.
 ///
-///     Arbeitszeiten Oktober 2026
+///     Arbeitszeiten Oktober 2026 – AKAI
 ///
 ///     KW 40 (01.10.–04.10.)
 ///     Do 01.10.: 12:00–16:00 (4,0 h)
@@ -24,11 +24,13 @@ import 'shift_info.dart';
 /// their other days belong to the neighbouring month's export. Weeks without
 /// recorded shifts are left out. Only recorded shifts are listed. The last
 /// line says "bisher" ("so far") while [now] is still inside the month.
+/// The header names the [restaurant] when it is set.
 String buildExportText({
   required DateTime month,
   required List<Shift> shifts,
   required DateTime now,
   required AppLocalizations l10n,
+  String restaurant = '',
 }) {
   final locale = l10n.localeName;
   final from = monthStart(month);
@@ -45,8 +47,11 @@ String buildExportText({
         ..sort((a, b) => a.actualStart!.compareTo(b.actualStart!));
 
   final dayFormat = DateFormat(l10n.exportDayPattern, locale);
+  final monthName = DateFormat.yMMMM(locale).format(from);
   final lines = <String>[
-    l10n.exportHeader(DateFormat.yMMMM(locale).format(from)),
+    restaurant.trim().isEmpty
+        ? l10n.exportHeader(monthName)
+        : l10n.exportHeaderAt(monthName, restaurant.trim()),
   ];
 
   var monthMinutes = 0;

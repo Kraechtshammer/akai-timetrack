@@ -165,6 +165,14 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - Installs updated from 1.4.1 or earlier have no `lastRunVersion`; they show the installed version's notes once. The setup's last step records the version, so a fresh install shows nothing.
 - `scripts/update_test_server.dart` also serves `/releases.json`.
 
+**Restaurant name** (`02-design.md` §4.10):
+- New setting `restaurant`, in the setup's first page ("Restaurant" field under the language) and in Settings › Workplace › "Restaurant". Installs from 1.4.1 and earlier read `AKAI` when nothing is stored.
+- Used in three places, the developer's choice: the calendar events' location (`CalendarEvent.location`, `EVENT_LOCATION` in `calendar_bridge`), the export header and the team plan picture's title. Not on the app's own screens.
+- `isAkaiRestaurant` (`domain/app_icons.dart`): only for AKAI does the icon picker offer the "AKAI sign" (the current icon always shows) and is the default colour called "AKAI red"; otherwise it's "Red". The developer chose renaming over hiding the colour.
+- Changing the name marks all calendar events for an update.
+
+**Checked:** `flutter analyze` clean, 133 tests pass (new: what's-new rules, the restaurant default and round trip, `isAkaiRestaurant` and the icon list, event location, export header). Checked by the developer on the emulator (1.4.1 debug installed over 1.4.0 data): the "What's new in version 1.4.1" popup once on start and again from Settings, "Restaurant" read as AKAI, the icon list and the "Red" label with another name, the export header. The calendar location was checked with a local test calendar (`scripts/emulator-test-calendar.sh`): all events had `eventLocation=AKAI` (`adb shell content query --uri content://com.android.calendar/events`). Not checked on a phone; the team plan picture's title only if the developer opened the share preview.
+
 ## Open points (in rough priority)
 
 0. **Check the new icons on phones** (eighth session; the emulator is done):
@@ -213,7 +221,7 @@ lib/
           tips.dart (money parsing, tip weeks and months, Home prompt),
           salary.dart (rate of a day, month pay),
           roster.dart (team planner: availability, sheet order, Fill),
-          app_icons.dart (launcher icon designs and shapes, secret designs)   (pure logic, tested)
+          app_icons.dart (launcher icon designs and shapes, secret designs, isAkaiRestaurant)   (pure logic, tested)
   platform/ notification_service.dart, calendar_sync.dart, device_setup.dart, app_icon.dart, app_update.dart
   l10n/ app_de.arb (source), app_en.arb, labels.dart (+ generated app_localizations*.dart)
   ui/   material.dart (the one UI import), home_shell, common (header, Panel, Figure, WavyProgress, WeekSwitcher, pickers),

@@ -1868,6 +1868,48 @@ abstract class AppLocalizations {
   /// **'Die Neuerungen lassen sich gerade nicht laden. Versuch es später noch einmal.'**
   String get whatsNewFailed;
 
+  /// No description provided for @sectionWorkplace.
+  ///
+  /// In de, this message translates to:
+  /// **'Arbeitsplatz'**
+  String get sectionWorkplace;
+
+  /// No description provided for @restaurant.
+  ///
+  /// In de, this message translates to:
+  /// **'Restaurant'**
+  String get restaurant;
+
+  /// No description provided for @restaurantHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Steht im Kalender, im Export und auf dem Dienstplan-Bild.'**
+  String get restaurantHint;
+
+  /// No description provided for @notSet.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht festgelegt'**
+  String get notSet;
+
+  /// No description provided for @colorRed.
+  ///
+  /// In de, this message translates to:
+  /// **'Rot'**
+  String get colorRed;
+
+  /// No description provided for @exportHeaderAt.
+  ///
+  /// In de, this message translates to:
+  /// **'Arbeitszeiten {month} – {restaurant}'**
+  String exportHeaderAt(String month, String restaurant);
+
+  /// No description provided for @teamImageTitleAt.
+  ///
+  /// In de, this message translates to:
+  /// **'Dienstplan {restaurant}'**
+  String teamImageTitleAt(String restaurant);
+
   /// No description provided for @tabTeam.
   ///
   /// In de, this message translates to:

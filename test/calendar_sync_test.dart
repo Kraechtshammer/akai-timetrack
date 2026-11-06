@@ -259,6 +259,15 @@ void main() {
       ]);
     });
 
+    test('the restaurant is the location, if set', () {
+      final shift = testShift(day: day, planned: '17:30-23:00');
+      expect(eventFor(shift, const AppSettings(), en).location, isNull);
+      expect(
+        eventFor(shift, const AppSettings(restaurant: ' AKAI '), en).location,
+        'AKAI',
+      );
+    });
+
     test('recorded shift: actual times and recorded line', () {
       final shift = testShift(
         day: day,

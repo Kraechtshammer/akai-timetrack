@@ -148,6 +148,7 @@ class AppSettings {
     this.teamPlanner = false,
     this.teamStaffNeeded = StaffNeeds.standard,
     this.teamStarts = const TeamStarts(12 * 60, 17 * 60 + 30),
+    this.restaurant = '',
   });
 
   final ShiftTimes lunch;
@@ -191,6 +192,11 @@ class AppSettings {
   /// Team planner: the normal start of lunch and evening.
   final TeamStarts teamStarts;
 
+  /// Where the user works, '' if not set. Shown in the calendar events,
+  /// the export and the team plan picture; "AKAI" also offers the AKAI
+  /// sign icon (see `isAkaiRestaurant`).
+  final String restaurant;
+
   /// Reads settings from the stored key-value pairs. Unknown or broken
   /// values fall back to the defaults.
   factory AppSettings.fromMap(Map<String, String> m) {
@@ -223,6 +229,11 @@ class AppSettings {
       teamStaffNeeded:
           StaffNeeds.parse(m['teamStaffNeeded']) ?? d.teamStaffNeeded,
       teamStarts: TeamStarts.parse(m['teamStarts']) ?? d.teamStarts,
+      // Installs from before the setting (1.4.1 and earlier) were all at
+      // AKAI; a fresh install asks in the setup.
+      restaurant:
+          m['restaurant'] ??
+          (m['onboardingDone'] == 'true' ? 'AKAI' : d.restaurant),
     );
   }
 
@@ -249,6 +260,7 @@ class AppSettings {
     'teamPlanner': '$teamPlanner',
     'teamStaffNeeded': '$teamStaffNeeded',
     'teamStarts': '$teamStarts',
+    'restaurant': restaurant,
   };
 
   /// Copy with some values changed. Nullable values are wrapped in a
@@ -275,6 +287,7 @@ class AppSettings {
     bool? teamPlanner,
     StaffNeeds? teamStaffNeeded,
     TeamStarts? teamStarts,
+    String? restaurant,
   }) => AppSettings(
     lunch: lunch ?? this.lunch,
     lunchBeforeEvening: lunchBeforeEvening ?? this.lunchBeforeEvening,
@@ -297,5 +310,6 @@ class AppSettings {
     teamPlanner: teamPlanner ?? this.teamPlanner,
     teamStaffNeeded: teamStaffNeeded ?? this.teamStaffNeeded,
     teamStarts: teamStarts ?? this.teamStarts,
+    restaurant: restaurant ?? this.restaurant,
   );
 }

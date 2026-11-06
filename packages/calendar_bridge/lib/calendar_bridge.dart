@@ -44,6 +44,7 @@ class CalendarEvent {
     required this.end,
     required this.timeZone,
     this.colorKey,
+    this.location,
   });
 
   final String title;
@@ -55,6 +56,9 @@ class CalendarEvent {
   /// null = the calendar's own color.
   final String? colorKey;
 
+  /// Where the shift is (the restaurant), or null.
+  final String? location;
+
   Map<String, Object?> toMap() => {
     'title': title,
     'description': description,
@@ -62,6 +66,7 @@ class CalendarEvent {
     'endMs': end.millisecondsSinceEpoch,
     'timeZone': timeZone,
     'colorKey': colorKey,
+    'location': location,
   };
 }
 

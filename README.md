@@ -80,9 +80,10 @@ Off by default; turn it on in Settings › "Team planner". It is for weeks when 
 
 ### Other details
 
-- Light and dark mode, and a few colour themes. "AKAI red" is the default.
-- Launcher icons in a few designs (a serving cloche by default, the restaurant's sign, and some secret ones), each in three shapes, because launchers use different icon shapes: round, squircle and small squircle.
-- The app checks GitHub for a new release, shows what changed, downloads the APK and hands it to Android's installer.
+- The restaurant's name is set in the setup. It goes into the calendar events' location, the export and the team plan picture.
+- Light and dark mode, and a few colour themes. A red is the default ("AKAI red" at AKAI).
+- Launcher icons in a few designs (a serving cloche by default, the AKAI sign for AKAI, and some secret ones), each in three shapes, because launchers use different icon shapes: round, squircle and small squircle.
+- The app checks GitHub for a new release, shows what changed, downloads the APK and hands it to Android's installer. After the update it shows what's new once more; Settings › App update › "What's new" shows it again.
 
 ## Install
 

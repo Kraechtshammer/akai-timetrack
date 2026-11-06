@@ -45,20 +45,39 @@ void main() {
     expect(secretIconsUnlocked([]), isFalse);
   });
 
+  test('isAkaiRestaurant', () {
+    expect(isAkaiRestaurant('AKAI'), isTrue);
+    expect(isAkaiRestaurant(' akai '), isTrue);
+    expect(isAkaiRestaurant('Akai Sushi'), isFalse);
+    expect(isAkaiRestaurant(''), isFalse);
+  });
+
   test('iconDesignsOffered', () {
     final locked = [person('Anna', isMe: true)];
     final unlocked = [person('Yuki', isMe: true)];
-    expect(iconDesignsOffered(members: locked, current: IconDesign.cloche), [
+    List<IconDesign> offered(
+      List<TeamMember> members, {
+      String restaurant = 'AKAI',
+      IconDesign current = IconDesign.cloche,
+    }) => iconDesignsOffered(
+      members: members,
+      restaurant: restaurant,
+      current: current,
+    );
+
+    expect(offered(locked), [IconDesign.cloche, IconDesign.akai]);
+    expect(offered(unlocked), IconDesign.values);
+    expect(offered(locked, current: IconDesign.penguinNavy), [
+      IconDesign.cloche,
+      IconDesign.akai,
+      IconDesign.penguinNavy,
+    ]);
+    // The AKAI sign only for AKAI, unless it is the current icon.
+    expect(offered(locked, restaurant: 'Da Mario'), [IconDesign.cloche]);
+    expect(offered(locked, restaurant: ''), [IconDesign.cloche]);
+    expect(offered(locked, restaurant: 'Da Mario', current: IconDesign.akai), [
       IconDesign.cloche,
       IconDesign.akai,
     ]);
-    expect(
-      iconDesignsOffered(members: unlocked, current: IconDesign.cloche),
-      IconDesign.values,
-    );
-    expect(
-      iconDesignsOffered(members: locked, current: IconDesign.penguinNavy),
-      [IconDesign.cloche, IconDesign.akai, IconDesign.penguinNavy],
-    );
   });
 }

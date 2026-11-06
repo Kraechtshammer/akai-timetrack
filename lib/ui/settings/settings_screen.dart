@@ -93,6 +93,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _editRestaurant() async {
+    final l10n = context.l10n;
+    final controller = TextEditingController(text: ref.settings.restaurant);
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.restaurant),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(helperText: l10n.restaurantHint),
+        ),
+        actions: [
+          M3EButton(
+            style: M3EButtonStyle.text,
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          M3EButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+    // Empty is allowed: no restaurant anywhere. The events carry it as
+    // their location.
+    if (name != null && name != ref.settings.restaurant) {
+      await _update((s) => s.copyWith(restaurant: name), calendarEvents: true);
+    }
+  }
+
   Future<void> _changeLanguage(String? locale) async {
     // The event descriptions are written in the app's language, too.
     await _update(
@@ -157,6 +190,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ),
           ),
+          _Section(l10n.sectionWorkplace, [
+            SettingsTile(
+              icon: Icons.storefront_outlined,
+              title: l10n.restaurant,
+              value: s.restaurant.isEmpty ? l10n.notSet : s.restaurant,
+              onTap: _editRestaurant,
+            ),
+          ]),
           _Section(l10n.sectionCalendar, [
             SettingsTile(
               icon: Icons.event,
@@ -238,7 +279,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ListTile(
               leading: const SettingsTileIcon(Icons.palette_outlined),
               title: Text(l10n.color),
-              subtitle: Text(themeSeedLabel(s.themeSeed, l10n)),
+              subtitle: Text(
+                themeSeedLabel(s.themeSeed, l10n, restaurant: s.restaurant),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(72, 0, 16, 12),
@@ -249,6 +292,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   for (final seed in ThemeSeed.values)
                     _SeedSwatch(
                       seed: seed,
+                      restaurant: s.restaurant,
                       selected: s.themeSeed == seed,
                       onTap: () => _update((s) => s.copyWith(themeSeed: seed)),
                     ),
@@ -297,6 +341,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: l10n.appIcon,
                   options: iconDesignsOffered(
                     members: members,
+                    restaurant: ref.settings.restaurant,
                     current: (current ?? AppIcon.fallback).design,
                   ),
                   selected: (current ?? AppIcon.fallback).design,
@@ -572,11 +617,15 @@ class SettingsTileIcon extends StatelessWidget {
 class _SeedSwatch extends StatelessWidget {
   const _SeedSwatch({
     required this.seed,
+    required this.restaurant,
     required this.selected,
     required this.onTap,
   });
 
   final ThemeSeed seed;
+
+  /// Names the red (see [themeSeedLabel]).
+  final String restaurant;
   final bool selected;
   final VoidCallback onTap;
 
@@ -584,7 +633,7 @@ class _SeedSwatch extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = seedColors[seed];
     return Tooltip(
-      message: themeSeedLabel(seed, context.l10n),
+      message: themeSeedLabel(seed, context.l10n, restaurant: restaurant),
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onTap,

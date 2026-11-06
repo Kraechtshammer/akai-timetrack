@@ -202,5 +202,8 @@ CalendarEvent eventFor(
     end: shift.shownEnd,
     timeZone: tz.local.name,
     colorKey: settings.eventColorKey,
+    location: settings.restaurant.trim().isEmpty
+        ? null
+        : settings.restaurant.trim(),
   );
 }

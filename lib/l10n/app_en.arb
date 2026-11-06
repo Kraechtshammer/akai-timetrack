@@ -310,6 +310,13 @@
   "whatsNewTileHint": "The changes in version {version}",
   "whatsNewTitle": "What's new in version {version}",
   "whatsNewFailed": "The changes can't be loaded right now. Try again later.",
+  "sectionWorkplace": "Workplace",
+  "restaurant": "Restaurant",
+  "restaurantHint": "Shown in the calendar, the export and the shift plan picture.",
+  "notSet": "Not set",
+  "colorRed": "Red",
+  "exportHeaderAt": "Working hours {month} – {restaurant}",
+  "teamImageTitleAt": "{restaurant} shift plan",
 
   "tabTeam": "Team",
   "teamTitle": "Team plan",

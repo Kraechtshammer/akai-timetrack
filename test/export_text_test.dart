@@ -108,6 +108,19 @@ void main() {
     expect(text, 'Arbeitszeiten Dezember 2026\n\nDezember bisher: 0,0 h');
   });
 
+  test('the header names the restaurant, if set', () {
+    String header(AppLocalizations l10n, String restaurant) => buildExportText(
+      month: DateTime(2026, 12),
+      shifts: shifts,
+      now: afterOctober,
+      l10n: l10n,
+      restaurant: restaurant,
+    ).split('\n').first;
+    expect(header(de, 'AKAI'), 'Arbeitszeiten Dezember 2026 – AKAI');
+    expect(header(en, ' AKAI '), 'Working hours December 2026 – AKAI');
+    expect(header(de, '  '), 'Arbeitszeiten Dezember 2026');
+  });
+
   test('English text', () {
     final text = buildExportText(
       month: october,

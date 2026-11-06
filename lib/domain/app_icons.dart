@@ -55,21 +55,31 @@ class AppIcon {
   String toString() => 'AppIcon($key)';
 }
 
-bool _isSecret(IconDesign d) =>
-    d == IconDesign.penguinBlack || d == IconDesign.penguinNavy;
-
 /// The secret designs are unlocked by the "This is me" person's name.
 bool secretIconsUnlocked(Iterable<TeamMember> members) =>
     members.any((m) => m.isMe && m.name.trim().toLowerCase() == 'yuki');
 
-/// The designs the picker shows. The current one always shows.
+/// Whether [restaurant] (the setting) is AKAI, whose sign is an icon
+/// design and whose red is the default colour. Trimmed, any case.
+bool isAkaiRestaurant(String restaurant) =>
+    restaurant.trim().toLowerCase() == 'akai';
+
+/// The designs the picker shows: the AKAI sign only for AKAI, the secret
+/// ones only when unlocked. The current one always shows.
 List<IconDesign> iconDesignsOffered({
   required Iterable<TeamMember> members,
+  required String restaurant,
   required IconDesign current,
 }) {
   final unlocked = secretIconsUnlocked(members);
+  final akai = isAkaiRestaurant(restaurant);
+  bool offered(IconDesign d) => switch (d) {
+    IconDesign.akai => akai,
+    IconDesign.penguinBlack || IconDesign.penguinNavy => unlocked,
+    IconDesign.cloche => true,
+  };
   return [
     for (final d in IconDesign.values)
-      if (!_isSecret(d) || unlocked || d == current) d,
+      if (offered(d) || d == current) d,
   ];
 }

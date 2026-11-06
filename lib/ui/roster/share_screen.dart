@@ -82,6 +82,7 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
                         week: week,
                         starts: starts,
                         l10n: l10n,
+                        restaurant: ref.settings.restaurant,
                       ),
                     ),
                   ),

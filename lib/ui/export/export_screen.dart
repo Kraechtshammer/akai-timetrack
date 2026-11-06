@@ -57,6 +57,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       shifts: shifts,
       now: now,
       l10n: l10n,
+      restaurant: ref.settings.restaurant,
     );
     final dates = DateFormat.MMMd(locale);
 
