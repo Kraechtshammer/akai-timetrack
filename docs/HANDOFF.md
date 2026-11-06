@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-06; the version is now 1.6.0. Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-06; the version is now 1.6.1. Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -209,7 +209,7 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - **Today border:** AKAI red in dark mode uses the real red `#C62828` (`todayColorFor` in `app/theme.dart`); the team planner's day cards use it too.
 - The developer chose these on an artboard (week strip options A–C, the five themes, three new themes). Not taken: new themes (Graphite, Sand, Night blue), because they put the AKAI red on the next-shift card for people who did not choose it.
 - `isLunchSlot` moved from the week strip to `domain/shift_info.dart`, because the Plan labels use it too.
-- **Released as 1.6.0** (tag `v1.6.0`; the release workflow passed).
+- **Released as 1.6.0** (tag `v1.6.0`; the release workflow passed). The Plan row fix below went out as 1.6.1.
 - **After 1.6.0:**
   - Plan rows: next to the long status "not recorded" (English), the times wrapped onto two lines. They now shrink a little instead (`FittedBox` in `_ShiftRow`).
   - README: new screenshots `home.png`, `plan.png` and `home-month.png`, and a "Colours" section with `themes.png` (month card and week strip in the five themes, dark over light). Made like the seventh session's: a demo database built with `sqlite3` from a copy of the emulator's, loaded with `run-as`, the original restored afterwards. Trap: the emulator's clock is UTC, so store the demo times as UTC, not Berlin time. Remove `calendarId` from the demo settings, or the demo shifts go into the test calendar. The theme is switched through the `themeSeed` and `themeMode` settings rows, and the Home tab scrolled to its end, so all crops line up. Cropped with a scratch Dart script (`package:image`, outside the repo). `export.png`, `pay-month.png`, `team.png` and `team-share.png` are unchanged.
