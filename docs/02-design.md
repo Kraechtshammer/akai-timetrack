@@ -25,6 +25,8 @@ Out of scope for v1:
 
 ## 2. Architecture
 
+This is the original plan. The code as it is today is described in [04-architecture.md](04-architecture.md); it has no `ExportService` and no Pigeon, and it has more tabs.
+
 ```
 ┌──────────────── UI (Flutter widgets) ────────────────┐
 │ Home · Plan · Shift sheet · Export · Settings         │

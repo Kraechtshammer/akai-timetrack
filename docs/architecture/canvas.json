@@ -1,0 +1,18 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-11-06T18:00:00Z"},
+  "title": "TimeTrack Architecture",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1400, "h": 1088, "title": "Layers and dependencies"},
+    "WriteSync.dc.html": {"x": 1480, "y": 0, "w": 1400, "h": 760, "title": "A change, from tap to calendar"},
+    "Isolates.dc.html": {"x": 0, "y": 1208, "w": 1400, "h": 840, "title": "Isolates and native code"},
+    "DataModel.dc.html": {"x": 1480, "y": 1208, "w": 1408, "h": 1016, "title": "Database"}
+  },
+  "order": ["Main.dc.html", "WriteSync.dc.html", "Isolates.dc.html", "DataModel.dc.html"],
+  "notes": {
+    "title": {"x": 0, "y": -300, "text": "TimeTrack architecture · v1.6.1 · 2026-11-06", "kind": "title1", "maxW": 2888}
+  },
+  "designSystems": []
+}

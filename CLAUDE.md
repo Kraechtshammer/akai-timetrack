@@ -14,7 +14,8 @@ The app's UI is German first, English second. Docs, code comments and release no
 | `test/` | Unit tests (domain logic, repositories with an in-memory DB, calendar sync with a fake bridge) | [lib/CLAUDE.md](lib/CLAUDE.md) |
 | `packages/` | Two local Kotlin plugins: `calendar_bridge` (Android calendar), `running_progress` (notification progress / Live Update) | [packages/CLAUDE.md](packages/CLAUDE.md) |
 | `android/` | Android project: manifest, launcher icon variants, signing, `MainActivity` | [android/CLAUDE.md](android/CLAUDE.md) |
-| `docs/` | Research, design, dev setup, handoff, UI concepts | [docs/CLAUDE.md](docs/CLAUDE.md) |
+| `docs/` | Research, design, dev setup, architecture, handoff, UI concepts | [docs/CLAUDE.md](docs/CLAUDE.md) |
+| `docs/architecture/` | Sources of the architecture canvas (claude.ai artifact, task *Docs: Show architecture*) | [docs/04-architecture.md](docs/04-architecture.md) §11 |
 | `branding/app-icon.svg` | Master of the AKAI sign icon (the restaurant's sign), one of the selectable designs | |
 | `branding/icons/` | Masters of the cloche (the default icon) and the two secret penguin icons. `node branding/icons/generate.js` writes the SVGs and the app's vector drawables for them | [android/CLAUDE.md](android/CLAUDE.md), [docs/HANDOFF.md](docs/HANDOFF.md) eighth session |
 | `scripts/` | `build-apk.sh` (APK into `dist/`), `install-apk.sh`, `release-notes.sh` (release notes from commit prefixes), `emulator.sh`, `emulator-test-calendar.sh` (local test calendar), `update_test_server.dart` (fake release for testing the in-app update), `windows/start-adb-server.cmd` | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
@@ -60,7 +61,8 @@ Common commands: `flutter analyze` (must report no issues), `flutter test`, `dar
 - **Keep the docs current in the same commit:**
   - `docs/HANDOFF.md` for state and open points;
   - `docs/02-design.md` for behaviour (deviations from the original design go in §16);
-  - `docs/03-dev-setup.md` for the workflow.
+  - `docs/03-dev-setup.md` for the workflow;
+  - `docs/04-architecture.md` and the architecture canvas (`docs/architecture/`, republished to its artifact) for structural changes: a new folder, layer, table, isolate path, plugin or channel.
 - German UI texts must read naturally, and every key also gets its English translation.
 - Docs, code comments and release notes are English only and neutral: UI elements are quoted with their English label from `lib/l10n/app_en.arb`, and the person using the app is "the user" (see docs/CLAUDE.md).
 - Report honestly what was checked and what wasn't (for example "only on the emulator, not on a phone").

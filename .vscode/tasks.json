@@ -24,6 +24,14 @@
       "problemMatcher": []
     },
     {
+      "label": "Docs: Show architecture",
+      "detail": "Opens the architecture canvas (claude.ai artifact; source in docs/architecture/) in the browser",
+      "type": "shell",
+      "command": "\"$BROWSER\" https://claude.ai/artifact/Q7dPU5DCffUdpWGhiZHSDr",
+      "presentation": { "reveal": "silent" },
+      "problemMatcher": []
+    },
+    {
       "label": "Build: Release APK",
       "detail": "Builds the release APK and copies it to dist/",
       "type": "shell",

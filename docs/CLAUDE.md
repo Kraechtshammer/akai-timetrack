@@ -10,6 +10,8 @@ The project's written memory. Future sessions rely on it, so keep it current in 
 | `01-research.md` | The problem, features F1–F9, platform research, decisions Q1–Q10 | Rarely. It's the record of why. Don't rewrite history; add a note if a decision changes. |
 | `02-design.md` | Architecture, data model, domain rules, calendar sync, notifications, screens, theming, release and signing, milestones, prepared extensions (backup, tips/salary) | When behaviour changes. Update the section itself, and list deviations from the original design in §16. |
 | `03-dev-setup.md` | Dev container, Claude token, phone and emulator, build tasks, using the container from Windows, why builds are slow, releases and secrets | When the workflow or tooling changes. |
+| `04-architecture.md` | How the code is built and written: layers, runtime, isolates, data, UI, code style, tests, reviewed decisions, known weaknesses | With structural changes; remove a weakness from §10 when it is fixed. |
+| `architecture/` | Sources of the architecture canvas: `canvas.json` and one `.dc.html` per board, published to a claude.ai artifact | Together with `04-architecture.md`, then republish (§11 there). |
 | `concepts/` | Approved UI concept screens (`*.dc.html` design-canvas sources and `canvas.json`). The developer approved them on 2026-11-04. | Only when the developer changes the concepts. The live canvas is linked in `02-design.md`. The app follows these screens; ask before departing from them. |
 
 The README in the repo root is the landing page: features, screenshots (`docs/screenshots/`), install, build and links here. Update it when a feature the user sees is added or changed.

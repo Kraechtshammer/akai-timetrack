@@ -6,12 +6,13 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 
 - `core/`: pure helpers. Time (`time.dart`: day keys, ISO weeks, minutes), `format.dart` (HH:mm, `formatHours`, `formatEuros`).
 - `data/`: drift database `database.dart` (+ generated `database.g.dart` and `database.steps.dart`), `database_connection.dart` (opens the file), `shift_repository.dart`, `tip_repository.dart`, `wage_repository.dart`, `roster_repository.dart` (team planner), `settings_repository.dart`, `app_settings.dart`.
-- `domain/`: pure Dart logic (planning, recording, rounding, month summary, export text, reminder planner, tips, salary, team planner `roster.dart`, launcher icon designs and shapes `app_icons.dart`). No Flutter imports. Unit-tested.
-- `platform/`: Android integration. `notification_service.dart`, `calendar_sync.dart`, `device_setup.dart`, `app_icon.dart`.
-- `app/`: `AppServices` (`services.dart`, one per isolate), Riverpod `providers.dart`, `app.dart`, `theme.dart`.
+- `domain/`: pure Dart logic (planning, recording, rounding, month summary, export text, reminder planner, tips, salary, team planner `roster.dart`, launcher icon designs and shapes `app_icons.dart`). No Flutter imports, except `export_text.dart`, which takes `AppLocalizations`. Unit-tested. The drift row classes (`Shift`, `TipDay`, …) are the domain models, so `domain/` imports `data/`.
+- `platform/`: Android integration. `notification_service.dart`, `calendar_sync.dart`, `device_setup.dart`, `app_icon.dart`, `app_update.dart`.
+- `app/`: `AppServices` (`services.dart`, one per isolate), Riverpod `providers.dart`, `app.dart`, `theme.dart`, `shift_colors.dart`, `update_controller.dart` (in-app update state).
 - `ui/`: screens. `material.dart` is the one UI import. `common.dart` has shared widgets. `ui/roster/` is the team planner (F11): board, shift sheet, answers, people, image and share preview, Settings tiles; shared bits in `roster_common.dart`.
 - `l10n/`: ARB files, generated `app_localizations*.dart` (committed), `labels.dart`.
 - Native code is in `packages/calendar_bridge` and `packages/running_progress` (Kotlin plugins).
+- The structure, the reasons behind it, the known weaknesses and the diagrams are in `docs/04-architecture.md`. Two imports go against the layer order today: `data/roster_repository.dart` and `data/app_settings.dart` import from `domain/`. Don't add more.
 
 ## Data flow
 

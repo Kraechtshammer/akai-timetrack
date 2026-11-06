@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Layers and dependencies</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1d4ed8}a:hover{color:#1e3a8a}
+</style>
+</helmet>
+<div style="position: relative; width: 1400px; height: 1088px; background: #fbfbfc; color: #1d2129; font-family: Inter, system-ui, sans-serif">
+
+<svg width="8" height="55" viewBox="0 0 8 55" preserveAspectRatio="none" style="position: absolute; left: 756px; top: 265px; width: 8px; height: 55px; overflow: visible; fill: none; stroke: #c62828; stroke-width: 2; stroke-dasharray: 6 6; stroke-linecap: round; stroke-linejoin: round"><defs><marker id="dc-arrow-head-filled-1" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#c62828" stroke="none" style="stroke: none; fill: #c62828; fill: context-stroke"/></marker></defs><path d="M 4 55 L 4 4" marker-end="url(#dc-arrow-head-filled-1)"></path></svg>
+<svg width="8" height="55" viewBox="0 0 8 55" preserveAspectRatio="none" style="position: absolute; left: 756px; top: 721px; width: 8px; height: 55px; overflow: visible; fill: none; stroke: #c62828; stroke-width: 2; stroke-dasharray: 6 6; stroke-linecap: round; stroke-linejoin: round"><defs><marker id="dc-arrow-head-filled-2" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#c62828" stroke="none" style="stroke: none; fill: #c62828; fill: context-stroke"/></marker></defs><path d="M 4 55 L 4 4" marker-end="url(#dc-arrow-head-filled-2)"></path></svg>
+<svg width="79" height="8" viewBox="0 0 79 8" preserveAspectRatio="none" style="position: absolute; left: 944px; top: 668px; width: 79px; height: 8px; overflow: visible; fill: none; stroke: #b26a00; stroke-width: 2; stroke-dasharray: 6 6; stroke-linecap: round; stroke-linejoin: round"><defs><marker id="dc-arrow-head-filled-3" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#b26a00" stroke="none" style="stroke: none; fill: #b26a00; fill: context-stroke"/></marker></defs><path d="M 0 4 L 75 4" marker-end="url(#dc-arrow-head-filled-3)"></path></svg>
+<svg width="79" height="8" viewBox="0 0 79 8" preserveAspectRatio="none" style="position: absolute; left: 944px; top: 516px; width: 79px; height: 8px; overflow: visible; fill: none; stroke: #7a7f8a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><defs><marker id="dc-arrow-head-filled-4" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#7a7f8a" stroke="none" style="stroke: none; fill: #7a7f8a; fill: context-stroke"/></marker></defs><path d="M 0 4 L 75 4" marker-end="url(#dc-arrow-head-filled-4)"></path></svg>
+<svg width="79" height="8" viewBox="0 0 79 8" preserveAspectRatio="none" style="position: absolute; left: 944px; top: 820px; width: 79px; height: 8px; overflow: visible; fill: none; stroke: #7a7f8a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><defs><marker id="dc-arrow-head-filled-5" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#7a7f8a" stroke="none" style="stroke: none; fill: #7a7f8a; fill: context-stroke"/></marker></defs><path d="M 0 4 L 75 4" marker-end="url(#dc-arrow-head-filled-5)"></path></svg>
+
+<div style="position: absolute; left: 64px; top: 56px; font-size: 32px; line-height: 40px; font-weight: 700">Layers and dependencies</div>
+<div style="position: absolute; left: 64px; top: 104px; width: 1272px; font-size: 16px; line-height: 24px; color: #5b616e">Each layer imports only the layers below it, with the exceptions drawn as dashed arrows. Folders are under <span style="font-family: 'JetBrains Mono', monospace">lib/</span> unless named otherwise.</div>
+
+<div style="position: absolute; left: 64px; top: 168px; width: 880px; height: 96px; box-sizing: border-box; padding: 12px 24px; display: flex; align-items: center; background: #e9f0fd; border: 1px solid #b7c9ef; border-radius: 12px"><span><b style="font-size: 18px; font-family: 'JetBrains Mono', monospace">ui/</b>&nbsp; screens, sheets, shared widgets<br><span style="font-size: 14px; line-height: 20px; color: #4a4f5a">Home, Plan, Pay, Export and Team tabs, Settings, onboarding. ConsumerWidgets watch providers and write only through services.</span></span></div>
+<div style="position: absolute; left: 64px; top: 320px; width: 880px; height: 96px; box-sizing: border-box; padding: 12px 24px; display: flex; align-items: center; background: #f0eafb; border: 1px solid #cdbdee; border-radius: 12px"><span><b style="font-size: 18px; font-family: 'JetBrains Mono', monospace">app/</b>&nbsp; wiring<br><span style="font-size: 14px; line-height: 20px; color: #4a4f5a">AppServices: one per isolate, owns the repositories and services. Riverpod providers wrap drift streams. Theme, shift colours, update controller.</span></span></div>
+<div style="position: absolute; left: 64px; top: 472px; width: 880px; height: 96px; box-sizing: border-box; padding: 12px 24px; display: flex; align-items: center; background: #e3f4f2; border: 1px solid #a9d8d1; border-radius: 12px"><span><b style="font-size: 18px; font-family: 'JetBrains Mono', monospace">platform/</b>&nbsp; Android integration<br><span style="font-size: 14px; line-height: 20px; color: #4a4f5a">NotificationService (reminders, running notification), CalendarSync, device setup, launcher icon, in-app update.</span></span></div>
+<div style="position: absolute; left: 64px; top: 624px; width: 880px; height: 96px; box-sizing: border-box; padding: 12px 24px; display: flex; align-items: center; background: #fff4e2; border: 1px solid #f0d3a1; border-radius: 12px"><span><b style="font-size: 18px; font-family: 'JetBrains Mono', monospace">domain/</b>&nbsp; rules<br><span style="font-size: 14px; line-height: 20px; color: #4a4f5a">PlanningService, RecordingService. Rounding, month summary, export text, reminder planner, tips, salary, team roster. 92% of lines tested.</span></span></div>
+<div style="position: absolute; left: 64px; top: 776px; width: 880px; height: 96px; box-sizing: border-box; padding: 12px 24px; display: flex; align-items: center; background: #e9f6ea; border: 1px solid #b3dcb6; border-radius: 12px"><span><b style="font-size: 18px; font-family: 'JetBrains Mono', monospace">data/</b>&nbsp; drift database and repositories<br><span style="font-size: 14px; line-height: 20px; color: #4a4f5a">9 tables. Repositories for shifts, settings, tips, wages and the team roster. The drift row classes are also the domain models.</span></span></div>
+<div style="position: absolute; left: 64px; top: 928px; width: 880px; height: 96px; box-sizing: border-box; padding: 12px 24px; display: flex; align-items: center; background: #f1f2f4; border: 1px solid #d3d6dc; border-radius: 12px"><span><b style="font-size: 18px; font-family: 'JetBrains Mono', monospace">core/</b>&nbsp; helpers<br><span style="font-size: 14px; line-height: 20px; color: #4a4f5a">Day keys, ISO weeks, minutes of the day, HH:mm, hours and euro formatting.</span></span></div>
+
+<div style="position: absolute; left: 1024px; top: 472px; width: 312px; height: 96px; box-sizing: border-box; padding: 12px 20px; display: flex; align-items: center; background: #e3f4f2; border: 1px solid #a9d8d1; border-radius: 12px"><span><b style="font-size: 16px">Kotlin</b><br><span style="font-size: 14px; line-height: 20px; color: #4a4f5a">calendar_bridge and running_progress plugins. MainActivity: icon, updater.</span></span></div>
+<div style="position: absolute; left: 1024px; top: 624px; width: 312px; height: 96px; box-sizing: border-box; padding: 12px 20px; display: flex; align-items: center; background: #fdeef3; border: 1px solid #efbfd0; border-radius: 12px"><span><b style="font-size: 16px; font-family: 'JetBrains Mono', monospace">l10n/</b>&nbsp; texts<br><span style="font-size: 14px; line-height: 20px; color: #4a4f5a">German template, English. Used by every layer above core.</span></span></div>
+<div style="position: absolute; left: 1024px; top: 776px; width: 312px; height: 96px; box-sizing: border-box; padding: 12px 20px; display: flex; align-items: center; background: #e9f6ea; border: 1px solid #b3dcb6; border-radius: 12px"><span><b style="font-size: 16px">SQLite file</b><br><span style="font-size: 14px; line-height: 20px; color: #4a4f5a">One drift server that both isolates share.</span></span></div>
+
+<div style="position: absolute; left: 1024px; top: 168px; width: 312px; font-size: 14px; line-height: 24px; color: #4a4f5a"><b style="color: #1d2129">Arrows</b><br><span style="color: #7a7f8a">━━</span>&nbsp; calls into native code or the file<br><span style="color: #c62828">╍╍</span>&nbsp; import against the layer order<br><span style="color: #b26a00">╍╍</span>&nbsp; pulls Flutter into domain/</div>
+<div style="position: absolute; left: 1024px; top: 320px; width: 312px; font-size: 14px; line-height: 20px; color: #4a4f5a">Notification buttons run the same code without the UI: see the isolates board.</div>
+
+<div style="position: absolute; left: 772px; top: 284px; width: 200px; font-size: 13px; line-height: 16px; color: #c62828">app.dart builds the screens</div>
+<div style="position: absolute; left: 772px; top: 740px; width: 236px; font-size: 13px; line-height: 16px; color: #c62828">uses roster types, rounding enum</div>
+<div style="position: absolute; left: 956px; top: 644px; width: 56px; text-align: center; font-size: 13px; line-height: 16px; color: #b26a00">Flutter</div>
+<div style="position: absolute; left: 948px; top: 492px; width: 72px; text-align: center; font-size: 13px; line-height: 16px; color: #5b616e">channels</div>
+<div style="position: absolute; left: 964px; top: 796px; width: 40px; text-align: center; font-size: 13px; line-height: 16px; color: #5b616e">drift</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1088}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
