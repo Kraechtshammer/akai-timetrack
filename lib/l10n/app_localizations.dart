@@ -1145,7 +1145,7 @@ abstract class AppLocalizations {
   /// No description provided for @sectionAppearance.
   ///
   /// In de, this message translates to:
-  /// **'Darstellung & Sprache'**
+  /// **'Darstellung'**
   String get sectionAppearance;
 
   /// No description provided for @color.
@@ -1868,11 +1868,53 @@ abstract class AppLocalizations {
   /// **'Die Neuerungen lassen sich gerade nicht laden. Versuch es später noch einmal.'**
   String get whatsNewFailed;
 
-  /// No description provided for @sectionWorkplace.
+  /// No description provided for @sectionShifts.
   ///
   /// In de, this message translates to:
-  /// **'Arbeitsplatz'**
-  String get sectionWorkplace;
+  /// **'Schichten'**
+  String get sectionShifts;
+
+  /// No description provided for @sectionGeneral.
+  ///
+  /// In de, this message translates to:
+  /// **'Allgemein'**
+  String get sectionGeneral;
+
+  /// No description provided for @sectionPermissions.
+  ///
+  /// In de, this message translates to:
+  /// **'Berechtigungen'**
+  String get sectionPermissions;
+
+  /// No description provided for @permissionsHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Damit Erinnerungen pünktlich kommen, auch wenn die App geschlossen ist.'**
+  String get permissionsHint;
+
+  /// No description provided for @settingsShiftsSummary.
+  ///
+  /// In de, this message translates to:
+  /// **'Standardzeiten, Rundung'**
+  String get settingsShiftsSummary;
+
+  /// No description provided for @settingsTeamOff.
+  ///
+  /// In de, this message translates to:
+  /// **'Aus'**
+  String get settingsTeamOff;
+
+  /// No description provided for @settingsTeamOn.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =0{An · noch niemand angelegt} =1{An · 1 Person} other{An · {count} Personen}}'**
+  String settingsTeamOn(int count);
+
+  /// No description provided for @settingsUpdateSummary.
+  ///
+  /// In de, this message translates to:
+  /// **'Version {version}'**
+  String settingsUpdateSummary(String version);
 
   /// No description provided for @restaurant.
   ///

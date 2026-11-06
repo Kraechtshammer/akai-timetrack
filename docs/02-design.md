@@ -429,7 +429,7 @@ The new shifts sync to the calendar as usual. Snack bar: "Added 3 shifts to Plan
 
 ### 4.10 Restaurant name (2026-11-06)
 
-- The `restaurant` setting: in the setup's first page and in Settings › Workplace › "Restaurant". Empty means not set; nothing shows then.
+- The `restaurant` setting: in the setup's first page and in Settings › General › "Restaurant". Empty means not set; nothing shows then.
 - **Where it shows:** the calendar events' location (§5.4), the export header ("Working hours November 2026 – AKAI"), and the title of the shared team plan picture ("AKAI shift plan"). Not in the app's own screens: the developer chose these three, so the name costs no screen space.
 - **AKAI only:** when the name is `AKAI` (trimmed, any case; `isAkaiRestaurant` in `domain/app_icons.dart`), the "AKAI sign" icon design is offered, and the default colour is called "AKAI red". Otherwise the picker leaves the sign out (unless it's the current icon) and the colour is called "Red". The colour itself is the same, so nothing changes for installs at other restaurants.
 - Installs from 1.4.1 and earlier read `AKAI` when no value is stored, because all of them were set up at AKAI.
@@ -557,7 +557,7 @@ The first tab, "Home" (it was "Today" until 2026-11-05). Icon: `home`. It was re
   - **"Pay"**: "Earned" of "Expected" for the current month (§4.8), e.g. "€412 of €980". Without a rate, an "Add hourly wage" button opens the wage sheet.
   - **"Tips"**: the month's payouts (§4.7); "€0" until the first payout. The developer saw both prototypes (2026-11-05). A third column next to the hours looked good too, but rows leave room for the pay row.
 - **Tip prompt:** a small card "Add the tips" below the next-shift card, by the rule in §4.7, with "Add" and "Not now".
-- **Week strip:** tap a day → Plan tab at that week. Under each day, lunch and evening shifts are marked either with icons (sun, moon, clock for custom; the default) or with two bars (left lunch, right evening; custom shifts by start time). Grey = planned, coloured = recorded. Chosen in Settings › Appearance & language › Week overview.
+- **Week strip:** tap a day → Plan tab at that week. Under each day, lunch and evening shifts are marked either with icons (sun, moon, clock for custom; the default) or with two bars (left lunch, right evening; custom shifts by start time). Grey = planned, coloured = recorded. Chosen in Settings › Appearance › Week overview.
 
 ### Plan
 - **Week navigation:** arrows, swipe, and a "today" button.
@@ -649,23 +649,20 @@ The fifth tab, last in the bar, shown only while Settings › Team planner is on
 **Share preview** (pushed, `ui/roster/share_screen.dart`): the image (§4.9) scaled to the screen width inside a `FittedBox`. Below it "Share", which writes the PNG and opens the share sheet. A hint below the image: "Open places and warnings are not in the picture."
 
 ### Settings
-- **Sections:**
-  - Calendar: calendar, Event title, **Event color**
-  - Default shift times
-  - Reminders
-  - Recording & export
-  - Appearance & language
-  - Team planner (F11): the switch "Team planner" (subtitle "Plan the team's shifts and share the plan as a picture"). While it is on, also:
-    - "Staff needed": a sheet with one row per weekday and − / + for Lunch and Evening; 0 shows "Closed";
-    - "Start times": Lunch and Evening (`teamStarts`);
-    - "People" (opens the People screen).
-  - App update: "Check for updates" (installed version, last check), the found update, "Restart update", "Delete update file" (§12)
-  - An about section
-- **Reliability card** appears at the top only while something is missing:
-  - notification permission
-  - exact alarms
-  - battery optimisation
-  - Autostart, on Xiaomi only; it can't be read, so it's checked off by hand: "Done"
+An overview with one row per category (icon, title, a short summary, a chevron). Each row opens the category on its own page (`ui/settings/settings_pages.dart`). Before 2026-11-06 everything was on one long page.
+
+| Category | Summary on the overview | Page |
+|---|---|---|
+| Shifts | "Default times, rounding" | "Default shift times" (Lunch, Lunch before evening, Evening); "Recording & export" ("Rounding") |
+| Reminders | the lead time, "15 minutes before" | "Before a shift starts", "Ask if not stopped"; "Permissions" with every reliability check and its status |
+| Calendar | the calendar's name or "No calendar" | calendar, "Event title", **"Event color"**, "Sync now" |
+| Team planner | "Off", or "On · 7 people" | the switch "Team planner" (subtitle "Plan the team's shifts and share the plan as a picture"). While it is on, also "Staff needed" (a sheet with − / + per weekday for Lunch and Evening; 0 shows "Closed"), "Start times" (`teamStarts`) and "People" |
+| Appearance | colour and dark mode, "Red · Dark" | "Color", "Dark mode", "App icon", "Icon shape", "Week overview" |
+| General | restaurant and language, "Not set · Same as the phone" | "Restaurant", "Language" |
+| App update | "Version 1.4.1", or "Update to version 1.5.0" with a dot | "Check for updates", "What's new", the found update, "Restart update", "Delete update file" (§12) |
+
+- **Reliability card:** at the top of the overview, only while something is missing: notification permission, exact alarms, battery optimisation, and Autostart on Xiaomi only (it can't be read, so it's ticked off by hand). It checks again when a category page closes.
+- **In two places:** only the reliability checks (the developer's choice, 2026-11-06). The overview warns about the missing ones; Reminders › "Permissions" lists them all, so they can be looked at any time.
 
 ### Onboarding (first start, all skippable except the first page)
 1. **Welcome + language:** "AKAI Timetrack" with a short explanation, and the "Restaurant" field (optional, saved as it's typed).
@@ -843,7 +840,7 @@ Possible later extensions:
 - **"No calendar":** choosing it deletes the app's events from the old calendar. Switching calendars always moves all events (no question).
 - **Export texts:** neutral, with no mention of the boss.
 - **Monthly export** (2026-11-04): the user sends the hours monthly, so the export covers a month, grouped by week (§4.5). The `exportMonthTotals` setting, its switch in Settings and the switch on the Export screen were removed, because the month total is now always the last line. An old stored `exportMonthTotals` value is ignored.
-- **App icon:** adaptive icons in a design and a shape, chosen in Settings › Appearance & language › "App icon" and "Icon shape". Two settings, because the launcher decides the mask shape and apps can't find it out.
+- **App icon:** adaptive icons in a design and a shape, chosen in Settings › Appearance › "App icon" and "Icon shape". Two settings, because the launcher decides the mask shape and apps can't find it out.
   - Designs (2026-11-06): "Cloche" (a serving dome whose clock hands are a spoon and a fork; the default), "AKAI sign" (the restaurant's sign, `branding/app-icon.svg`, the only design until 1.4.0), and two secret penguin designs, "Penguin, black" and "Penguin, dark blue". Masters in `branding/icons/`.
   - Shapes: "Round" for circular masks (the default), "Squircle" for squircle masks (the default on Xiaomi), "Small squircle" (the whole squircle icon scaled down; the launcher fills the rest).
   - The penguin designs show in the "App icon" list only when the person marked "This is me" in the team planner's "People" has a certain name (`lib/domain/app_icons.dart`), or when a penguin is already the current icon. The release notes only mention "secret icons".
@@ -857,3 +854,4 @@ Possible later extensions:
 - **Team planner** (F11, planned 2026-11-05): not in the original scope. The user stands in for the boss's weekly service shift plan. Built into the app behind a Settings switch rather than as a separate app (`01-research.md` §10). Tables in §3, rules in §4.9, screens in §7. Schema version 4.
 - **Restaurant name** (2026-11-06, §4.10): not in the original design. The app was made for one restaurant and may be shared with colleagues, so the name became a setting. It goes into the event location, the export header and the team plan picture; the AKAI sign icon is offered only when the name is AKAI, and the default red is called "AKAI red" only then.
 - **What's new** (2026-11-06, §12): a popup after an update with the changes since the last version that ran, and the same popup from Settings › App update.
+- **Settings categories** (2026-11-06, §7): the one long Settings page became an overview with seven categories, each on its own page, because the page needed a lot of scrolling. The developer picked seven categories over five, and to show the reliability checks in two places but nothing else.

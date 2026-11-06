@@ -1,22 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../material.dart';
 
 import '../../app/providers.dart';
-import '../../app/theme.dart';
+import '../../app/update_controller.dart';
 import '../../core/time.dart';
 import '../../data/app_settings.dart';
-import '../../domain/rounding.dart';
-import '../../platform/app_icon.dart';
-import '../../platform/calendar_sync.dart';
 import '../../l10n/labels.dart';
 import '../common.dart';
-import 'calendar_pickers.dart';
-import '../roster/team_settings.dart';
 import 'reliability.dart';
-import 'update_tiles.dart';
+import 'settings_pages.dart';
 
+/// The overview: a warning when reminders may not arrive, then one row per
+/// category, each opening its own page (settings_pages.dart).
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -25,141 +21,51 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  /// Asks first, because Android closes the app when the launcher entry it
-  /// was started from is switched off.
-  Future<void> _changeIcon(AppIcon from, AppIcon to, String label) async {
-    if (to == from) return;
-    final l10n = context.l10n;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(label),
-        content: Text(l10n.appIconHint),
-        actions: [
-          M3EButton(
-            style: M3EButtonStyle.text,
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.cancel),
-          ),
-          M3EButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.appIconApply),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    await AppIcons.set(to);
-    ref.invalidate(appIconProvider);
-  }
-
   var _allReliable = true;
 
-  /// Saves a change. [resync] updates reminders and the calendar afterwards.
-  Future<void> _update(
-    AppSettings Function(AppSettings) change, {
-    bool resync = false,
-    bool calendarEvents = false,
-  }) async {
-    final services = ref.services;
-    await services.settings.update(change);
-    if (calendarEvents) await services.shifts.markAllEventsDirty();
-    if (resync || calendarEvents) await services.syncAll();
-  }
+  /// Bumped after a category page closes, so the warning checks again
+  /// (the Reminders page can fix things without leaving the app).
+  var _checkRound = 0;
 
-  Future<void> _editTitle() async {
-    final l10n = context.l10n;
-    final controller = TextEditingController(text: ref.settings.eventTitle);
-    final title = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.eventTitle),
-        content: TextField(controller: controller, autofocus: true),
-        actions: [
-          M3EButton(
-            style: M3EButtonStyle.text,
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          M3EButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
+  Future<void> _open(SettingsCategory category) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => SettingsCategoryScreen(category)),
     );
-    if (title != null && title.isNotEmpty) {
-      await _update((s) => s.copyWith(eventTitle: title), calendarEvents: true);
-    }
+    if (mounted) setState(() => _checkRound++);
   }
 
-  Future<void> _editRestaurant() async {
+  String _summary(SettingsCategory category, AppSettings s) {
     final l10n = context.l10n;
-    final controller = TextEditingController(text: ref.settings.restaurant);
-    final name = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.restaurant),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-          decoration: InputDecoration(helperText: l10n.restaurantHint),
+    return switch (category) {
+      SettingsCategory.shifts => l10n.settingsShiftsSummary,
+      SettingsCategory.reminders => l10n.minutesBefore(s.reminderLeadMinutes),
+      SettingsCategory.calendar => s.calendarName ?? l10n.calendarNone,
+      SettingsCategory.team =>
+        s.teamPlanner
+            ? l10n.settingsTeamOn(
+                ref.watch(teamMembersProvider).value?.length ?? 0,
+              )
+            : l10n.settingsTeamOff,
+      SettingsCategory.appearance =>
+        '${themeSeedLabel(s.themeSeed, l10n, restaurant: s.restaurant)} · '
+            '${themeModeLabel(s.themeMode, l10n)}',
+      SettingsCategory.general =>
+        '${s.restaurant.isEmpty ? l10n.notSet : s.restaurant} · '
+            '${languageLabel(s.locale, l10n)}',
+      SettingsCategory.update => switch (ref.watch(updateProvider)) {
+        UpdateState(latest: final latest?) => l10n.updateAvailableTile(
+          '${latest.version}',
         ),
-        actions: [
-          M3EButton(
-            style: M3EButtonStyle.text,
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          M3EButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
-    );
-    // Empty is allowed: no restaurant anywhere. The events carry it as
-    // their location.
-    if (name != null && name != ref.settings.restaurant) {
-      await _update((s) => s.copyWith(restaurant: name), calendarEvents: true);
-    }
-  }
-
-  Future<void> _changeLanguage(String? locale) async {
-    // The event descriptions are written in the app's language, too.
-    await _update(
-      (s) => s.copyWith(locale: () => locale),
-      calendarEvents: true,
-    );
-    final services = ref.services;
-    // Notification channel names and texts follow the language.
-    await services.notifications.createChannels(await services.l10n());
-    await services.syncAll();
+        final update => l10n.settingsUpdateSummary('${update.installed ?? ''}'),
+      },
+    };
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final s = ref.settings;
-    final calendarSet = s.calendarId != null;
-
-    Future<void> pickMinutes(
-      String title,
-      List<int> options,
-      int current,
-      String Function(int) label,
-      AppSettings Function(int) apply,
-    ) async {
-      final value = await pickOption(
-        context,
-        title: title,
-        options: options,
-        selected: current,
-        label: label,
-      );
-      if (value != null) await _update((_) => apply(value), resync: true);
-    }
+    final updateWaiting = ref.watch(updateProvider).latest != null;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settings)),
@@ -168,266 +74,50 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         children: [
           Offstage(
             offstage: _allReliable,
-            child: Panel(
-              color: context.colors.tertiaryContainer,
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 8,
-                children: [
-                  Text(l10n.reliabilityTitle, style: context.text.titleMedium),
-                  Text(l10n.reliabilityBody),
-                  ReliabilityChecklist(
-                    items: ReliabilityItem.values,
-                    onlyMissing: true,
-                    onStatus: (ok) {
-                      if (mounted && ok != _allReliable) {
-                        setState(() => _allReliable = ok);
-                      }
-                    },
-                  ),
-                ],
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Panel(
+                color: context.colors.tertiaryContainer,
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8,
+                  children: [
+                    Text(
+                      l10n.reliabilityTitle,
+                      style: context.text.titleMedium,
+                    ),
+                    Text(l10n.reliabilityBody),
+                    ReliabilityChecklist(
+                      key: ValueKey(_checkRound),
+                      items: ReliabilityItem.values,
+                      onlyMissing: true,
+                      onStatus: (ok) {
+                        if (mounted && ok != _allReliable) {
+                          setState(() => _allReliable = ok);
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-          _Section(l10n.sectionWorkplace, [
-            SettingsTile(
-              icon: Icons.storefront_outlined,
-              title: l10n.restaurant,
-              value: s.restaurant.isEmpty ? l10n.notSet : s.restaurant,
-              onTap: _editRestaurant,
-            ),
-          ]),
-          _Section(l10n.sectionCalendar, [
-            SettingsTile(
-              icon: Icons.event,
-              title: l10n.calendar,
-              value: s.calendarName ?? l10n.calendarNone,
-              onTap: () => showCalendarPicker(context, ref),
-            ),
-            SettingsTile(
-              icon: Icons.title,
-              title: l10n.eventTitle,
-              value: s.eventTitle,
-              onTap: _editTitle,
-            ),
-            if (calendarSet)
+          SettingsSection(null, [
+            for (final category in SettingsCategory.values)
               SettingsTile(
-                icon: Icons.format_color_fill,
-                title: l10n.eventColor,
-                value: s.eventColorKey == null
-                    ? l10n.colorOfCalendar
-                    : googleEventColorName(s.eventColorKey!, l10n) ??
-                          l10n.colorWithKey(s.eventColorKey!),
-                trailing: s.eventColor == null
-                    ? null
-                    : CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Color(s.eventColor!),
-                      ),
-                onTap: () => showEventColorPicker(context, ref),
+                icon: settingsCategoryIcon(category),
+                title: settingsCategoryTitle(category, l10n),
+                value: _summary(category, s),
+                trailing: category == SettingsCategory.update && updateWaiting
+                    ? Badge(
+                        smallSize: 10,
+                        backgroundColor: context.colors.primary,
+                      )
+                    : const Icon(Icons.chevron_right),
+                onTap: () => _open(category),
               ),
-            if (calendarSet) const _SyncNowTile(),
           ]),
-          _Section(l10n.sectionDefaultTimes, const [DefaultTimesTiles()]),
-          _Section(l10n.sectionReminders, [
-            SettingsTile(
-              icon: Icons.notifications_outlined,
-              title: l10n.reminderBefore,
-              value: l10n.minutesBefore(s.reminderLeadMinutes),
-              onTap: () => pickMinutes(
-                l10n.reminderBefore,
-                [5, 10, 15, 20, 30, 45, 60],
-                s.reminderLeadMinutes,
-                l10n.minutesBefore,
-                (m) => s.copyWith(reminderLeadMinutes: m),
-              ),
-            ),
-            SettingsTile(
-              icon: Icons.notification_important_outlined,
-              title: l10n.overrunAsk,
-              value: l10n.minutesAfterEnd(s.overrunMinutes),
-              onTap: () => pickMinutes(
-                l10n.overrunAsk,
-                [15, 30, 45, 60, 90],
-                s.overrunMinutes,
-                l10n.minutesAfterEnd,
-                (m) => s.copyWith(overrunMinutes: m),
-              ),
-            ),
-          ]),
-          _Section(l10n.sectionRecording, [
-            SettingsTile(
-              icon: Icons.av_timer,
-              title: l10n.rounding,
-              value: roundingLabel(s.roundingMode, l10n),
-              onTap: () async {
-                final mode = await pickOption(
-                  context,
-                  title: l10n.rounding,
-                  options: RoundingMode.values,
-                  selected: s.roundingMode,
-                  label: (m) => roundingLabel(m, l10n),
-                );
-                if (mode != null) {
-                  await _update((s) => s.copyWith(roundingMode: mode));
-                }
-              },
-            ),
-          ]),
-          _Section(l10n.sectionAppearance, [
-            ListTile(
-              leading: const SettingsTileIcon(Icons.palette_outlined),
-              title: Text(l10n.color),
-              subtitle: Text(
-                themeSeedLabel(s.themeSeed, l10n, restaurant: s.restaurant),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(72, 0, 16, 12),
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  for (final seed in ThemeSeed.values)
-                    _SeedSwatch(
-                      seed: seed,
-                      restaurant: s.restaurant,
-                      selected: s.themeSeed == seed,
-                      onTap: () => _update((s) => s.copyWith(themeSeed: seed)),
-                    ),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: const SettingsTileIcon(Icons.contrast),
-              title: Text(l10n.darkMode),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(72, 0, 16, 12),
-              child: SegmentedButton<AppThemeMode>(
-                showSelectedIcon: false,
-                segments: [
-                  for (final mode in [
-                    AppThemeMode.light,
-                    AppThemeMode.dark,
-                    AppThemeMode.system,
-                  ])
-                    ButtonSegment(
-                      value: mode,
-                      label: Text(themeModeLabel(mode, l10n)),
-                    ),
-                ],
-                selected: {s.themeMode},
-                onSelectionChanged: (modes) =>
-                    _update((s) => s.copyWith(themeMode: modes.single)),
-              ),
-            ),
-            SettingsTile(
-              icon: Icons.apps,
-              title: l10n.appIcon,
-              value: switch (ref.watch(appIconProvider).value) {
-                null => '',
-                final icon => iconDesignLabel(icon.design, l10n),
-              },
-              onTap: () async {
-                final current = ref.read(appIconProvider).value;
-                // Awaited: nothing may be watching the people list yet
-                // (team planner off), and the secret designs depend on it.
-                final members = await ref.read(teamMembersProvider.future);
-                if (!context.mounted) return;
-                final design = await pickOption(
-                  context,
-                  title: l10n.appIcon,
-                  options: iconDesignsOffered(
-                    members: members,
-                    restaurant: ref.settings.restaurant,
-                    current: (current ?? AppIcon.fallback).design,
-                  ),
-                  selected: (current ?? AppIcon.fallback).design,
-                  label: (d) => iconDesignLabel(d, l10n),
-                );
-                if (design == null || current == null || !context.mounted) {
-                  return;
-                }
-                await _changeIcon(
-                  current,
-                  current.withDesign(design),
-                  iconDesignLabel(design, l10n),
-                );
-              },
-            ),
-            SettingsTile(
-              icon: Icons.crop_square,
-              title: l10n.appIconShape,
-              value: switch (ref.watch(appIconProvider).value) {
-                null => '',
-                final icon => iconShapeLabel(icon.shape, l10n),
-              },
-              onTap: () async {
-                final current = ref.read(appIconProvider).value;
-                final shape = await pickOption(
-                  context,
-                  title: l10n.appIconShape,
-                  options: IconShape.values,
-                  selected: (current ?? AppIcon.fallback).shape,
-                  label: (s) => iconShapeLabel(s, l10n),
-                );
-                if (shape == null || current == null || !context.mounted) {
-                  return;
-                }
-                await _changeIcon(
-                  current,
-                  current.withShape(shape),
-                  iconShapeLabel(shape, l10n),
-                );
-              },
-            ),
-            SettingsTile(
-              icon: Icons.view_week_outlined,
-              title: l10n.weekMarks,
-              value: weekMarksLabel(s.weekMarks, l10n),
-              onTap: () async {
-                final style = await pickOption(
-                  context,
-                  title: l10n.weekMarks,
-                  options: WeekMarkStyle.values,
-                  selected: s.weekMarks,
-                  label: (m) => weekMarksLabel(m, l10n),
-                );
-                if (style != null) {
-                  await _update((s) => s.copyWith(weekMarks: style));
-                }
-              },
-            ),
-            SettingsTile(
-              icon: Icons.language,
-              title: l10n.language,
-              value: switch (s.locale) {
-                'de' => l10n.languageGerman,
-                'en' => l10n.languageEnglish,
-                _ => l10n.languageSystem,
-              },
-              onTap: () async {
-                final choice = await pickOption<String>(
-                  context,
-                  title: l10n.language,
-                  options: const ['system', 'de', 'en'],
-                  selected: s.locale ?? 'system',
-                  label: (code) => switch (code) {
-                    'de' => l10n.languageGerman,
-                    'en' => l10n.languageEnglish,
-                    _ => l10n.languageSystem,
-                  },
-                );
-                if (choice != null) {
-                  await _changeLanguage(choice == 'system' ? null : choice);
-                }
-              },
-            ),
-          ]),
-          _Section(l10n.sectionTeam, const [TeamSettingsSection()]),
-          _Section(l10n.sectionUpdate, const [UpdateTiles()]),
         ],
       ),
     );
@@ -485,86 +175,30 @@ class DefaultTimesTiles extends ConsumerWidget {
   }
 }
 
-/// "Jetzt synchronisieren", with the sync status as subtitle.
-class _SyncNowTile extends ConsumerStatefulWidget {
-  const _SyncNowTile();
+/// A rounded group of tiles, with a heading unless [title] is null (when the
+/// page title already says it).
+class SettingsSection extends StatelessWidget {
+  const SettingsSection(this.title, this.children, {super.key});
 
-  @override
-  ConsumerState<_SyncNowTile> createState() => _SyncNowTileState();
-}
-
-class _SyncNowTileState extends ConsumerState<_SyncNowTile> {
-  var _syncing = false;
-
-  Future<void> _syncNow() async {
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    setState(() => _syncing = true);
-    final result = await ref.services.syncNow();
-    if (!mounted) return;
-    setState(() => _syncing = false);
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(switch (result) {
-          CalendarSyncResult.done || CalendarSyncResult.off => l10n.syncDone,
-          CalendarSyncResult.noPermission => l10n.calendarPermissionMissing,
-          CalendarSyncResult.failed => l10n.syncFailed,
-        }),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final pending = ref.watch(pendingSyncCountProvider).value ?? 0;
-    final last = ref.watch(lastCalendarSyncProvider).value;
-    final String status;
-    if (pending > 0) {
-      status = l10n.syncPending(pending);
-    } else if (last == null) {
-      status = l10n.syncNever;
-    } else {
-      final today = dateOnly(ref.now) == dateOnly(last);
-      final format = today
-          ? DateFormat.Hm(context.locale)
-          : DateFormat('E d. MMM, HH:mm', context.locale);
-      status = l10n.syncUpToDate(format.format(last));
-    }
-    return SettingsTile(
-      icon: Icons.sync,
-      title: l10n.syncNow,
-      value: status,
-      trailing: _syncing
-          ? const SizedBox.square(
-              dimension: 24,
-              child: CircularProgressIndicator(strokeWidth: 3),
-            )
-          : null,
-      onTap: _syncing ? null : _syncNow,
-    );
-  }
-}
-
-class _Section extends StatelessWidget {
-  const _Section(this.title, this.children);
-
-  final String title;
+  final String? title;
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-        child: Text(
-          title,
-          style: context.text.titleSmall?.copyWith(
-            color: context.colors.primary,
+      if (title == null)
+        const SizedBox(height: 8)
+      else
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+          child: Text(
+            title!,
+            style: context.text.titleSmall?.copyWith(
+              color: context.colors.primary,
+            ),
           ),
         ),
-      ),
       Panel(
         padding: const EdgeInsets.symmetric(vertical: 4),
         radius: 24,
@@ -612,51 +246,4 @@ class SettingsTileIcon extends StatelessWidget {
     foregroundColor: context.colors.onPrimaryContainer,
     child: Icon(icon, size: 20),
   );
-}
-
-class _SeedSwatch extends StatelessWidget {
-  const _SeedSwatch({
-    required this.seed,
-    required this.restaurant,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final ThemeSeed seed;
-
-  /// Names the red (see [themeSeedLabel]).
-  final String restaurant;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = seedColors[seed];
-    return Tooltip(
-      message: themeSeedLabel(seed, context.l10n, restaurant: restaurant),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: color ?? context.colors.surface,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: selected
-                  ? context.colors.onSurface
-                  : context.colors.outline,
-              width: selected ? 3 : 1,
-            ),
-          ),
-          child: Icon(
-            selected ? Icons.check : (color == null ? Icons.wallpaper : null),
-            color: color == null ? context.colors.onSurface : Colors.white,
-            size: 20,
-          ),
-        ),
-      ),
-    );
-  }
 }

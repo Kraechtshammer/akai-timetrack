@@ -642,7 +642,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get roundingStrict => 'Beginn auf-, Ende abrunden';
 
   @override
-  String get sectionAppearance => 'Darstellung & Sprache';
+  String get sectionAppearance => 'Darstellung';
 
   @override
   String get color => 'Farbe';
@@ -1069,7 +1069,40 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Neuerungen lassen sich gerade nicht laden. Versuch es später noch einmal.';
 
   @override
-  String get sectionWorkplace => 'Arbeitsplatz';
+  String get sectionShifts => 'Schichten';
+
+  @override
+  String get sectionGeneral => 'Allgemein';
+
+  @override
+  String get sectionPermissions => 'Berechtigungen';
+
+  @override
+  String get permissionsHint =>
+      'Damit Erinnerungen pünktlich kommen, auch wenn die App geschlossen ist.';
+
+  @override
+  String get settingsShiftsSummary => 'Standardzeiten, Rundung';
+
+  @override
+  String get settingsTeamOff => 'Aus';
+
+  @override
+  String settingsTeamOn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'An · $count Personen',
+      one: 'An · 1 Person',
+      zero: 'An · noch niemand angelegt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsUpdateSummary(String version) {
+    return 'Version $version';
+  }
 
   @override
   String get restaurant => 'Restaurant';

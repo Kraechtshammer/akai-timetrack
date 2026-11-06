@@ -641,7 +641,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roundingStrict => 'Start up, end down';
 
   @override
-  String get sectionAppearance => 'Appearance & language';
+  String get sectionAppearance => 'Appearance';
 
   @override
   String get color => 'Color';
@@ -1067,7 +1067,40 @@ class AppLocalizationsEn extends AppLocalizations {
       'The changes can\'t be loaded right now. Try again later.';
 
   @override
-  String get sectionWorkplace => 'Workplace';
+  String get sectionShifts => 'Shifts';
+
+  @override
+  String get sectionGeneral => 'General';
+
+  @override
+  String get sectionPermissions => 'Permissions';
+
+  @override
+  String get permissionsHint =>
+      'So that reminders arrive on time, even when the app is closed.';
+
+  @override
+  String get settingsShiftsSummary => 'Default times, rounding';
+
+  @override
+  String get settingsTeamOff => 'Off';
+
+  @override
+  String settingsTeamOn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'On · $count people',
+      one: 'On · 1 person',
+      zero: 'On · no one added yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsUpdateSummary(String version) {
+    return 'Version $version';
+  }
 
   @override
   String get restaurant => 'Restaurant';

@@ -32,8 +32,8 @@ Automated checks:
 1. **Calendar list:** lists not-yet-synced calendars (with a hint; choosing one turns sync on), plus "Refresh" (asks Android to sync all accounts, then reads the list again now and after 6 s) and a hint about Google needing a few minutes.
 2. **Sync status:** "Sync now" tile in Settings › Calendar with the status as subtitle. The button runs the sync and asks Android for an expedited upload to Google. Not added on Plan (the developer's "maybe"); easy to add there with the same providers if wanted.
 3. **Event text language:** changing the language marks all events for an update.
-4. **Week strip:** the developer saw three prototypes (icons, two bars, dots). Kept icons (default) and bars, selectable in Settings › Appearance & language › Week overview; the dots were dropped. The developer noted bars scale better to a possible third shift, and icons could get a "rising sun" for a morning shift.
-5. **App icon:** three variants, because the launcher decides the mask shape and apps can't find out which. They are switched in Settings › Appearance & language › App icon.
+4. **Week strip:** the developer saw three prototypes (icons, two bars, dots). Kept icons (default) and bars, selectable in Settings › Appearance › Week overview; the dots were dropped. The developer noted bars scale better to a possible third shift, and icons could get a "rising sun" for a morning shift.
+5. **App icon:** three variants, because the launcher decides the mask shape and apps can't find out which. They are switched in Settings › Appearance › App icon.
    - **Round:** a red ring around a dark-red disc with centred letters, made for circular masks (Pixel). This is the default.
    - **Squircle:** exactly `branding/app-icon.svg` (n=4 panel, letters as in the SVG), mapped onto the 72 dp visible area, for squircle masks. It's the default on Xiaomi/Redmi/POCO, set once on the first start. Until 2026-11-05 its panel was a rounder compromise shape (exponent 2.5) with smaller letters; the developer wanted the SVG as is.
    - **Small squircle:** the whole squircle scaled down on a transparent background. The Pixel launcher fills the rest of its circle with black; the developer likes this one too.
@@ -112,7 +112,7 @@ Automated checks:
 The developer designed new app icons, to move away from the restaurant's sign over time. They are built into the app.
 
 **In the app:**
-- **Two settings** in Settings › Appearance & language:
+- **Two settings** in Settings › Appearance:
   - "App icon" picks the design: "Cloche" (the default), "AKAI sign", "Penguin, black", "Penguin, dark blue".
   - "Icon shape" keeps the earlier choice: "Round", "Squircle", "Small squircle".
   - Every design comes in every shape (developer decision), so there are 12 `activity-alias`es. Both settings ask first, because switching closes the app.
@@ -166,12 +166,20 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - `scripts/update_test_server.dart` also serves `/releases.json`.
 
 **Restaurant name** (`02-design.md` §4.10):
-- New setting `restaurant`, in the setup's first page ("Restaurant" field under the language) and in Settings › Workplace › "Restaurant". Installs from 1.4.1 and earlier read `AKAI` when nothing is stored.
+- New setting `restaurant`, in the setup's first page ("Restaurant" field under the language) and in Settings › General › "Restaurant". Installs from 1.4.1 and earlier read `AKAI` when nothing is stored.
 - Used in three places, the developer's choice: the calendar events' location (`CalendarEvent.location`, `EVENT_LOCATION` in `calendar_bridge`), the export header and the team plan picture's title. Not on the app's own screens.
 - `isAkaiRestaurant` (`domain/app_icons.dart`): only for AKAI does the icon picker offer the "AKAI sign" (the current icon always shows) and is the default colour called "AKAI red"; otherwise it's "Red". The developer chose renaming over hiding the colour.
 - Changing the name marks all calendar events for an update.
 
 **Checked:** `flutter analyze` clean, 133 tests pass (new: what's-new rules, the restaurant default and round trip, `isAkaiRestaurant` and the icon list, event location, export header). Checked by the developer on the emulator (1.4.1 debug installed over 1.4.0 data): the "What's new in version 1.4.1" popup once on start and again from Settings, "Restaurant" read as AKAI, the icon list and the "Red" label with another name, the export header. The calendar location was checked with a local test calendar (`scripts/emulator-test-calendar.sh`): all events had `eventLocation=AKAI` (`adb shell content query --uri content://com.android.calendar/events`). Not checked on a phone; the team plan picture's title only if the developer opened the share preview.
+
+## Done in the tenth session (2026-11-06): Settings categories
+
+- **Settings overview** (`02-design.md` §7): seven rows (Shifts, Reminders, Calendar, Team planner, Appearance, General, App update), each with a summary, each opening its own page. The developer chose seven over five categories.
+- Only the reliability checks are in two places: the warning on the overview while something is missing, and all of them with their status on Reminders › "Permissions".
+- **Code:** `ui/settings/settings_screen.dart` has the overview and the shared tiles (`SettingsSection`, `SettingsTile`, `DefaultTimesTiles`); `ui/settings/settings_pages.dart` has `SettingsCategory` and the pages. "Appearance & language" is now "Appearance"; "Language" moved to General with "Restaurant".
+
+**Checked:** `flutter analyze` clean, 133 tests pass. The developer checked the debug build on the emulator: the overview and its summaries, the Permissions list, clearing the restaurant. Not checked on a phone.
 
 ## Open points (in rough priority)
 
@@ -225,7 +233,7 @@ lib/
   platform/ notification_service.dart, calendar_sync.dart, device_setup.dart, app_icon.dart, app_update.dart
   l10n/ app_de.arb (source), app_en.arb, labels.dart (+ generated app_localizations*.dart)
   ui/   material.dart (the one UI import), home_shell, common (header, Panel, Figure, WavyProgress, WeekSwitcher, pickers),
-        today/ (Home tab), plan/, shift_sheet.dart, pay/ (Pay tab, money sheet, wage sheet), export/, settings/, onboarding/,
+        today/ (Home tab), plan/, shift_sheet.dart, pay/ (Pay tab, money sheet, wage sheet), export/, settings/ (overview, category pages, update tiles, reliability checks), onboarding/,
         roster/ (Team tab: board, shift sheet, answers, people, plan image, share preview, Settings tiles)
 packages/calendar_bridge/   Kotlin CalendarContract plugin (calendars incl. sync flag, event colours, events, enableSync, requestSync)
 packages/running_progress/  Kotlin plugin: moves the running notification's progress bar (Live Update on Android 16)
