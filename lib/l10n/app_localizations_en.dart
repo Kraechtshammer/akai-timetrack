@@ -1050,6 +1050,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateFailed => 'Android refused the update.';
 
   @override
+  String get whatsNewTile => 'What\'s new';
+
+  @override
+  String whatsNewTileHint(String version) {
+    return 'The changes in version $version';
+  }
+
+  @override
+  String whatsNewTitle(String version) {
+    return 'What\'s new in version $version';
+  }
+
+  @override
+  String get whatsNewFailed =>
+      'The changes can\'t be loaded right now. Try again later.';
+
+  @override
   String get tabTeam => 'Team';
 
   @override

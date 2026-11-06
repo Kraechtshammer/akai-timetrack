@@ -49,6 +49,14 @@ class UpdateTiles extends ConsumerWidget {
               : null,
           onTap: update.busy ? null : checkNow,
         ),
+        SettingsTile(
+          icon: Icons.auto_awesome_outlined,
+          title: l10n.whatsNewTile,
+          value: update.installed == null
+              ? ''
+              : l10n.whatsNewTileHint('${update.installed}'),
+          onTap: () => showWhatsNewDialog(context, controller.whatsNew()),
+        ),
         if (latest != null)
           SettingsTile(
             icon: Icons.new_releases_outlined,
@@ -152,7 +160,6 @@ class _UpdateDialog extends ConsumerWidget {
         ],
       );
     }
-    final notes = userNotes(latest.notes);
     final problem = update.problem;
 
     return AlertDialog(
@@ -163,20 +170,7 @@ class _UpdateDialog extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          if (notes.isEmpty) Text(l10n.updateNotesEmpty),
-          for (final section in notes) ...[
-            if (section.kind != NotesKind.other)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  _heading(section.kind, l10n),
-                  style: context.text.titleSmall?.copyWith(
-                    color: context.colors.primary,
-                  ),
-                ),
-              ),
-            for (final item in section.items) _Bullet(item),
-          ],
+          _Notes(userNotes(latest.notes)),
           const SizedBox(height: 16),
           switch (update.phase) {
             UpdatePhase.downloading => Column(
@@ -234,6 +228,89 @@ class _UpdateDialog extends ConsumerWidget {
             onPressed: update.busy ? null : controller.install,
             child: Text(l10n.updateInstall),
           ),
+      ],
+    );
+  }
+}
+
+/// "What's new": the changes of the installed version, on the first start
+/// after an update (HomeShell) and from Settings.
+Future<void> showWhatsNewDialog(BuildContext context, Future<WhatsNew> notes) =>
+    showDialog<void>(
+      context: context,
+      builder: (context) => _WhatsNewDialog(notes),
+    );
+
+class _WhatsNewDialog extends StatelessWidget {
+  const _WhatsNewDialog(this.notes);
+
+  final Future<WhatsNew> notes;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return FutureBuilder(
+      future: notes,
+      builder: (context, snapshot) {
+        final whatsNew = snapshot.data;
+        return AlertDialog(
+          title: Text(
+            whatsNew == null
+                ? l10n.whatsNewTile
+                : l10n.whatsNewTitle('${whatsNew.version}'),
+          ),
+          scrollable: true,
+          content: switch (snapshot) {
+            AsyncSnapshot(hasError: true) => Text(l10n.whatsNewFailed),
+            AsyncSnapshot(:final data?) => _Notes(data.sections),
+            _ => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          },
+          actions: [
+            M3EButton(
+              style: M3EButtonStyle.text,
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.ok),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Release notes as headed bullet lists.
+class _Notes extends StatelessWidget {
+  const _Notes(this.sections);
+
+  final List<NotesSection> sections;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      spacing: 4,
+      children: [
+        if (sections.isEmpty) Text(l10n.updateNotesEmpty),
+        for (final section in sections) ...[
+          if (section.kind != NotesKind.other)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                _heading(section.kind, l10n),
+                style: context.text.titleSmall?.copyWith(
+                  color: context.colors.primary,
+                ),
+              ),
+            ),
+          for (final item in section.items) _Bullet(item),
+        ],
       ],
     );
   }

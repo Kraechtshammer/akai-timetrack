@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../material.dart';
 
 import '../../app/providers.dart';
+import '../../app/update_controller.dart';
 import '../../l10n/labels.dart';
 import '../../platform/device_setup.dart';
 import '../common.dart';
@@ -42,6 +43,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       return;
     }
     final services = ref.services;
+    // A fresh install has nothing "new" to show.
+    try {
+      await ref.read(updateProvider.notifier).markVersionSeen();
+    } catch (e) {
+      debugPrint('Recording the version failed: $e');
+    }
     await services.settings.update((s) => s.copyWith(onboardingDone: true));
     await services.syncAll();
   }

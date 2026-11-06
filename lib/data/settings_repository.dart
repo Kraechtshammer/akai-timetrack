@@ -18,7 +18,14 @@ class SettingsRepository {
   /// The newest version the update popup was shown for (device status).
   static const updatePopupShown = 'updatePopupShown';
 
-  /// The day whose "Trinkgeld eintragen" prompt on Heute she closed,
+  /// The version that ran last, to show "What's new" once after an update
+  /// (device status).
+  static const lastRunVersion = 'lastRunVersion';
+
+  /// The release notes "What's new" showed last, as JSON (device status).
+  static const whatsNew = 'whatsNew';
+
+  /// The day whose "Add the tips" prompt on Home the user closed,
   /// `yyyy-MM-dd` (device status, docs/02-design.md §4.7).
   static const tipPromptDismissed = 'tipPromptDismissedDay';
 
@@ -26,6 +33,8 @@ class SettingsRepository {
     _lastCalendarSync,
     lastUpdateCheck,
     updatePopupShown,
+    lastRunVersion,
+    whatsNew,
     tipPromptDismissed,
   };
 

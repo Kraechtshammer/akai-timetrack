@@ -100,7 +100,7 @@ class NotesSection {
   final List<String> items;
 }
 
-/// The parts of the release text meant for her: "New", "Fixed" and
+/// The parts of the release text meant for the user: "New", "Fixed" and
 /// "Improved". "Behind the scenes", "Other changes" and the commit link are
 /// left out. A hand-written text without these headings is shown as it is,
 /// as one [NotesKind.other] section.
@@ -173,3 +173,64 @@ bool updateCheckDue(DateTime? lastCheck, DateTime now) =>
     lastCheck == null ||
     now.isBefore(lastCheck) || // the clock was changed
     now.difference(lastCheck) >= updateCheckInterval;
+
+/// A release's version and notes, from GitHub's release list. Unlike
+/// [ReleaseInfo] it needs no APK: it is for "What's new" after an update.
+class ReleaseNotes {
+  const ReleaseNotes(this.version, this.notes);
+
+  final AppVersion version;
+  final String notes;
+
+  /// Null for drafts, pre-releases and unreadable tags.
+  static ReleaseNotes? fromJson(Map<String, dynamic> json) {
+    if (json['draft'] == true || json['prerelease'] == true) return null;
+    final version = AppVersion.tryParse('${json['tag_name'] ?? ''}');
+    if (version == null) return null;
+    return ReleaseNotes(version, '${json['body'] ?? ''}');
+  }
+
+  Map<String, String> toJson() => {'tag_name': 'v$version', 'body': notes};
+}
+
+/// Whether this start should show "What's new": the app runs a newer
+/// version than last time. [lastRun] is null before the first start of a
+/// version that remembers it; then it counts as an update if the setup was
+/// done (a fresh install records its version when the setup ends).
+bool whatsNewDue({
+  required AppVersion? lastRun,
+  required AppVersion installed,
+  required bool onboardingDone,
+}) => lastRun == null ? onboardingDone : installed > lastRun;
+
+/// The releases after [since] up to [upTo], newest first. Without [since]
+/// only [upTo] itself.
+List<ReleaseNotes> releasesBetween(
+  Iterable<ReleaseNotes> releases, {
+  required AppVersion? since,
+  required AppVersion upTo,
+}) =>
+    releases
+        .where(
+          (r) => since == null
+              ? r.version == upTo
+              : r.version > since && r.version <= upTo,
+        )
+        .toList()
+      ..sort((a, b) => b.version.compareTo(a.version));
+
+/// The user's notes of several releases in one list: each kind once, in the
+/// order New, Fixed, Improved, other, with the items in the order of
+/// [releases] (newest first).
+List<NotesSection> mergedNotes(Iterable<ReleaseNotes> releases) {
+  final items = <NotesKind, List<String>>{};
+  for (final release in releases) {
+    for (final section in userNotes(release.notes)) {
+      items.putIfAbsent(section.kind, () => []).addAll(section.items);
+    }
+  }
+  return [
+    for (final kind in NotesKind.values)
+      if (items[kind] case final list?) NotesSection(kind, list),
+  ];
+}

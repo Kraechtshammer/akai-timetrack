@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-06; the version is now 1.4.0 (`1.4.0+7`). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-06; the version is now 1.4.1. Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -156,6 +156,14 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - `flutter analyze` is clean, and 125 tests pass. The debug and release APKs build.
 - The debug build was installed over 1.3.1 with the round sign on the emulator: exactly one launcher entry, the round cloche. The developer then checked it on the emulator and found it working: designs, shapes and the penguin unlock.
 - Not checked yet: a phone, themed icons, the release APK on a device (see open point 0).
+
+## Done in the ninth session (2026-11-06): "What's new" and the restaurant name
+
+**"What's new" after an update** (`02-design.md` §12):
+- On the first start of a newer version, a popup lists the changes since the version that ran before, merged from all releases in between ("New / Fixed / Improved"). Settings › App update › "What's new" opens it again.
+- Code: `whatsNewDue`, `releasesBetween`, `mergedNotes` and `ReleaseNotes` in `domain/app_update.dart` (tested); `fetchReleases` in `platform/app_update.dart` (GitHub's release list, overridable with `--dart-define=UPDATE_RELEASES_URL=...`); `whatsNewOnStart`, `whatsNew`, `markVersionSeen` in `app/update_controller.dart`; the dialog in `ui/settings/update_tiles.dart`; `HomeShell` shows it before looking for a newer update. Status keys `lastRunVersion` and `whatsNew`.
+- Installs updated from 1.4.1 or earlier have no `lastRunVersion`; they show the installed version's notes once. The setup's last step records the version, so a fresh install shows nothing.
+- `scripts/update_test_server.dart` also serves `/releases.json`.
 
 ## Open points (in rough priority)
 

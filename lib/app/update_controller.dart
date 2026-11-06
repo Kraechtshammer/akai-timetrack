@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -62,6 +63,16 @@ class UpdateState {
   final String? problemMessage;
 
   bool get busy => phase != UpdatePhase.idle;
+}
+
+/// The changes "What's new" shows.
+@immutable
+class WhatsNew {
+  const WhatsNew(this.version, this.sections);
+
+  /// The installed version.
+  final AppVersion version;
+  final List<NotesSection> sections;
 }
 
 final updateServiceProvider = Provider<UpdateService>((ref) => UpdateService());
@@ -291,6 +302,101 @@ class UpdateController extends Notifier<UpdateState> {
       return;
     }
     await checkIfDue();
+  }
+
+  /// The first start after an update: the changes since the version that
+  /// ran before, or null if there is nothing to show. The version counts as
+  /// seen once the notes could be read; if GitHub can't be reached, the next
+  /// start or resume tries again.
+  Future<WhatsNew?> whatsNewOnStart() async {
+    try {
+      final installed = await _installed();
+      if (installed == null) return null;
+      final lastRun = AppVersion.tryParse(
+        await _settings.status(SettingsRepository.lastRunVersion) ?? '',
+      );
+      final onboardingDone = (await _settings.load()).onboardingDone;
+      if (!whatsNewDue(
+        lastRun: lastRun,
+        installed: installed,
+        onboardingDone: onboardingDone,
+      )) {
+        if (lastRun != installed && onboardingDone) await markVersionSeen();
+        return null;
+      }
+      final releases = releasesBetween(
+        await _service.fetchReleases(),
+        since: lastRun,
+        upTo: installed,
+      );
+      await _cacheNotes(installed, releases);
+      await markVersionSeen();
+      final sections = mergedNotes(releases);
+      return sections.isEmpty ? null : WhatsNew(installed, sections);
+    } catch (e) {
+      debugPrint("What's new failed: $e");
+      return null;
+    }
+  }
+
+  /// For Settings: the changes shown after the last update, or the
+  /// installed version's notes from GitHub. Throws if they aren't stored
+  /// and GitHub can't be reached.
+  Future<WhatsNew> whatsNew() async {
+    final installed = await _installed();
+    if (installed == null) throw StateError('Version unknown');
+    final cached = await _cachedNotes(installed);
+    if (cached != null) return WhatsNew(installed, mergedNotes(cached));
+    final releases = releasesBetween(
+      await _service.fetchReleases(),
+      since: null,
+      upTo: installed,
+    );
+    await _cacheNotes(installed, releases);
+    return WhatsNew(installed, mergedNotes(releases));
+  }
+
+  /// Records the installed version as seen. Also at the end of the setup,
+  /// so a fresh install doesn't show "What's new".
+  Future<void> markVersionSeen() async {
+    final installed = await _installed();
+    if (installed == null) return;
+    await _settings.setStatus(SettingsRepository.lastRunVersion, '$installed');
+  }
+
+  Future<void> _cacheNotes(
+    AppVersion version,
+    List<ReleaseNotes> releases,
+  ) async {
+    // Nothing to keep if GitHub has no release for this version (a test
+    // build): Settings asks again next time.
+    if (releases.isEmpty) return;
+    await _settings.setStatus(
+      SettingsRepository.whatsNew,
+      jsonEncode({
+        'version': '$version',
+        'releases': [for (final r in releases) r.toJson()],
+      }),
+    );
+  }
+
+  Future<List<ReleaseNotes>?> _cachedNotes(AppVersion version) async {
+    try {
+      final json = jsonDecode(
+        await _settings.status(SettingsRepository.whatsNew) ?? '',
+      );
+      if (json is! Map<String, dynamic> ||
+          AppVersion.tryParse('${json['version']}') != version) {
+        return null;
+      }
+      return [
+        for (final r
+            in (json['releases'] as List).whereType<Map<String, dynamic>>())
+          ?ReleaseNotes.fromJson(r),
+      ];
+    } catch (_) {
+      return null; // nothing stored yet, or unreadable
+    }
   }
 
   /// Deletes all downloaded update files (also while an install hangs).

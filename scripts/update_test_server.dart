@@ -5,6 +5,7 @@
 //
 // The installed app must be older than <version>, built with
 //   --dart-define=UPDATE_RELEASE_URL=http://127.0.0.1:8765/latest.json
+//   --dart-define=UPDATE_RELEASES_URL=http://127.0.0.1:8765/releases.json
 // and signed with the same key as <apk> (two debug builds, for example).
 // See docs/03-dev-setup.md, "Testing the in-app update".
 import 'dart:convert';
@@ -48,7 +49,16 @@ Future<void> main(List<String> args) async {
   await for (final request in server) {
     stdout.writeln('${request.method} ${request.uri}');
     final response = request.response;
-    if (request.uri.path == '/latest.json') {
+    if (request.uri.path == '/releases.json') {
+      // For "What's new" after the update: this release and an older one.
+      response.headers.contentType = ContentType.json;
+      response.write(
+        jsonEncode([
+          {'tag_name': 'v$version', 'body': _notes},
+          {'tag_name': 'v0.9.0', 'body': '## New\n\n- An older release'},
+        ]),
+      );
+    } else if (request.uri.path == '/latest.json') {
       response.headers.contentType = ContentType.json;
       response.write(
         jsonEncode({

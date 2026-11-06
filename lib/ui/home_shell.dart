@@ -46,11 +46,20 @@ class _HomeShellState extends ConsumerState<HomeShell>
     WidgetsBinding.instance.addPostFrameCallback((_) => _lookForUpdate());
   }
 
-  /// Looks for an update (at most every 6 hours) and shows the popup once
-  /// per new version. [resumed]: also continues an update that waited for
+  /// Shows "What's new" once after an update, then looks for an update (at
+  /// most every 6 hours) and shows the popup once per new version. [resumed]: also continues an update that waited for
   /// the "install unknown apps" permission.
   Future<void> _lookForUpdate({bool resumed = false}) async {
     final update = ref.read(updateProvider.notifier);
+    if (!_updatePopupOpen) {
+      // First the changes of an update just installed, then a newer one.
+      final whatsNew = await update.whatsNewOnStart();
+      if (whatsNew != null && mounted) {
+        _updatePopupOpen = true;
+        await showWhatsNewDialog(context, Future.value(whatsNew));
+        _updatePopupOpen = false;
+      }
+    }
     await (resumed ? update.resumed() : update.checkIfDue());
     if (!mounted || _updatePopupOpen || !await update.popupDue()) return;
     if (!mounted) return;

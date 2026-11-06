@@ -1844,6 +1844,30 @@ abstract class AppLocalizations {
   /// **'Android hat das Update abgelehnt.'**
   String get updateFailed;
 
+  /// No description provided for @whatsNewTile.
+  ///
+  /// In de, this message translates to:
+  /// **'Was ist neu?'**
+  String get whatsNewTile;
+
+  /// No description provided for @whatsNewTileHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Änderungen in Version {version}'**
+  String whatsNewTileHint(String version);
+
+  /// No description provided for @whatsNewTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Neu in Version {version}'**
+  String whatsNewTitle(String version);
+
+  /// No description provided for @whatsNewFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Neuerungen lassen sich gerade nicht laden. Versuch es später noch einmal.'**
+  String get whatsNewFailed;
+
   /// No description provided for @tabTeam.
   ///
   /// In de, this message translates to:

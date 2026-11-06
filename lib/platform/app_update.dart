@@ -15,6 +15,13 @@ const _latestReleaseUrl = String.fromEnvironment(
   defaultValue: 'https://api.github.com/repos/Kraechtshammer/akai-timetrack/releases/latest',
 );
 
+/// The recent releases, for "What's new" after an update. Overridden with
+/// `--dart-define=UPDATE_RELEASES_URL=...` for tests.
+const _releasesUrl = String.fromEnvironment(
+  'UPDATE_RELEASES_URL',
+  defaultValue: 'https://api.github.com/repos/Kraechtshammer/akai-timetrack/releases?per_page=20',
+);
+
 /// How an install ended (PackageInstaller's status codes, sent by
 /// MainActivity.kt). Success is rarely seen: Android stops the app to
 /// replace it.
@@ -60,10 +67,27 @@ class UpdateService {
   /// The latest release, or null if there is none with an APK. Throws on
   /// network errors.
   Future<ReleaseInfo?> fetchLatest() async {
+    final json = await _getJson(_latestReleaseUrl);
+    return json is Map<String, dynamic> ? ReleaseInfo.fromJson(json) : null;
+  }
+
+  /// The recent releases (GitHub lists the newest 20). Throws on network
+  /// errors.
+  Future<List<ReleaseNotes>> fetchReleases() async {
+    final json = await _getJson(_releasesUrl);
+    if (json is! List) return const [];
+    return [
+      for (final release in json.whereType<Map<String, dynamic>>())
+        ?ReleaseNotes.fromJson(release),
+    ];
+  }
+
+  /// GitHub's answer, or null for 404 (no release yet).
+  Future<Object?> _getJson(String url) async {
     final client = HttpClient()
       ..connectionTimeout = const Duration(seconds: 15);
     try {
-      final request = await client.getUrl(Uri.parse(_latestReleaseUrl));
+      final request = await client.getUrl(Uri.parse(url));
       request.headers
         ..set(HttpHeaders.acceptHeader, 'application/vnd.github+json')
         ..set(HttpHeaders.userAgentHeader, 'TimeTrack-App');
@@ -72,14 +96,13 @@ class UpdateService {
       );
       if (response.statusCode == HttpStatus.notFound) {
         await response.drain<void>();
-        return null; // no release yet
+        return null;
       }
       if (response.statusCode != HttpStatus.ok) {
         await response.drain<void>();
         throw HttpException('GitHub answered ${response.statusCode}');
       }
-      final body = await response.transform(utf8.decoder).join();
-      return ReleaseInfo.fromJson(jsonDecode(body) as Map<String, dynamic>);
+      return jsonDecode(await response.transform(utf8.decoder).join());
     } finally {
       client.close();
     }

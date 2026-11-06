@@ -166,4 +166,101 @@ All commits: [v1.0.0...v1.0.1](https://github.com/x/y/compare/v1.0.0...v1.0.1)
       expect(emitted.length, before);
     },
   );
+
+  group("What's new", () {
+    test('is due after an update, not on a fresh install', () {
+      expect(
+        whatsNewDue(
+          lastRun: v('1.4.1'),
+          installed: v('1.5.0'),
+          onboardingDone: true,
+        ),
+        isTrue,
+      );
+      expect(
+        whatsNewDue(
+          lastRun: v('1.5.0'),
+          installed: v('1.5.0'),
+          onboardingDone: true,
+        ),
+        isFalse,
+      );
+      // Downgrade (e.g. a test build).
+      expect(
+        whatsNewDue(
+          lastRun: v('1.5.0'),
+          installed: v('1.4.1'),
+          onboardingDone: true,
+        ),
+        isFalse,
+      );
+      // Updated from a version that didn't remember the last run.
+      expect(
+        whatsNewDue(lastRun: null, installed: v('1.5.0'), onboardingDone: true),
+        isTrue,
+      );
+      // Fresh install, setup not finished yet.
+      expect(
+        whatsNewDue(
+          lastRun: null,
+          installed: v('1.5.0'),
+          onboardingDone: false,
+        ),
+        isFalse,
+      );
+    });
+
+    final releases = [
+      ReleaseNotes(v('1.3.0'), '## New\n\n- Tips'),
+      ReleaseNotes(v('1.5.0'), '## Fixed\n\n- B\n\n## New\n\n- C'),
+      ReleaseNotes(v('1.4.0'), '## New\n\n- A\n\n## Behind the scenes\n\n- X'),
+      ReleaseNotes(v('1.6.0'), '## New\n\n- Not yet installed'),
+    ];
+
+    test('takes the releases since the last run, newest first', () {
+      final between = releasesBetween(
+        releases,
+        since: v('1.3.0'),
+        upTo: v('1.5.0'),
+      );
+      expect(between.map((r) => '${r.version}'), ['1.5.0', '1.4.0']);
+      final only = releasesBetween(releases, since: null, upTo: v('1.5.0'));
+      expect(only.map((r) => '${r.version}'), ['1.5.0']);
+      expect(releasesBetween(releases, since: null, upTo: v('2.0.0')), isEmpty);
+    });
+
+    test('merges the sections of several releases', () {
+      final merged = mergedNotes(
+        releasesBetween(releases, since: v('1.3.0'), upTo: v('1.5.0')),
+      );
+      expect(merged.map((s) => s.kind), [NotesKind.added, NotesKind.fixed]);
+      expect(merged[0].items, ['C', 'A']);
+      expect(merged[1].items, ['B']);
+      expect(
+        mergedNotes([ReleaseNotes(v('1.0.0'), '## Behind the scenes\n\n- X')]),
+        isEmpty,
+      );
+    });
+
+    test('reads the release list, skipping drafts and pre-releases', () {
+      expect(
+        ReleaseNotes.fromJson({'tag_name': 'v1.5.0', 'body': 'Hi'})?.notes,
+        'Hi',
+      );
+      expect(
+        ReleaseNotes.fromJson({'tag_name': 'v1.5.0', 'draft': true}),
+        isNull,
+      );
+      expect(
+        ReleaseNotes.fromJson({'tag_name': 'v1.5.0', 'prerelease': true}),
+        isNull,
+      );
+      expect(ReleaseNotes.fromJson({'tag_name': 'nightly'}), isNull);
+      final back = ReleaseNotes.fromJson(
+        ReleaseNotes(v('1.5.0'), 'Hi').toJson(),
+      )!;
+      expect('${back.version}', '1.5.0');
+      expect(back.notes, 'Hi');
+    });
+  });
 }

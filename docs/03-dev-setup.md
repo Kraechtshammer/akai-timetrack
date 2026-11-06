@@ -209,10 +209,11 @@ Releases are built by GitHub Actions when a version tag is pushed. The repo is p
 **Back up the key.** Every update must be signed with the same key. Keep `timetrack-release.jks` and the password in a password manager plus an offline copy. If the key is lost, the app on the user's phone can only be replaced by uninstalling it, which deletes its data. The GitHub secret is not a backup: secrets can't be read back.
 
 **Testing the in-app update.** The app on the emulator is debug-signed, so the real (release-signed) APK from GitHub can't replace it. Point a debug build at a fake release instead:
-1. Build the "new" version and keep it: `flutter build apk --debug --dart-define=UPDATE_RELEASE_URL=http://127.0.0.1:8765/latest.json --build-name=1.0.1 --build-number=2`, copy `build/app/outputs/flutter-apk/app-debug.apk` aside.
+1. Build the "new" version and keep it: `flutter build apk --debug --dart-define=UPDATE_RELEASE_URL=http://127.0.0.1:8765/latest.json --dart-define=UPDATE_RELEASES_URL=http://127.0.0.1:8765/releases.json --build-name=1.0.1 --build-number=2`, copy `build/app/outputs/flutter-apk/app-debug.apk` aside.
 2. Build an older one with the same `--dart-define` and `--build-name=1.0.0 --build-number=1`, and `adb install -r` it.
 3. `dart run scripts/update_test_server.dart <new apk> 1.0.1` and `adb reverse tcp:8765 tcp:8765`.
 4. Open the app: the popup appears. Debug APKs are about 200 MB, so the download takes a moment.
+5. After the update, open the app again: "What's new in version 1.0.1" shows the fake notes. The server's release list also has these notes for its version, so a build with the same `--dart-define`s shows them in Settings › App update › "What's new".
 - The debug key belongs to the container (`~/.android/debug.keystore`). After a container rebuild it is new, and new debug builds can't update an older debug install ("signatures do not match"). Because the app is debuggable, its data can be kept: `adb exec-out run-as de.gartenpa.timetrack tar cf - . > appdata.tar`, uninstall, install, then copy `app_flutter/timetrack.sqlite` back with `adb push` to `/data/local/tmp` and `run-as … cp`.
 
 **Local release builds.** `scripts/build-apk.sh release` and the task *Build: Release APK* also sign with the release key when `android/key.properties` is present, otherwise with the debug key.

@@ -306,6 +306,10 @@
   "updateNoPermission": "TimeTrack isn't allowed to install apps yet. Allow it in Android's settings, then tap “Update” again.",
   "updateAborted": "Update cancelled.",
   "updateFailed": "Android refused the update.",
+  "whatsNewTile": "What's new",
+  "whatsNewTileHint": "The changes in version {version}",
+  "whatsNewTitle": "What's new in version {version}",
+  "whatsNewFailed": "The changes can't be loaded right now. Try again later.",
 
   "tabTeam": "Team",
   "teamTitle": "Team plan",
