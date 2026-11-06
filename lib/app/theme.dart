@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../data/app_settings.dart';
+import 'shift_colors.dart';
 
 /// Seed colors the user can choose. "AKAI-Rot" is the default.
 const seedColors = {
@@ -31,8 +32,17 @@ ColorScheme schemeFor(
   );
 }
 
-ThemeData buildTheme(ColorScheme scheme) => ThemeData(
+/// The border that marks today, if not the scheme's primary colour. In dark
+/// mode AKAI red's primary is a pale pink; the developer wanted the real red
+/// there, as in light mode.
+Color? todayColorFor(ThemeSeed seed, Brightness brightness) =>
+    seed == ThemeSeed.akaiRed && brightness == Brightness.dark
+    ? seedColors[ThemeSeed.akaiRed]
+    : null;
+
+ThemeData buildTheme(ColorScheme scheme, {Color? today}) => ThemeData(
   colorScheme: scheme,
+  extensions: [ShiftColors.forScheme(scheme, today: today)],
   // Material 3 Expressive where Flutter already supports it (icon buttons).
   iconButtonTheme: const IconButtonThemeData(
     variant: StyleVariant.material3Expressive,

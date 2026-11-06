@@ -1568,16 +1568,10 @@ abstract class AppLocalizations {
   /// **'Das hat nicht geklappt. Die App versucht es später noch einmal.'**
   String get syncFailed;
 
-  /// No description provided for @weekLegendRecorded.
-  ///
-  /// In de, this message translates to:
-  /// **'farbig = erfasst'**
-  String get weekLegendRecorded;
-
   /// No description provided for @weekLegendBars.
   ///
   /// In de, this message translates to:
-  /// **'links Mittag · rechts Abend · farbig = erfasst'**
+  /// **'links Mittag · rechts Abend'**
   String get weekLegendBars;
 
   /// No description provided for @weekMarks.

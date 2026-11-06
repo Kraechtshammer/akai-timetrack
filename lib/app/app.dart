@@ -21,9 +21,11 @@ class TimeTrackApp extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         theme: buildTheme(
           schemeFor(settings.themeSeed, Brightness.light, lightDynamic),
+          today: todayColorFor(settings.themeSeed, Brightness.light),
         ),
         darkTheme: buildTheme(
           schemeFor(settings.themeSeed, Brightness.dark, darkDynamic),
+          today: todayColorFor(settings.themeSeed, Brightness.dark),
         ),
         themeMode: themeModeFor(settings.themeMode),
         // Material 3 Expressive components (buttons, wavy progress) take

@@ -71,7 +71,7 @@ class PlanScreen extends ConsumerWidget {
                   Chip(
                     avatar: Icon(
                       Icons.check_circle,
-                      color: context.colors.primary,
+                      color: context.shiftColors.recorded,
                     ),
                     label: Text(
                       l10n.weekRecorded(formatHours(recorded, locale)),
@@ -119,10 +119,19 @@ class _DayCard extends ConsumerWidget {
       }
     }
 
+    final shiftColors = context.shiftColors;
     Widget toggleButton(ShiftType type, String label) {
       final on = shifts.any((s) => s.type == type);
+      // Planned toggles wear the shift type's colour.
+      final (background, foreground) = type == ShiftType.lunch
+          ? (shiftColors.lunch, shiftColors.onLunch)
+          : (shiftColors.evening, shiftColors.onEvening);
       return on
           ? M3EButton.icon(
+              decoration: M3EButtonDecoration.styleFrom(
+                backgroundColor: background,
+                foregroundColor: foreground,
+              ),
               onPressed: () => toggle(type),
               icon: const Icon(Icons.check, size: 18),
               label: Text(label),
@@ -139,7 +148,7 @@ class _DayCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
-        border: isToday ? Border.all(color: colors.primary, width: 2) : null,
+        border: isToday ? Border.all(color: shiftColors.today, width: 2) : null,
       ),
       child: Column(
         children: [
@@ -207,17 +216,18 @@ class _ShiftRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final colors = context.colors;
+    final shiftColors = context.shiftColors;
     final status = shift.statusAt(now);
     final (icon, iconColor, statusText) = switch (status) {
       ShiftStatus.recorded => (
         Icons.check_circle,
-        colors.primary,
+        shiftColors.recorded,
         l10n.statusRecorded,
       ),
       ShiftStatus.running => (Icons.timer, colors.primary, l10n.statusRunning),
       ShiftStatus.missed => (
         Icons.warning_amber,
-        colors.error,
+        shiftColors.missed,
         l10n.statusMissed,
       ),
       ShiftStatus.planned => (
@@ -244,7 +254,11 @@ class _ShiftRow extends ConsumerWidget {
               width: 72,
               child: Text(
                 shiftTypeLabel(shift.type, l10n),
-                style: context.text.labelLarge,
+                style: context.text.labelLarge?.copyWith(
+                  color: shift.isLunchSlot
+                      ? shiftColors.lunch
+                      : shiftColors.evening,
+                ),
               ),
             ),
             Expanded(
@@ -253,7 +267,12 @@ class _ShiftRow extends ConsumerWidget {
                 style: const TextStyle(fontFeatures: tabularFigures),
               ),
             ),
-            Text(statusText, style: context.text.bodySmall),
+            Text(
+              statusText,
+              style: context.text.bodySmall?.copyWith(
+                color: status == ShiftStatus.missed ? shiftColors.missed : null,
+              ),
+            ),
             SizedBox(
               width: 56,
               child: Text(

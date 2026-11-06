@@ -262,7 +262,9 @@ class _DayCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
-        border: isToday ? Border.all(color: colors.primary, width: 2) : null,
+        border: isToday
+            ? Border.all(color: context.shiftColors.today, width: 2)
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

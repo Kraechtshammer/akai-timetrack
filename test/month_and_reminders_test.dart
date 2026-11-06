@@ -2,6 +2,7 @@ import 'package:akai_timetrack/data/app_settings.dart';
 import 'package:akai_timetrack/data/database.dart';
 import 'package:akai_timetrack/domain/month_summary.dart';
 import 'package:akai_timetrack/domain/reminder_planner.dart';
+import 'package:akai_timetrack/domain/shift_info.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers.dart';
@@ -72,5 +73,23 @@ void main() {
         DateTime(2026, 11, 5, 0, 10),
       );
     });
+  });
+
+  test('custom shifts count as lunch when they start before 15:00', () {
+    final day = DateTime(2026, 11, 6);
+    expect(testShift(day: day, type: ShiftType.lunch).isLunchSlot, isTrue);
+    expect(testShift(day: day).isLunchSlot, isFalse);
+    final early = testShift(
+      day: day,
+      type: ShiftType.custom,
+      planned: '14:30-18:00',
+    );
+    final late = testShift(
+      day: day,
+      type: ShiftType.custom,
+      planned: '15:00-22:00',
+    );
+    expect(early.isLunchSlot, isTrue);
+    expect(late.isLunchSlot, isFalse);
   });
 }

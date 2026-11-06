@@ -893,11 +893,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncFailed => 'That didn’t work. The app will try again later.';
 
   @override
-  String get weekLegendRecorded => 'coloured = recorded';
-
-  @override
-  String get weekLegendBars =>
-      'left lunch · right evening · coloured = recorded';
+  String get weekLegendBars => 'left lunch · right evening';
 
   @override
   String get weekMarks => 'Week overview';

@@ -51,6 +51,7 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 
 ### Change colours
 - Seeds are in `app/theme.dart`. "AKAI red" `#C62828` uses `DynamicSchemeVariant.vibrant`; `fidelity` was rejected (glaring dark-mode containers, blue tertiary). The other seeds use `tonalSpot`. "System color" comes from `dynamic_color`.
+- Shift status and shift type colours are `context.shiftColors` (`app/shift_colors.dart`): `recorded`, `missed`, `lunch`, `evening` (with containers / on-colours) and `today` for the today border. Use them instead of `primary`/`error` for these meanings. Planned is `outline`, running is `primary`. Adding a candidate or changing a seed: update the expected picks in `test/shift_colors_test.dart`.
 
 ### Change the database
 - Tables are in `data/database.dart`. After editing run `dart run build_runner build -d`.

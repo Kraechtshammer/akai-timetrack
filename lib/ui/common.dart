@@ -1,5 +1,6 @@
 import 'material.dart';
 
+import '../app/shift_colors.dart';
 import '../core/time.dart';
 import '../l10n/app_localizations.dart';
 import 'settings/settings_screen.dart';
@@ -7,6 +8,9 @@ import 'settings/settings_screen.dart';
 extension ContextHelpers on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);
   ColorScheme get colors => Theme.of(this).colorScheme;
+
+  /// Recorded, not recorded, lunch, evening and today (`app/shift_colors.dart`).
+  ShiftColors get shiftColors => Theme.of(this).extension<ShiftColors>()!;
   TextTheme get text => Theme.of(this).textTheme;
   String get locale => l10n.localeName;
 
@@ -155,15 +159,18 @@ class WeekSwitcher extends StatelessWidget {
 
 /// Progress bar with a wavy filled part (Material 3 Expressive).
 class WavyProgress extends StatelessWidget {
-  const WavyProgress({super.key, required this.value});
+  const WavyProgress({super.key, required this.value, this.color});
 
   /// 0..1
   final double value;
 
+  /// The wave's colour; the primary colour if null.
+  final Color? color;
+
   @override
   Widget build(BuildContext context) => M3EProgressIndicator.linearWavy(
     value: value.clamp(0, 1),
-    color: context.colors.primary,
+    color: color ?? context.colors.primary,
     trackColor: context.colors.secondaryContainer,
   );
 }

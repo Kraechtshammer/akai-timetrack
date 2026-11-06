@@ -29,6 +29,12 @@ extension ShiftInfo on Shift {
 
   DateTime get dayDate => parseDayKey(day);
 
+  /// Lunch, or a custom shift that starts before 15:00. Decides the week
+  /// strip's left bar and the lunch colour.
+  bool get isLunchSlot =>
+      type == ShiftType.lunch ||
+      (type == ShiftType.custom && plannedStart.hour < 15);
+
   int get plannedMinutes => plannedEnd.difference(plannedStart).inMinutes;
 
   /// Counted minutes after the break, or null if not recorded.

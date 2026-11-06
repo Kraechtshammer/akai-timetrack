@@ -99,7 +99,12 @@ class TodayScreen extends ConsumerWidget {
                   child: ActionChip(
                     avatar: Icon(
                       Icons.warning_amber,
-                      color: context.colors.error,
+                      color: context.shiftColors.missed,
+                    ),
+                    backgroundColor: context.shiftColors.missedContainer,
+                    side: BorderSide.none,
+                    labelStyle: TextStyle(
+                      color: context.shiftColors.onMissedContainer,
                     ),
                     label: Text(
                       context.l10n.missedShifts(summary.missedShifts),
@@ -477,7 +482,7 @@ class _MonthCard extends StatelessWidget {
                   value: l10n.hours(
                     formatHours(summary.recordedMinutes, locale),
                   ),
-                  color: context.colors.primary,
+                  color: context.shiftColors.recorded,
                 ),
               ),
               Expanded(
@@ -491,7 +496,10 @@ class _MonthCard extends StatelessWidget {
               ),
             ],
           ),
-          WavyProgress(value: summary.progress),
+          WavyProgress(
+            value: summary.progress,
+            color: context.shiftColors.recorded,
+          ),
           Text(
             running
                 ? l10n.monthRunningHint
@@ -508,7 +516,12 @@ class _MonthCard extends StatelessWidget {
             Row(
               spacing: 8,
               children: [
-                Icon(Icons.euro, size: 20, color: context.colors.primary),
+                // Plain text colours: red is kept for today and buttons.
+                Icon(
+                  Icons.euro,
+                  size: 20,
+                  color: context.colors.onSurfaceVariant,
+                ),
                 Expanded(
                   child: Text(l10n.paySalary, style: context.text.labelLarge),
                 ),
@@ -535,7 +548,7 @@ class _MonthCard extends StatelessWidget {
                     ),
                     style: context.text.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
-                      color: context.colors.primary,
+                      color: context.colors.onSurface,
                       fontFeatures: tabularFigures,
                     ),
                   ),
@@ -663,6 +676,22 @@ class _WeekStrip extends StatelessWidget {
       alignment: PlaceholderAlignment.middle,
       child: Icon(data, size: legendIconSize, color: colors.onSurfaceVariant),
     );
+    // A sample of the mark (bar or dot) in the status colour, and its name.
+    Widget legendKey(Color color, String label) => Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 6,
+      children: [
+        Container(
+          width: style == WeekMarkStyle.bars ? 13 : 8,
+          height: style == WeekMarkStyle.bars ? 5 : 8,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        Text(label, style: legendStyle),
+      ],
+    );
 
     return Panel(
       color: colors.surfaceContainerLow,
@@ -691,6 +720,17 @@ class _WeekStrip extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 14,
+            runSpacing: 4,
+            children: [
+              legendKey(context.shiftColors.recorded, l10n.statusRecorded),
+              legendKey(context.shiftColors.missed, l10n.statusMissed),
+              legendKey(colors.outline, l10n.statusPlanned),
+            ],
+          ),
+          const SizedBox(height: 4),
           Text.rich(
             switch (style) {
               WeekMarkStyle.icons => TextSpan(
@@ -698,14 +738,12 @@ class _WeekStrip extends StatelessWidget {
                   icon(Icons.light_mode),
                   TextSpan(text: ' ${l10n.shiftLunch} · '),
                   icon(Icons.dark_mode),
-                  TextSpan(
-                    text: ' ${l10n.shiftEvening} · ${l10n.weekLegendRecorded}',
-                  ),
+                  TextSpan(text: ' ${l10n.shiftEvening}'),
                 ],
               ),
               WeekMarkStyle.bars => TextSpan(text: l10n.weekLegendBars),
             },
-            style: legendStyle,
+            style: legendStyle?.copyWith(color: colors.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -721,12 +759,18 @@ class _WeekStrip extends StatelessWidget {
         .where((s) => s.isRecorded)
         .fold(0, (sum, s) => sum + s.workedMinutes!);
     final isToday = day == dateOnly(now);
+    final shiftColors = context.shiftColors;
+    final statuses = ofDay.map((s) => s.statusAt(now)).toList();
 
-    final (Color? fill, Color text) = recordedMinutes > 0
-        ? (colors.primary, colors.onPrimary)
-        : ofDay.isNotEmpty
-        ? (colors.primaryContainer, colors.onPrimaryContainer)
-        : (null, colors.onSurfaceVariant);
+    // The circle shows the whole day: a missed shift wins, then "all
+    // recorded"; anything still ahead or running is neutral.
+    final (Color? fill, Color text) = ofDay.isEmpty
+        ? (null, colors.onSurfaceVariant)
+        : statuses.contains(ShiftStatus.missed)
+        ? (shiftColors.missedContainer, shiftColors.onMissedContainer)
+        : statuses.every((s) => s == ShiftStatus.recorded)
+        ? (shiftColors.recordedContainer, shiftColors.onRecordedContainer)
+        : (colors.surfaceContainerHighest, colors.onSurface);
 
     return Column(
       spacing: 4,
@@ -740,7 +784,7 @@ class _WeekStrip extends StatelessWidget {
             color: fill,
             shape: BoxShape.circle,
             border: isToday
-                ? Border.all(color: colors.primary, width: 2)
+                ? Border.all(color: shiftColors.today, width: 2)
                 : null,
           ),
           child: Text(
@@ -763,15 +807,17 @@ class _WeekStrip extends StatelessWidget {
     );
   }
 
-  /// Custom shifts count as lunch if they start before 15:00.
-  static bool _isLunchSlot(Shift s) =>
-      s.type == ShiftType.lunch ||
-      (s.type == ShiftType.custom && s.plannedStart.hour < 15);
-
   Widget _marks(BuildContext context, List<Shift> ofDay) {
     final colors = context.colors;
-    Color markColor(bool recorded) =>
-        recorded ? colors.primary : colors.outline;
+    final shiftColors = context.shiftColors;
+    // A slot counts as recorded if any of its shifts is.
+    Color markColor(Iterable<Shift> slot) {
+      final statuses = slot.map((s) => s.statusAt(now)).toSet();
+      if (statuses.contains(ShiftStatus.recorded)) return shiftColors.recorded;
+      if (statuses.contains(ShiftStatus.running)) return colors.primary;
+      if (statuses.contains(ShiftStatus.missed)) return shiftColors.missed;
+      return colors.outline;
+    }
 
     switch (style) {
       case WeekMarkStyle.icons:
@@ -786,13 +832,12 @@ class _WeekStrip extends StatelessWidget {
                   ShiftType.custom => Icons.schedule,
                 },
                 size: 15,
-                color: markColor(s.isRecorded),
+                color: markColor([s]),
               ),
           ],
         );
       case WeekMarkStyle.bars:
-        // One slot per shift time; a slot counts as recorded if any of its
-        // shifts is.
+        // One slot per shift time.
         Widget bar(Iterable<Shift> slot) => Container(
           width: 13,
           height: 5,
@@ -800,15 +845,15 @@ class _WeekStrip extends StatelessWidget {
           decoration: BoxDecoration(
             color: slot.isEmpty
                 ? colors.surfaceContainerHighest
-                : markColor(slot.any((s) => s.isRecorded)),
+                : markColor(slot),
             borderRadius: BorderRadius.circular(3),
           ),
         );
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            bar(ofDay.where(_isLunchSlot)),
-            bar(ofDay.where((s) => !_isLunchSlot(s))),
+            bar(ofDay.where((s) => s.isLunchSlot)),
+            bar(ofDay.where((s) => !s.isLunchSlot)),
           ],
         );
     }

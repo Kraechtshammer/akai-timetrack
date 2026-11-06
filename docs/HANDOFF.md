@@ -202,6 +202,15 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - **Testing the popup without a release:** stop the app, copy `app_flutter/timetrack.sqlite` out with `adb exec-out run-as de.gartenpa.timetrack cat …`, set the `lastRunVersion` row to an older version with the container's `sqlite3`, and write it back with `run-as … sh -c 'cat … > app_flutter/timetrack.sqlite'` (through `/data/local/tmp`). The emulator has no root and no `sqlite3`.
 - **Checked:** `flutter analyze` clean, 135 tests pass. The developer checked the debug build on the emulator: the popup after a simulated update from 1.4.0, and Settings › "What's new". Not checked on a phone.
 
+## Done in the twelfth session (2026-11-06): shift colours
+
+- **Colour by meaning** (`02-design.md` §6, §8): sage for recorded, honey for not recorded, grey for planned, apricot for lunch and periwinkle for evening, on the Home week strip (circles, bars or icons, and a colour legend), the "1 shift not recorded" chip, the month card ("Recorded" hours and the wave), and the Plan tab (status icons, type labels, the Lunch/Evening toggles, the "recorded" chip). The pay amount on Home is plain text now.
+- **Other themes:** each colour moves to a neighbour when it would look like the theme colour (`ShiftColors.forScheme` in `app/shift_colors.dart`, OKLCH hues, no new package). Tested for all five presets in light and dark (`test/shift_colors_test.dart`).
+- **Today border:** AKAI red in dark mode uses the real red `#C62828` (`todayColorFor` in `app/theme.dart`); the team planner's day cards use it too.
+- The developer chose these on an artboard (week strip options A–C, the five themes, three new themes). Not taken: new themes (Graphite, Sand, Night blue), because they put the AKAI red on the next-shift card for people who did not choose it.
+- `isLunchSlot` moved from the week strip to `domain/shift_info.dart`, because the Plan labels use it too.
+- **Checked:** `flutter analyze` clean, 149 tests pass. On the emulator (debug build): the Home tab in light mode with AKAI red and bars (sage circles and bars, red today ring, grey planned days, legend, plain pay). Not yet looked at in the app: dark mode, the Plan tab, a missed shift, the icon style, the other themes and System color. Not checked on a phone.
+
 ## Open points (in rough priority)
 
 0. **Check the new icons on phones** (eighth session; the emulator is done):
@@ -238,7 +247,7 @@ lib/
   main.dart                 start: services, notifications, ProviderScope
   app/  services.dart       AppServices (one per isolate), syncAll/syncNow, background notification entry point
         providers.dart      Riverpod providers (settings, shifts by day range, running shift, clock, sync status)
-        app.dart, theme.dart (M3ETheme wrapper, seed colours)
+        app.dart, theme.dart (M3ETheme wrapper, seed colours), shift_colors.dart (status, lunch/evening and today colours)
   core/ time.dart, format.dart        dates, ISO weeks, minutes, HH:mm, decimal hours
   data/ database.dart (+ .g.dart, .steps.dart)  drift tables Shifts, Settings, TipDays, TipPayouts, WageRates; migrations
         database_connection.dart     opens the database file (kept out of database.dart for drift's schema export)

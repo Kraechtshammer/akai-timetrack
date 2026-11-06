@@ -895,10 +895,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das hat nicht geklappt. Die App versucht es später noch einmal.';
 
   @override
-  String get weekLegendRecorded => 'farbig = erfasst';
-
-  @override
-  String get weekLegendBars => 'links Mittag · rechts Abend · farbig = erfasst';
+  String get weekLegendBars => 'links Mittag · rechts Abend';
 
   @override
   String get weekMarks => 'Wochenübersicht';

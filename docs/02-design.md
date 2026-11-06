@@ -556,18 +556,19 @@ The first tab, "Home" (it was "Today" until 2026-11-05). Icon: `home`. It was re
 
 - **Next-shift card** shows the next `planned` shift today or later. It turns into the running card while recording.
 - **When there's no plan:** "No shift planned" with a "Start anyway" button.
-- **Missed shifts:** if a past shift wasn't recorded, a chip "1 shift not recorded" opens it.
-- **Month card:** wavy progress bar, recorded vs expected. Uses Flutter's indicator if it ships a wavy variant, otherwise a `CustomPainter`. Below the bar, two rows:
+- **Missed shifts:** if a past shift wasn't recorded, a chip "1 shift not recorded" opens it. The chip is in the "not recorded" colour (§8).
+- **Month card:** wavy progress bar, recorded vs expected. The "Recorded" hours and the wave are in the "recorded" colour (§8); the pay amount is in the plain text colour, so the theme colour is left for today and the buttons. Uses Flutter's indicator if it ships a wavy variant, otherwise a `CustomPainter`. Below the bar, two rows:
   - **"Pay"**: "Earned" of "Expected" for the current month (§4.8), e.g. "€412 of €980". Without a rate, an "Add hourly wage" button opens the wage sheet.
   - **"Tips"**: the month's payouts (§4.7); "€0" until the first payout. The developer saw both prototypes (2026-11-05). A third column next to the hours looked good too, but rows leave room for the pay row.
 - **Tip prompt:** a small card "Add the tips" below the next-shift card, by the rule in §4.7, with "Add" and "Not now".
-- **Week strip:** tap a day → Plan tab at that week. Under each day, lunch and evening shifts are marked either with icons (sun, moon, clock for custom; the default) or with two bars (left lunch, right evening; custom shifts by start time). Grey = planned, coloured = recorded. Chosen in Settings › Appearance › Week overview.
+- **Week strip:** tap a day → Plan tab at that week. Under each day, lunch and evening shifts are marked either with icons (sun, moon, clock for custom; the default) or with two bars (left lunch, right evening; custom shifts by start time). The marks are coloured by status (§8): "recorded", "not recorded", grey for planned, the theme colour while running. The day circle shows the whole day: the "not recorded" container if a shift was missed, the "recorded" container if all shifts are recorded, otherwise grey. Today has a border in the today colour. A legend below names the three colours. Chosen in Settings › Appearance › Week overview.
 
 ### Plan
 - **Week navigation:** arrows, swipe, and a "today" button.
 - **Header chips:** recorded and total hours for the week.
 - **Shift rows:**
-  - Icon shows the status (clock = planned, filled check = recorded, warning = missed).
+  - Icon shows the status (clock = planned, filled check = recorded, warning = missed), in the status colours (§8). The type label is in the lunch or evening colour (custom shifts by start time, as in the week strip).
+- **Toggles:** a planned "Lunch" or "Evening" toggle is filled in the lunch or evening colour (§8). Today's card has a border in the today colour.
   - Tap opens the edit sheet.
   - Long-press offers "Delete" with an undo snackbar.
 
@@ -685,6 +686,11 @@ An overview with one row per category (icon, title, a short summary, a chevron).
 - **Dark mode** follows `ThemeMode` from the setting.
 - **Fonts:** Roboto and Material Icons, which ship with Flutter; nothing extra is bundled, and nothing is fetched at runtime.
 - **Large numbers** (timer, hours) use tabular figures.
+- **Shift colours** (`app/shift_colors.dart`, a `ThemeExtension`, read with `context.shiftColors`): four soft colours on top of the scheme, each with one meaning everywhere.
+  - "Recorded" (sage), "not recorded" (honey), "lunch" (apricot) and "evening" (periwinkle). Each is the primary (and container) of `ColorScheme.fromSeed` with its own seed, so its tone matches the theme in light and dark mode.
+  - Each role has fallback seeds. The first that is at least 30° from the theme's primary colour (and 15° from the roles picked before it) on the OKLCH hue wheel wins, so a role never looks like the theme colour. This runs for every scheme, also the wallpaper-based "System color". With the presets: "Terracotta" gets a rose lunch, "Blue" a plum evening, "Green" a teal "recorded", "Violet" a steel-blue evening.
+  - Planned shifts stay grey (the outline colour); a running shift keeps the theme colour.
+  - **Today border:** the primary colour, except AKAI red in dark mode, where it is the real red `#C62828` instead of the pale-pink primary (developer's choice, as in light mode). Used on the Home week strip, the Plan day cards and the team planner's day cards.
 
 ## 9. Localization
 
@@ -863,4 +869,5 @@ Possible later extensions:
 - **What's new** (2026-11-06, §12): a popup after an update with the changes since the last version that ran, and the same popup from Settings › App update. Later the same day it also got the earlier versions, collapsed, in both places (the developer's request).
 - **No "gross"** (2026-11-06, §4.8): the Pay tab and the wage sheet no longer call the wage or the pay gross.
 - **Settings categories** (2026-11-06, §7): the one long Settings page became an overview with seven categories, each on its own page, because the page needed a lot of scrolling. The developer picked seven categories over five, and to show the reliability checks in two places but nothing else.
+- **Shift colours** (2026-11-06, §6 and §8): the week strip only told recorded (theme colour) from not recorded (grey), so missed and planned shifts looked the same. Status, lunch and evening now have their own soft colours, chosen with the developer on an artboard of options. A red "not recorded" was rejected, because the error red is almost the AKAI red; honey was taken instead. The pay amount on the Home tab lost its theme colour. New themes on calmer surfaces were shown too; the developer kept the existing themes, because a new theme would put the AKAI red on the next-shift card even for someone who did not pick it.
 - **Features page** (2026-11-06, §7): a Settings category "Features" with a switch per optional feature. The "Team planner" switch moved there from its own page, which now shows on the overview only while the feature is on. The "Daily pool" (§4.7) became optional, because few people at the restaurant track it: off on a fresh install, on for installs from 1.5.0 and earlier. The developer chose a new category over adding the switches to "General", and only these two switches for now.
