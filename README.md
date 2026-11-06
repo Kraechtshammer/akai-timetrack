@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="branding/icons/cloche.svg" width="96" alt="TimeTrack app icon">
+  <img src="branding/icons/cloche-icon.svg" width="96" alt="TimeTrack app icon">
 </p>
 
 <h1 align="center">TimeTrack</h1>

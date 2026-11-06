@@ -132,6 +132,7 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 | File | What |
 |---|---|
 | `cloche.svg`, `cloche-round.svg` | **Default icon.** A cream serving dome on the sign's dark-red panel inside the red frame. The clock hands are a spoon (long) and a fork (short), cut out of the dome. `cloche` is for squircle masks (Xiaomi), `cloche-round` for round masks (Pixel). |
+| `cloche-icon.svg` | The default icon as a squircle launcher shows it: the visible 72 × 72 clipped to the mask. For the README; the canvases above would show the red frame as a full square. |
 | `cloche-mono.svg` | Monochrome layer of the cloche for themed icons. |
 | `penguin-navy.svg`, `penguin-navy-round.svg` | **Secret icon "Penguin, dark blue".** A baby penguin with a round belly lifts the dome with one flipper. Navy body with a dark outline. Was "option 1" in the design round. |
 | `penguin-black.svg`, `penguin-black-round.svg` | **Secret icon "Penguin, black".** The same penguin, the whole body in the dark colour without the extra edge, so slightly slimmer. Was "option 2". |
@@ -179,6 +180,7 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - Only the reliability checks are in two places: the warning on the overview while something is missing, and all of them with their status on Reminders › "Permissions".
 - **Code:** `ui/settings/settings_screen.dart` has the overview and the shared tiles (`SettingsSection`, `SettingsTile`, `DefaultTimesTiles`); `ui/settings/settings_pages.dart` has `SettingsCategory` and the pages. "Appearance & language" is now "Appearance"; "Language" moved to General with "Restaurant".
 - **Restaurant can stay empty:** it always could (storage, setup, export, calendar, picture and icons all handle it). The hint now starts with "Optional.", and the Settings dialog has a clear button.
+- **README:** shows `branding/icons/cloche-icon.svg`, the icon clipped to the squircle (the full canvas showed the red as a square).
 
 **Checked:** `flutter analyze` clean, 133 tests pass. The developer checked the debug build on the emulator: the overview and its summaries, the Permissions list, clearing the restaurant. Not checked on a phone.
 

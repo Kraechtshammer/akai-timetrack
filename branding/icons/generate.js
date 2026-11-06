@@ -45,6 +45,9 @@ const clocheMask = `<mask id="m"><g transform="translate(54 53.5) scale(0.9) tra
 for (const round of [false, true]) {
   out(`cloche${round ? '-round' : ''}.svg`, svg(clocheMask, frame(round) + `<rect width="108" height="108" fill="${CREAM}" mask="url(#m)"/>`));
 }
+// The default icon as a squircle launcher shows it (visible 72 area, clipped to the mask),
+// for the README. The layers above are full 108 canvases, so their red would fill a square.
+out('cloche-icon.svg', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 18 72 72">\n<defs>${GRAD}${clocheMask}<clipPath id="shape"><path d="${squircle(0)}"/></clipPath></defs>\n<g clip-path="url(#shape)">${frame(false)}<rect width="108" height="108" fill="${CREAM}" mask="url(#m)"/></g>\n</svg>\n`);
 // Monochrome layer for themed icons (Android only uses its alpha).
 out('cloche-mono.svg', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">\n<defs>${clocheMask}</defs>\n<rect width="108" height="108" fill="${MONO}" mask="url(#m)"/>\n</svg>\n`);
 
