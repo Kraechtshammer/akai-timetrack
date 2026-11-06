@@ -261,10 +261,17 @@ class _ShiftRow extends ConsumerWidget {
                 ),
               ),
             ),
+            // Long status texts ("not recorded") left too little room, and
+            // the times wrapped onto two lines; shrink them a little instead.
             Expanded(
-              child: Text(
-                '${hhmm(shift.shownStart)} – ${hhmm(shift.shownEnd)}',
-                style: const TextStyle(fontFeatures: tabularFigures),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '${hhmm(shift.shownStart)} – ${hhmm(shift.shownEnd)}',
+                  style: const TextStyle(fontFeatures: tabularFigures),
+                  maxLines: 1,
+                ),
               ),
             ),
             Text(
