@@ -4,7 +4,7 @@ State as of 2026-11-06; the version is now 1.6.1. Read this together with [01-re
 
 ## Where things stand
 
-The v1 app is implemented and runs on the emulator (Android 16.0 / SDK 36.0, virtual Pixel 7 Pro, dark mode). Checked by hand there:
+The app was handed over (milestone M6) and has been in daily use on the user's Xiaomi since 2026-11-04; the developer checks new features on the Pixel 7 Pro. The v1 app was first checked on the emulator (Android 16.0 / SDK 36.0, virtual Pixel 7 Pro, dark mode). Checked by hand there:
 
 - **Onboarding:** language, notification and exact-alarm permissions, calendar choice, event colour, default times.
 - **Home tab:**
@@ -156,7 +156,7 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - The generated drawables were drawn with a throwaway Flutter test (not kept) that read the XML: all 9 cloche and penguin icons under a circle and a squircle mask, plus the monochrome layers. They match `preview.png`.
 - `flutter analyze` is clean, and 125 tests pass. The debug and release APKs build.
 - The debug build was installed over 1.3.1 with the round sign on the emulator: exactly one launcher entry, the round cloche. The developer then checked it on the emulator and found it working: designs, shapes and the penguin unlock.
-- Not checked yet: a phone, themed icons, the release APK on a device (see open point 0).
+- Later checked by the developer on the Pixel and the user's Xiaomi: themed icons, the squircle mask, the release APK.
 
 ## Done in the ninth session (2026-11-06): "What's new" and the restaurant name
 
@@ -217,32 +217,22 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 
 ## Open points (in rough priority)
 
-0. **Check the new icons on phones** (eighth session; the emulator is done):
-   - **Pixel:** themed icons (monochrome layers), the Round cloche.
-   - **Xiaomi:** the real squircle mask may differ a little from n = 4, so look at the frame width and the penguin overlap there.
-   - **Release build:** start it and switch an icon once (the aliases and mipmaps are referenced from the manifest, so `keep.xml` should not need anything).
+Done and removed on 2026-11-06, as the developer confirmed: the new icons and the release build checked on the Pixel and the Xiaomi; the Live Update and icon checks on the Pixel 7 Pro; the handover (M6) with the release key backed up, the GitHub secrets set, the old test install removed, and the app in daily use on the user's Xiaomi since 2026-11-04.
 
 0. **Pay tab, English:** the weekday in the "Daily pool" list wraps (see the seventh session). Widen or drop the fixed 28 px width.
 
-0. **Team planner in real use:** look at the shared picture in WhatsApp (Standard quality shrinks it to about 1600 px); set the real staff counts; maybe later: drag and drop, "Same as last week", kitchen staff (`01-research.md` §10).
+0. **Team planner in real use:** the developer is asking how the shared picture looks in WhatsApp (Standard quality shrinks it to about 1600 px; expected to be fine). Set the real staff counts. Maybe later: drag and drop, "Same as last week", kitchen staff (`01-research.md` §10).
 
-1. **In-app update on real phones:** 1.1.0 is the first version with the updater, so it is installed by hand; the first real in-app update is 1.2.0 (tips). Until then the path with the release key and GitHub is only checked with debug builds and the fake server on the emulator. On the Xiaomi: some MIUI versions had trouble with session installs from third-party apps; if it fails there, fall back to the system installer intent (FileProvider + ACTION_VIEW).
+1. **In-app update on the Xiaomi:** the path with the release key and GitHub is checked with debug builds and the fake server on the emulator, but no confirmed in-app update on the user's phone yet. Some MIUI versions had trouble with session installs from third-party apps; if it fails there, fall back to the system installer intent (FileProvider + ACTION_VIEW).
 
-2. **Check on the Pixel 7 Pro:** Live Update promotion, launcher icon shape, release APK.
-3. **Not tested yet:**
+2. **Not tested yet** (may already be covered by real use; confirm with the developer):
    - notification buttons "Start recording" and "End 23:00" with the app killed. "Stop" works with the app killed: checked on the emulator, where Android starts the process for the button, the shift is recorded and the event updated;
    - the "Still at work?" overrun question;
    - "Later" snooze;
    - Settings: event title change and language switch (both should update all events);
-   - light mode with the new AKAI red, the System color;
+   - the System color theme;
    - reboot (rescheduling; the progress alarm is not restored after a reboot until the app re-posts the notification on start);
    - the progress tick firing with the app killed (it fired on its own while the app was in the background: progress 24 → 59, next alarm set).
-4. **Before handover (M6):**
-   - Done: release signing key created, final package name `de.gartenpa.timetrack`, app name "TimeTrack" kept (see `02-design.md` §12).
-   - Still to do by the developer: back up `android/timetrack-release.jks` and its password, and set the three GitHub secrets (`03-dev-setup.md` section 9).
-   - Pending: the first tagged release `v1.0.0`.
-   - Open: test on the user's Xiaomi (checklist in `02-design.md` §11).
-   - The package changed, so the old test install (`de.garten.akaitimetrack`) must be uninstalled; the new one starts with empty data.
 
 ## Code map
 

@@ -736,7 +736,7 @@ akai_timetrack/
   - tips (F10): money parsing and formatting DE/EN, the Thursday month rule, workdays of a week, the Home prompt rule, repository save/clear
   - migration from schema 1 to 2 against the committed snapshot
 - **Widget tests:** Plan toggles, edit sheet validation, export preview.
-- **Test devices:** development and testing happen on a **Google Pixel 7 Pro** (latest Android) plus the emulator. The user's Xiaomi isn't available before handover, because the app is a surprise. The Xiaomi-specific behaviour (Autostart, battery saver) is therefore built from documentation, and the checklist below runs on the user's phone during the field test (M6). The emulator can at least check minSdk 29 (an Android 10 image).
+- **Test devices:** development and testing happen on a **Google Pixel 7 Pro** (latest Android) plus the emulator. The user's Xiaomi wasn't available before the handover, because the app was a surprise; it has run there since 2026-11-04. The Xiaomi-specific behaviour (Autostart, battery saver) is therefore built from documentation, and the checklist below runs on the user's phone during the field test (M6). The emulator can at least check minSdk 29 (an Android 10 image).
 - **Manual checklist (Pixel first, then again on the user's Xiaomi):**
   - reminder after a reboot
   - reminder with the app swiped away
@@ -839,7 +839,6 @@ Possible later extensions:
 
 ## 15. Open points (small, can be decided while building)
 
-- App name "TimeTrack" and package name `de.gartenpa.timetrack` are final (see §12).
 - Exact text of the event description in English.
 - Whether "Later" on the pre-shift reminder needs a configurable delay (currently a fixed 10 min).
 
