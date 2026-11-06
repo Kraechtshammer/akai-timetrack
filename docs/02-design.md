@@ -131,6 +131,7 @@ Settings live in the database so the notification background isolate can read th
 | `themeMode` | `system` / `light` / `dark` |
 | `locale` | `system` / `de` / `en` |
 | `onboardingDone` | false |
+| `tipPool` | false on a fresh install. Installs from 1.5.0 and earlier, which have no stored value but finished the setup, read true. Shows the "Daily pool" (§4.7, §7). |
 | `restaurant` | `''` (not set). Installs from 1.4.1 and earlier, which have no stored value but finished the setup, read `AKAI`. See §4.10. |
 | `tipPromptDismissedDay` | null; the `yyyy-MM-dd` day whose "Add the tips" prompt on the Home tab the user closed (§4.7). Device status like `lastCalendarSync`: `SettingsRepository.watch()` leaves it out, so closing the prompt doesn't rebuild the app. |
 
@@ -220,7 +221,7 @@ The team planner (§4.9) has its own tables and no link to `shifts`, calendar sy
 
 | Key | Default | Meaning |
 |---|---|---|
-| `teamPlanner` | false | shows the fifth tab |
+| `teamPlanner` | false | shows the fifth tab and the "Team planner" page in Settings |
 | `teamStaffNeeded` | `2,3;2,3;2,3;2,3;2,3;2,3;0,0` | staff needed per weekday (Monday first), lunch then evening. 0 = closed |
 | `teamStarts` | `12:00,17:30` | the normal start of lunch and evening, shown on the board and in the image |
 
@@ -341,7 +342,10 @@ Pure function `desiredNotifications(shifts, settings, now) → Set<ScheduledNoti
 
 **Month figure ("Tips" on the Home and Pay tabs):** the sum of the payouts of the weeks that count for the month. Pool totals are not added in, because they are everyone's tips.
 
+**Daily pool is optional** (2026-11-06): Settings › Features › "Daily pool" (`tipPool`). While it is off, the Pay tab has no "Daily pool" list and the Home tab no "Add the tips" prompt. Stored pool totals are kept. "Paid out" and the "Tips" figures don't use the pool, so they stay.
+
 **Prompt on the Home tab ("Add the tips"):** shown for the newest day D that meets all of these:
+- the "Daily pool" feature is on;
 - D is today or yesterday (so the user can still enter it the next morning, and an evening shift ending after midnight still counts for D);
 - D has at least one recorded shift, and none of D's shifts is running or still planned for later;
 - D has no pool total;
@@ -586,7 +590,7 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
   - **"Total · with tips":** "Earned" and "Expected" side by side, in the style of the hours on the Home tab; one of them for past and future months, by the same rule as the pay. Hidden without a rate.
 - **Week switcher:** the same as on Plan (arrows, swipe, "today" button).
 - **"Paid out" card:** the week's payout, or an "Add" button if there is none. Tap opens the money sheet.
-- **"Daily pool" list:** one row per workday (§4.7): weekday and date, the shift types worked (sun/moon icons as on the Home tab), and the pool total or "–". Tap opens the money sheet for that day. Below the list: "Total" with the sum of the week's pool totals.
+- **"Daily pool" list** (only while Settings › Features › "Daily pool" is on): one row per workday (§4.7): weekday and date, the shift types worked (sun/moon icons as on the Home tab), and the pool total or "–". Tap opens the money sheet for that day. Below the list: "Total" with the sum of the week's pool totals.
 - **A week without workdays:** "No shifts this week." The payout can still be entered.
 - **Money sheet** (bottom sheet, the same for day and week):
   - title "Daily pool · Mon, Nov 2" or "Paid out · week 45";
@@ -607,7 +611,7 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
 
 ### Team (F11)
 
-The fifth tab, last in the bar, shown only while Settings › Team planner is on. Turning the switch off hides the tab and keeps the data. The label is provisional: "Team" in English, "Dienstplan" in German, icon `groups`. The developer decides on the name once the screen is built. Last in the bar, so the other tabs keep their places when it is switched on or off. Rules: §4.9.
+The fifth tab, last in the bar, shown only while Settings › Features › "Team planner" is on. Turning the switch off hides the tab and keeps the data. The label is provisional: "Team" in English, "Dienstplan" in German, icon `groups`. The developer decides on the name once the screen is built. Last in the bar, so the other tabs keep their places when it is switched on or off. Rules: §4.9.
 
 **Board** (`ui/roster/team_screen.dart`). It opens on **next week** on each visit to the tab, like Pay opens on the current week.
 - **Header:** `PageHeader` and the `WeekSwitcher` (arrows, swipe, a button back to next week). A menu (⋮) has "People" and, if a person is marked "This is me" and has shifts this week, "Add my shifts to Plan".
@@ -656,7 +660,8 @@ An overview with one row per category (icon, title, a short summary, a chevron).
 | Shifts | "Default times, rounding" | "Default shift times" (Lunch, Lunch before evening, Evening); "Recording & export" ("Rounding") |
 | Reminders | the lead time, "15 minutes before" | "Before a shift starts", "Ask if not stopped"; "Permissions" with every reliability check and its status |
 | Calendar | the calendar's name or "No calendar" | calendar, "Event title", **"Event color"**, "Sync now" |
-| Team planner | "Off", or "On · 7 people" | the switch "Team planner" (subtitle "Plan the team's shifts and share the plan as a picture"). While it is on, also "Staff needed" (a sheet with − / + per weekday for Lunch and Evening; 0 shows "Closed"), "Start times" (`teamStarts`) and "People" |
+| Features | the features turned on, "Daily pool · Team planner", or "None turned on" | one switch per optional feature: "Daily pool" (`tipPool`, subtitle "Note everyone's tips for each workday. The app asks after the shift.") and "Team planner" (`teamPlanner`, subtitle "Plan the team's shifts and share the plan as a picture"). Turning one off hides it and keeps its data |
+| Team planner | the number of people, "7 people" | only on the overview while the feature is on. "Staff needed" (a sheet with − / + per weekday for Lunch and Evening; 0 shows "Closed"), "Start times" (`teamStarts`) and "People" |
 | Appearance | colour and dark mode, "Red · Dark" | "Color", "Dark mode", "App icon" (only when more than one design is offered), "Icon shape", "Week overview" |
 | General | restaurant and language, "Not set · Same as the phone" | "Restaurant" (optional; the dialog has a clear button), "Language" |
 | App update | "Version 1.4.1", or "Update to version 1.5.0" with a dot | "Check for updates", "What's new", the found update, "Restart update", "Delete update file" (§12) |
@@ -857,3 +862,4 @@ Possible later extensions:
 - **What's new** (2026-11-06, §12): a popup after an update with the changes since the last version that ran, and the same popup from Settings › App update.
 - **No "gross"** (2026-11-06, §4.8): the Pay tab and the wage sheet no longer call the wage or the pay gross.
 - **Settings categories** (2026-11-06, §7): the one long Settings page became an overview with seven categories, each on its own page, because the page needed a lot of scrolling. The developer picked seven categories over five, and to show the reliability checks in two places but nothing else.
+- **Features page** (2026-11-06, §7): a Settings category "Features" with a switch per optional feature. The "Team planner" switch moved there from its own page, which now shows on the overview only while the feature is on. The "Daily pool" (§4.7) became optional, because few people at the restaurant track it: off on a fresh install, on for installs from 1.5.0 and earlier. The developer chose a new category over adding the switches to "General", and only these two switches for now.

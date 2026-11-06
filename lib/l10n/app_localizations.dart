@@ -1874,6 +1874,24 @@ abstract class AppLocalizations {
   /// **'Allgemein'**
   String get sectionGeneral;
 
+  /// No description provided for @sectionFeatures.
+  ///
+  /// In de, this message translates to:
+  /// **'Funktionen'**
+  String get sectionFeatures;
+
+  /// No description provided for @featuresNone.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine eingeschaltet'**
+  String get featuresNone;
+
+  /// No description provided for @tipPoolSwitchSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Trinkgeld aller an jedem Arbeitstag notieren. Nach der Schicht fragt die App danach.'**
+  String get tipPoolSwitchSubtitle;
+
   /// No description provided for @sectionPermissions.
   ///
   /// In de, this message translates to:
@@ -1892,17 +1910,11 @@ abstract class AppLocalizations {
   /// **'Standardzeiten, Rundung'**
   String get settingsShiftsSummary;
 
-  /// No description provided for @settingsTeamOff.
+  /// No description provided for @settingsTeamPeople.
   ///
   /// In de, this message translates to:
-  /// **'Aus'**
-  String get settingsTeamOff;
-
-  /// No description provided for @settingsTeamOn.
-  ///
-  /// In de, this message translates to:
-  /// **'{count, plural, =0{An · noch niemand angelegt} =1{An · 1 Person} other{An · {count} Personen}}'**
-  String settingsTeamOn(int count);
+  /// **'{count, plural, =0{Noch niemand angelegt} =1{1 Person} other{{count} Personen}}'**
+  String settingsTeamPeople(int count);
 
   /// No description provided for @settingsUpdateSummary.
   ///

@@ -52,7 +52,7 @@ The screenshots show the English UI in dark mode with demo data.
 
 - The "Hourly wage" has a start date, so a raise doesn't change past months.
 - The Pay tab shows the expected pay for the month and the amount earned so far: the hours times the hourly wage.
-- Tips are recorded two ways: the "Daily pool" (everyone's tips combined that day) and "Paid out" (the cash the user got for the week). Both are only for the user's records.
+- Tips are recorded two ways: "Paid out" (the cash the user got for the week) and, if turned on in Settings › Features, the "Daily pool" (everyone's tips combined that day). Both are only for the user's records.
 
 <p align="center">
   <img src="docs/screenshots/pay-month.png" width="380" alt="Pay tab: expected pay, tips and total for the month">
@@ -66,7 +66,7 @@ The screenshots show the English UI in dark mode with demo data.
 
 ### Team planner (optional)
 
-Off by default; turn it on in Settings › "Team planner". It is for weeks when the user plans the shifts of the whole service team.
+Off by default; turn it on in Settings › Features › "Team planner". It is for weeks when the user plans the shifts of the whole service team.
 
 1. Add the people. Mark experienced staff as "Core worker".
 2. Enter each person's answer for the week: "Can work" or "Can't work", per day or per shift, or "Away this week".

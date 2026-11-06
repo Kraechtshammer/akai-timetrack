@@ -57,9 +57,13 @@ class TodayScreen extends ConsumerWidget {
     final recentShifts = ref.watch(shiftsProvider(recent)).value;
     final recentTips = ref.watch(tipDaysProvider(recent)).value;
     final dismissed = ref.watch(tipPromptDismissedProvider);
-    // Only once everything is loaded, so the card doesn't flash up.
+    // Only with the daily pool on, and once everything is loaded, so the
+    // card doesn't flash up.
     final tipDay =
-        recentShifts == null || recentTips == null || dismissed.isLoading
+        !ref.settings.tipPool ||
+            recentShifts == null ||
+            recentTips == null ||
+            dismissed.isLoading
         ? null
         : tipPromptDay(
             now: now,

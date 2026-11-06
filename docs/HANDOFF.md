@@ -186,6 +186,14 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 
 **Checked:** `flutter analyze` clean, 133 tests pass. The developer checked the debug build on the emulator: the overview and its summaries, the Permissions list, clearing the restaurant. Not checked on a phone.
 
+## Done in the eleventh session (2026-11-06): optional features
+
+- **Settings › Features** (`02-design.md` §7): a new category between Calendar and Team planner, with a switch per optional feature. Turning one off hides it and keeps its data.
+  - **"Daily pool"** (`tipPool`, §4.7): hides the pool list on the Pay tab and the "Add the tips" prompt on the Home tab. "Paid out" and the "Tips" figures stay. Off on a fresh install; installs from 1.5.0 and earlier read it as on, because they have no stored value but finished the setup (the same trick as `restaurant`). The setup's last step saves every key, so a fresh install stores `false` before `onboardingDone` turns true.
+  - **"Team planner"**: the switch moved here. The "Team planner" row on the overview shows only while it is on, with the number of people as its summary.
+- Developer decisions: a new category rather than switches in "General"; only these two switches for now; the pool default above.
+- **Checked:** `flutter analyze` clean, 134 tests pass (new: the `tipPool` default for fresh and older installs). The developer checked the debug build on the emulator, installed over 1.5.0 data: the pool read as on, both switches hide and bring back their parts, the data stays. Not checked on a phone.
+
 ## Open points (in rough priority)
 
 0. **Check the new icons on phones** (eighth session; the emulator is done):

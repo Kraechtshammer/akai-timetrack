@@ -40,6 +40,30 @@ void main() {
       );
     });
 
+    test('daily pool: off on a fresh install, on for older installs, '
+        'stored once saved', () {
+      Map<String, String> stored(AppSettings s) => {
+        for (final MapEntry(:key, :value) in s.toMap().entries) key: ?value,
+      };
+      expect(AppSettings.fromMap(const {}).tipPool, isFalse);
+      expect(
+        AppSettings.fromMap(const {'onboardingDone': 'true'}).tipPool,
+        isTrue,
+      );
+      // The setup's last step saves every key, so a fresh install keeps
+      // the pool off after onboardingDone turns true.
+      final afterSetup = stored(
+        AppSettings.fromMap(const {}).copyWith(onboardingDone: true),
+      );
+      expect(AppSettings.fromMap(afterSetup).tipPool, isFalse);
+      // Turned off on an older install: stays off.
+      final off = stored(
+        AppSettings.fromMap(const {'onboardingDone': 'true'})
+            .copyWith(tipPool: false),
+      );
+      expect(AppSettings.fromMap(off).tipPool, isFalse);
+    });
+
     test('defaults: AKAI red and icons', () {
       final read = AppSettings.fromMap(const {});
       expect(read.themeSeed, ThemeSeed.akaiRed);

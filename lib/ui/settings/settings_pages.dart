@@ -26,6 +26,7 @@ enum SettingsCategory {
   shifts,
   reminders,
   calendar,
+  features,
   team,
   appearance,
   general,
@@ -39,6 +40,7 @@ String settingsCategoryTitle(
   SettingsCategory.shifts => l10n.sectionShifts,
   SettingsCategory.reminders => l10n.sectionReminders,
   SettingsCategory.calendar => l10n.sectionCalendar,
+  SettingsCategory.features => l10n.sectionFeatures,
   SettingsCategory.team => l10n.sectionTeam,
   SettingsCategory.appearance => l10n.sectionAppearance,
   SettingsCategory.general => l10n.sectionGeneral,
@@ -49,6 +51,7 @@ IconData settingsCategoryIcon(SettingsCategory category) => switch (category) {
   SettingsCategory.shifts => Icons.schedule,
   SettingsCategory.reminders => Icons.notifications_outlined,
   SettingsCategory.calendar => Icons.event,
+  SettingsCategory.features => Icons.toggle_on_outlined,
   SettingsCategory.team => Icons.groups,
   SettingsCategory.appearance => Icons.palette_outlined,
   SettingsCategory.general => Icons.tune,
@@ -71,6 +74,7 @@ class SettingsCategoryScreen extends StatelessWidget {
           SettingsCategory.shifts => const _ShiftsPage(),
           SettingsCategory.reminders => const _RemindersPage(),
           SettingsCategory.calendar => const _CalendarPage(),
+          SettingsCategory.features => const _FeaturesPage(),
           SettingsCategory.team => const SettingsSection(null, [
             TeamSettingsSection(),
           ]),
@@ -447,6 +451,34 @@ class _AppearancePage extends ConsumerWidget {
             await _update(ref, (s) => s.copyWith(weekMarks: style));
           }
         },
+      ),
+    ]);
+  }
+}
+
+/// Switches for the parts of the app not everyone uses. Turning one off
+/// only hides it; its data stays.
+class _FeaturesPage extends ConsumerWidget {
+  const _FeaturesPage();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final s = ref.settings;
+    return SettingsSection(null, [
+      SwitchListTile(
+        secondary: const SettingsTileIcon(Icons.savings_outlined),
+        title: Text(l10n.tipPool),
+        subtitle: Text(l10n.tipPoolSwitchSubtitle),
+        value: s.tipPool,
+        onChanged: (on) => _update(ref, (s) => s.copyWith(tipPool: on)),
+      ),
+      SwitchListTile(
+        secondary: const SettingsTileIcon(Icons.groups),
+        title: Text(l10n.teamPlannerSwitch),
+        subtitle: Text(l10n.teamPlannerSubtitle),
+        value: s.teamPlanner,
+        onChanged: (on) => _update(ref, (s) => s.copyWith(teamPlanner: on)),
       ),
     ]);
   }

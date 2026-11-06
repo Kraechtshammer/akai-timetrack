@@ -1,4 +1,5 @@
-// The "Team planner" section of the Settings screen (F11).
+// The "Team planner" page of Settings (F11), shown while the feature is
+// on (Settings › Features).
 // See docs/02-design.md §7, "Settings".
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -25,50 +26,40 @@ class TeamSettingsSection extends ConsumerWidget {
 
     return Column(
       children: [
-        SwitchListTile(
-          secondary: const SettingsTileIcon(Icons.groups),
-          title: Text(l10n.teamPlannerSwitch),
-          subtitle: Text(l10n.teamPlannerSubtitle),
-          value: s.teamPlanner,
-          onChanged: (on) =>
-              ref.services.settings.update((s) => s.copyWith(teamPlanner: on)),
+        SettingsTile(
+          icon: Icons.tune,
+          title: l10n.teamStaffNeeded,
+          value: l10n.teamDayNeeded(
+            '${s.teamStaffNeeded.needed(DateTime.monday, TeamShift.lunch)}',
+            '${s.teamStaffNeeded.needed(DateTime.monday, TeamShift.evening)}',
+          ),
+          onTap: () => showModalBottomSheet<void>(
+            context: context,
+            showDragHandle: true,
+            isScrollControlled: true,
+            builder: (_) => const _StaffNeededSheet(),
+          ),
         ),
-        if (s.teamPlanner) ...[
-          SettingsTile(
-            icon: Icons.tune,
-            title: l10n.teamStaffNeeded,
-            value: l10n.teamDayNeeded(
-              '${s.teamStaffNeeded.needed(DateTime.monday, TeamShift.lunch)}',
-              '${s.teamStaffNeeded.needed(DateTime.monday, TeamShift.evening)}',
-            ),
-            onTap: () => showModalBottomSheet<void>(
-              context: context,
-              showDragHandle: true,
-              isScrollControlled: true,
-              builder: (_) => const _StaffNeededSheet(),
-            ),
+        SettingsTile(
+          icon: Icons.schedule,
+          title: l10n.teamStartTimes,
+          value:
+              '${minutesToHhmm(s.teamStarts.lunch)} · '
+              '${minutesToHhmm(s.teamStarts.evening)}',
+          onTap: () => showModalBottomSheet<void>(
+            context: context,
+            showDragHandle: true,
+            builder: (_) => const _StartTimesSheet(),
           ),
-          SettingsTile(
-            icon: Icons.schedule,
-            title: l10n.teamStartTimes,
-            value:
-                '${minutesToHhmm(s.teamStarts.lunch)} · '
-                '${minutesToHhmm(s.teamStarts.evening)}',
-            onTap: () => showModalBottomSheet<void>(
-              context: context,
-              showDragHandle: true,
-              builder: (_) => const _StartTimesSheet(),
-            ),
-          ),
-          SettingsTile(
-            icon: Icons.people_outline,
-            title: l10n.teamPeople,
-            value: count == 0 ? l10n.teamNobodyYet : '$count',
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const PeopleScreen()),
-            ),
-          ),
-        ],
+        ),
+        SettingsTile(
+          icon: Icons.people_outline,
+          title: l10n.teamPeople,
+          value: count == 0 ? l10n.teamNobodyYet : '$count',
+          onTap: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute<void>(builder: (_) => const PeopleScreen())),
+        ),
       ],
     );
   }

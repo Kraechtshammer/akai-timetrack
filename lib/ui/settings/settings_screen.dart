@@ -40,12 +40,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       SettingsCategory.shifts => l10n.settingsShiftsSummary,
       SettingsCategory.reminders => l10n.minutesBefore(s.reminderLeadMinutes),
       SettingsCategory.calendar => s.calendarName ?? l10n.calendarNone,
-      SettingsCategory.team =>
-        s.teamPlanner
-            ? l10n.settingsTeamOn(
-                ref.watch(teamMembersProvider).value?.length ?? 0,
-              )
-            : l10n.settingsTeamOff,
+      SettingsCategory.features => switch ([
+        if (s.tipPool) l10n.tipPool,
+        if (s.teamPlanner) l10n.teamPlannerSwitch,
+      ]) {
+        [] => l10n.featuresNone,
+        final on => on.join(' · '),
+      },
+      SettingsCategory.team => l10n.settingsTeamPeople(
+        ref.watch(teamMembersProvider).value?.length ?? 0,
+      ),
       SettingsCategory.appearance =>
         '${themeSeedLabel(s.themeSeed, l10n, restaurant: s.restaurant)} · '
             '${themeModeLabel(s.themeMode, l10n)}',
@@ -105,18 +109,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           SettingsSection(null, [
             for (final category in SettingsCategory.values)
-              SettingsTile(
-                icon: settingsCategoryIcon(category),
-                title: settingsCategoryTitle(category, l10n),
-                value: _summary(category, s),
-                trailing: category == SettingsCategory.update && updateWaiting
-                    ? Badge(
-                        smallSize: 10,
-                        backgroundColor: context.colors.primary,
-                      )
-                    : const Icon(Icons.chevron_right),
-                onTap: () => _open(category),
-              ),
+              // The team planner's page only while the feature is on.
+              if (category != SettingsCategory.team || s.teamPlanner)
+                SettingsTile(
+                  icon: settingsCategoryIcon(category),
+                  title: settingsCategoryTitle(category, l10n),
+                  value: _summary(category, s),
+                  trailing: category == SettingsCategory.update && updateWaiting
+                      ? Badge(
+                          smallSize: 10,
+                          backgroundColor: context.colors.primary,
+                        )
+                      : const Icon(Icons.chevron_right),
+                  onTap: () => _open(category),
+                ),
           ]),
         ],
       ),

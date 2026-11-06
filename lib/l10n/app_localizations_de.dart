@@ -1072,6 +1072,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sectionGeneral => 'Allgemein';
 
   @override
+  String get sectionFeatures => 'Funktionen';
+
+  @override
+  String get featuresNone => 'Keine eingeschaltet';
+
+  @override
+  String get tipPoolSwitchSubtitle =>
+      'Das Trinkgeld aller an jedem Arbeitstag notieren. Nach der Schicht fragt die App danach.';
+
+  @override
   String get sectionPermissions => 'Berechtigungen';
 
   @override
@@ -1082,16 +1092,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsShiftsSummary => 'Standardzeiten, Rundung';
 
   @override
-  String get settingsTeamOff => 'Aus';
-
-  @override
-  String settingsTeamOn(int count) {
+  String settingsTeamPeople(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'An · $count Personen',
-      one: 'An · 1 Person',
-      zero: 'An · noch niemand angelegt',
+      other: '$count Personen',
+      one: '1 Person',
+      zero: 'Noch niemand angelegt',
     );
     return '$_temp0';
   }

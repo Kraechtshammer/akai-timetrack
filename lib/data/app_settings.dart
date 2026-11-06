@@ -146,6 +146,7 @@ class AppSettings {
     this.autostartConfirmed = false,
     this.appIconChosen = false,
     this.teamPlanner = false,
+    this.tipPool = false,
     this.teamStaffNeeded = StaffNeeds.standard,
     this.teamStarts = const TeamStarts(12 * 60, 17 * 60 + 30),
     this.restaurant = '',
@@ -185,6 +186,11 @@ class AppSettings {
 
   /// Team planner (F11): shows the fifth tab.
   final bool teamPlanner;
+
+  /// "Daily pool": the pool card on the Pay tab and the "Add the tips"
+  /// prompt on Home. Off on a fresh install, on for installs from 1.5.0
+  /// and earlier (see fromMap).
+  final bool tipPool;
 
   /// Team planner: staff needed per weekday and shift by default.
   final StaffNeeds teamStaffNeeded;
@@ -226,6 +232,9 @@ class AppSettings {
       autostartConfirmed: m['autostartConfirmed'] == 'true',
       appIconChosen: m['appIconChosen'] == 'true',
       teamPlanner: m['teamPlanner'] == 'true',
+      // Installs from before the switch (1.5.0 and earlier) had the pool;
+      // a fresh install starts without it.
+      tipPool: (m['tipPool'] ?? m['onboardingDone']) == 'true',
       teamStaffNeeded:
           StaffNeeds.parse(m['teamStaffNeeded']) ?? d.teamStaffNeeded,
       teamStarts: TeamStarts.parse(m['teamStarts']) ?? d.teamStarts,
@@ -258,6 +267,7 @@ class AppSettings {
     'autostartConfirmed': '$autostartConfirmed',
     'appIconChosen': '$appIconChosen',
     'teamPlanner': '$teamPlanner',
+    'tipPool': '$tipPool',
     'teamStaffNeeded': '$teamStaffNeeded',
     'teamStarts': '$teamStarts',
     'restaurant': restaurant,
@@ -285,6 +295,7 @@ class AppSettings {
     bool? autostartConfirmed,
     bool? appIconChosen,
     bool? teamPlanner,
+    bool? tipPool,
     StaffNeeds? teamStaffNeeded,
     TeamStarts? teamStarts,
     String? restaurant,
@@ -308,6 +319,7 @@ class AppSettings {
     autostartConfirmed: autostartConfirmed ?? this.autostartConfirmed,
     appIconChosen: appIconChosen ?? this.appIconChosen,
     teamPlanner: teamPlanner ?? this.teamPlanner,
+    tipPool: tipPool ?? this.tipPool,
     teamStaffNeeded: teamStaffNeeded ?? this.teamStaffNeeded,
     teamStarts: teamStarts ?? this.teamStarts,
     restaurant: restaurant ?? this.restaurant,

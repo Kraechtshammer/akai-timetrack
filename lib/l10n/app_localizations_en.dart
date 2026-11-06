@@ -1070,6 +1070,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sectionGeneral => 'General';
 
   @override
+  String get sectionFeatures => 'Features';
+
+  @override
+  String get featuresNone => 'None turned on';
+
+  @override
+  String get tipPoolSwitchSubtitle =>
+      'Note everyone\'s tips for each workday. The app asks after the shift.';
+
+  @override
   String get sectionPermissions => 'Permissions';
 
   @override
@@ -1080,16 +1090,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsShiftsSummary => 'Default times, rounding';
 
   @override
-  String get settingsTeamOff => 'Off';
-
-  @override
-  String settingsTeamOn(int count) {
+  String settingsTeamPeople(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'On · $count people',
-      one: 'On · 1 person',
-      zero: 'On · no one added yet',
+      other: '$count people',
+      one: '1 person',
+      zero: 'No one added yet',
     );
     return '$_temp0';
   }

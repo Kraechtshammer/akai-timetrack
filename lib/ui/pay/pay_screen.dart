@@ -78,7 +78,8 @@ class _PayScreenState extends ConsumerState<PayScreen> {
                 onNext: () => setState(() => _week = addDays(week, 7)),
               ),
               _PayoutCard(week: week, payout: payout),
-              _PoolCard(workdays: workdays, shifts: shifts, tipDays: tipDays),
+              if (ref.settings.tipPool)
+                _PoolCard(workdays: workdays, shifts: shifts, tipDays: tipDays),
             ],
           ),
         ),
