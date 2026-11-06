@@ -657,7 +657,7 @@ An overview with one row per category (icon, title, a short summary, a chevron).
 | Reminders | the lead time, "15 minutes before" | "Before a shift starts", "Ask if not stopped"; "Permissions" with every reliability check and its status |
 | Calendar | the calendar's name or "No calendar" | calendar, "Event title", **"Event color"**, "Sync now" |
 | Team planner | "Off", or "On · 7 people" | the switch "Team planner" (subtitle "Plan the team's shifts and share the plan as a picture"). While it is on, also "Staff needed" (a sheet with − / + per weekday for Lunch and Evening; 0 shows "Closed"), "Start times" (`teamStarts`) and "People" |
-| Appearance | colour and dark mode, "Red · Dark" | "Color", "Dark mode", "App icon", "Icon shape", "Week overview" |
+| Appearance | colour and dark mode, "Red · Dark" | "Color", "Dark mode", "App icon" (only when more than one design is offered), "Icon shape", "Week overview" |
 | General | restaurant and language, "Not set · Same as the phone" | "Restaurant" (optional; the dialog has a clear button), "Language" |
 | App update | "Version 1.4.1", or "Update to version 1.5.0" with a dot | "Check for updates", "What's new", the found update, "Restart update", "Delete update file" (§12) |
 
@@ -843,6 +843,7 @@ Possible later extensions:
 - **App icon:** adaptive icons in a design and a shape, chosen in Settings › Appearance › "App icon" and "Icon shape". Two settings, because the launcher decides the mask shape and apps can't find it out.
   - Designs (2026-11-06): "Cloche" (a serving dome whose clock hands are a spoon and a fork; the default), "AKAI sign" (the restaurant's sign, `branding/app-icon.svg`, the only design until 1.4.0), and two secret penguin designs, "Penguin, black" and "Penguin, dark blue". Masters in `branding/icons/`.
   - Shapes: "Round" for circular masks (the default), "Squircle" for squircle masks (the default on Xiaomi), "Small squircle" (the whole squircle icon scaled down; the launcher fills the rest).
+  - "App icon" is hidden when the cloche is the only design offered (2026-11-06); "Icon shape" always shows.
   - The penguin designs show in the "App icon" list only when the person marked "This is me" in the team planner's "People" has a certain name (`lib/domain/app_icons.dart`), or when a penguin is already the current icon. The release notes only mention "secret icons".
   - Each design and shape is an `activity-alias` (12 in all); the app enables exactly one. Switching closes the app once. The cloche took over the alias names of the sign, so installs from 1.4.0 and earlier move to the cloche in their shape without the app closing. Each design has its own monochrome layer for themed icons; the shapes share it.
 - **Package name:** changed to `de.gartenpa.timetrack` at 1.0.0 (was the provisional `de.garten.akaitimetrack`). The Kotlin namespace and `MainActivity` package stay `de.garten.akaitimetrack`.

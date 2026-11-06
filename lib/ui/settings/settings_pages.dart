@@ -325,6 +325,16 @@ class _AppearancePage extends ConsumerWidget {
     final l10n = context.l10n;
     final s = ref.settings;
     final icon = ref.watch(appIconProvider).value;
+    // Watched here, so the people list loads even with the team planner off
+    // (the secret designs depend on it).
+    final members = ref.watch(teamMembersProvider).value;
+    final designs = icon == null || members == null
+        ? null
+        : iconDesignsOffered(
+            members: members,
+            restaurant: s.restaurant,
+            current: icon.design,
+          );
     return SettingsSection(null, [
       ListTile(
         leading: const SettingsTileIcon(Icons.palette_outlined),
@@ -373,37 +383,31 @@ class _AppearancePage extends ConsumerWidget {
               _update(ref, (s) => s.copyWith(themeMode: modes.single)),
         ),
       ),
-      SettingsTile(
-        icon: Icons.apps,
-        title: l10n.appIcon,
-        value: icon == null ? '' : iconDesignLabel(icon.design, l10n),
-        onTap: () async {
-          final current = ref.read(appIconProvider).value;
-          // Awaited: nothing may be watching the people list yet (team
-          // planner off), and the secret designs depend on it.
-          final members = await ref.read(teamMembersProvider.future);
-          if (!context.mounted) return;
-          final design = await pickOption(
-            context,
-            title: l10n.appIcon,
-            options: iconDesignsOffered(
-              members: members,
-              restaurant: ref.settings.restaurant,
-              current: (current ?? AppIcon.fallback).design,
-            ),
-            selected: (current ?? AppIcon.fallback).design,
-            label: (d) => iconDesignLabel(d, l10n),
-          );
-          if (design == null || current == null || !context.mounted) return;
-          await _changeIcon(
-            context,
-            ref,
-            current,
-            current.withDesign(design),
-            iconDesignLabel(design, l10n),
-          );
-        },
-      ),
+      // Only when there is a design to choose; usually the cloche is the
+      // only one, and then only the shape can change.
+      if (icon != null && designs != null && designs.length > 1)
+        SettingsTile(
+          icon: Icons.apps,
+          title: l10n.appIcon,
+          value: iconDesignLabel(icon.design, l10n),
+          onTap: () async {
+            final design = await pickOption(
+              context,
+              title: l10n.appIcon,
+              options: designs,
+              selected: icon.design,
+              label: (d) => iconDesignLabel(d, l10n),
+            );
+            if (design == null || !context.mounted) return;
+            await _changeIcon(
+              context,
+              ref,
+              icon,
+              icon.withDesign(design),
+              iconDesignLabel(design, l10n),
+            );
+          },
+        ),
       SettingsTile(
         icon: Icons.crop_square,
         title: l10n.appIconShape,
