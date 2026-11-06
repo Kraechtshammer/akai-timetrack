@@ -1103,11 +1103,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get clearField => 'Clear';
+
+  @override
   String get restaurant => 'Restaurant';
 
   @override
   String get restaurantHint =>
-      'Shown in the calendar, the export and the shift plan picture.';
+      'Optional. Shown in the calendar, the export and the shift plan picture.';
 
   @override
   String get notSet => 'Not set';

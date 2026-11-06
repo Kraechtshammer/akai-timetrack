@@ -465,6 +465,17 @@ class _GeneralPage extends ConsumerWidget {
           decoration: InputDecoration(
             helperText: l10n.restaurantHint,
             helperMaxLines: 2,
+            // Empty is a valid answer, so make it one tap away.
+            suffixIcon: ListenableBuilder(
+              listenable: controller,
+              builder: (context, _) => controller.text.isEmpty
+                  ? const SizedBox.shrink()
+                  : IconButton(
+                      tooltip: l10n.clearField,
+                      icon: const Icon(Icons.close),
+                      onPressed: controller.clear,
+                    ),
+            ),
           ),
         ),
         actions: [

@@ -658,7 +658,7 @@ An overview with one row per category (icon, title, a short summary, a chevron).
 | Calendar | the calendar's name or "No calendar" | calendar, "Event title", **"Event color"**, "Sync now" |
 | Team planner | "Off", or "On · 7 people" | the switch "Team planner" (subtitle "Plan the team's shifts and share the plan as a picture"). While it is on, also "Staff needed" (a sheet with − / + per weekday for Lunch and Evening; 0 shows "Closed"), "Start times" (`teamStarts`) and "People" |
 | Appearance | colour and dark mode, "Red · Dark" | "Color", "Dark mode", "App icon", "Icon shape", "Week overview" |
-| General | restaurant and language, "Not set · Same as the phone" | "Restaurant", "Language" |
+| General | restaurant and language, "Not set · Same as the phone" | "Restaurant" (optional; the dialog has a clear button), "Language" |
 | App update | "Version 1.4.1", or "Update to version 1.5.0" with a dot | "Check for updates", "What's new", the found update, "Restart update", "Delete update file" (§12) |
 
 - **Reliability card:** at the top of the overview, only while something is missing: notification permission, exact alarms, battery optimisation, and Autostart on Xiaomi only (it can't be read, so it's ticked off by hand). It checks again when a category page closes.

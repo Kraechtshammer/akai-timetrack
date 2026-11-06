@@ -1916,6 +1916,12 @@ abstract class AppLocalizations {
   /// **'Version {version}'**
   String settingsUpdateSummary(String version);
 
+  /// No description provided for @clearField.
+  ///
+  /// In de, this message translates to:
+  /// **'Leeren'**
+  String get clearField;
+
   /// No description provided for @restaurant.
   ///
   /// In de, this message translates to:
@@ -1925,7 +1931,7 @@ abstract class AppLocalizations {
   /// No description provided for @restaurantHint.
   ///
   /// In de, this message translates to:
-  /// **'Steht im Kalender, im Export und auf dem Dienstplan-Bild.'**
+  /// **'Optional. Steht im Kalender, im Export und auf dem Dienstplan-Bild.'**
   String get restaurantHint;
 
   /// No description provided for @notSet.

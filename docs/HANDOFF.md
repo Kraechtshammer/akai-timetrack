@@ -178,6 +178,7 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - **Settings overview** (`02-design.md` §7): seven rows (Shifts, Reminders, Calendar, Team planner, Appearance, General, App update), each with a summary, each opening its own page. The developer chose seven over five categories.
 - Only the reliability checks are in two places: the warning on the overview while something is missing, and all of them with their status on Reminders › "Permissions".
 - **Code:** `ui/settings/settings_screen.dart` has the overview and the shared tiles (`SettingsSection`, `SettingsTile`, `DefaultTimesTiles`); `ui/settings/settings_pages.dart` has `SettingsCategory` and the pages. "Appearance & language" is now "Appearance"; "Language" moved to General with "Restaurant".
+- **Restaurant can stay empty:** it always could (storage, setup, export, calendar, picture and icons all handle it). The hint now starts with "Optional.", and the Settings dialog has a clear button.
 
 **Checked:** `flutter analyze` clean, 133 tests pass. The developer checked the debug build on the emulator: the overview and its summaries, the Permissions list, clearing the restaurant. Not checked on a phone.
 
