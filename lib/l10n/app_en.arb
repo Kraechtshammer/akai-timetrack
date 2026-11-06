@@ -309,6 +309,8 @@
   "whatsNewTileHint": "The changes in version {version}",
   "whatsNewTitle": "What's new in version {version}",
   "whatsNewFailed": "The changes can't be loaded right now. Try again later.",
+  "whatsNewEarlier": "Earlier versions",
+  "whatsNewVersion": "Version {version}",
   "sectionShifts": "Shifts",
   "sectionGeneral": "General",
   "sectionFeatures": "Features",

@@ -1862,6 +1862,18 @@ abstract class AppLocalizations {
   /// **'Die Neuerungen lassen sich gerade nicht laden. Versuch es später noch einmal.'**
   String get whatsNewFailed;
 
+  /// No description provided for @whatsNewEarlier.
+  ///
+  /// In de, this message translates to:
+  /// **'Frühere Versionen'**
+  String get whatsNewEarlier;
+
+  /// No description provided for @whatsNewVersion.
+  ///
+  /// In de, this message translates to:
+  /// **'Version {version}'**
+  String whatsNewVersion(String version);
+
   /// No description provided for @sectionShifts.
   ///
   /// In de, this message translates to:

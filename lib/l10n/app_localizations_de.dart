@@ -1066,6 +1066,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Neuerungen lassen sich gerade nicht laden. Versuch es später noch einmal.';
 
   @override
+  String get whatsNewEarlier => 'Frühere Versionen';
+
+  @override
+  String whatsNewVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
   String get sectionShifts => 'Schichten';
 
   @override

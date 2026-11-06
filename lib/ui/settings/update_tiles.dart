@@ -234,7 +234,8 @@ class _UpdateDialog extends ConsumerWidget {
 }
 
 /// "What's new": the changes of the installed version, on the first start
-/// after an update (HomeShell) and from Settings.
+/// after an update (HomeShell) and from Settings. Earlier versions follow,
+/// each collapsed.
 Future<void> showWhatsNewDialog(BuildContext context, Future<WhatsNew> notes) =>
     showDialog<void>(
       context: context,
@@ -262,7 +263,23 @@ class _WhatsNewDialog extends StatelessWidget {
           scrollable: true,
           content: switch (snapshot) {
             AsyncSnapshot(hasError: true) => Text(l10n.whatsNewFailed),
-            AsyncSnapshot(:final data?) => _Notes(data.sections),
+            AsyncSnapshot(:final data?) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _Notes(data.sections),
+                if (data.earlier.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.whatsNewEarlier,
+                    style: context.text.titleSmall?.copyWith(
+                      color: context.colors.onSurfaceVariant,
+                    ),
+                  ),
+                  for (final release in data.earlier) _EarlierVersion(release),
+                ],
+              ],
+            ),
             _ => const Center(
               child: Padding(
                 padding: EdgeInsets.all(16),
@@ -314,6 +331,63 @@ class _Notes extends StatelessWidget {
       ],
     );
   }
+}
+
+/// One earlier version in "What's new": a row that opens its notes.
+class _EarlierVersion extends StatefulWidget {
+  const _EarlierVersion(this.release);
+
+  final ReleaseNotes release;
+
+  @override
+  State<_EarlierVersion> createState() => _EarlierVersionState();
+}
+
+class _EarlierVersionState extends State<_EarlierVersion> {
+  var _open = false;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => setState(() => _open = !_open),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.l10n.whatsNewVersion('${widget.release.version}'),
+                  style: context.text.bodyLarge,
+                ),
+              ),
+              AnimatedRotation(
+                turns: _open ? 0.5 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.expand_more,
+                  color: context.colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      AnimatedSize(
+        duration: const Duration(milliseconds: 200),
+        alignment: Alignment.topCenter,
+        child: _open
+            ? Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _Notes(userNotes(widget.release.notes)),
+              )
+            : const SizedBox(width: double.infinity),
+      ),
+    ],
+  );
 }
 
 String _heading(NotesKind kind, AppLocalizations l10n) => switch (kind) {

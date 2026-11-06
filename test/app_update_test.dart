@@ -242,6 +242,27 @@ All commits: [v1.0.0...v1.0.1](https://github.com/x/y/compare/v1.0.0...v1.0.1)
       );
     });
 
+    test('earlier versions: older than the new ones, with notes for the '
+        'user, newest first, at most nine', () {
+      final earlier = earlierReleases(releases, before: v('1.5.0'));
+      expect(earlier.map((r) => '${r.version}'), ['1.4.0', '1.3.0']);
+      // A release with only "Behind the scenes" notes is left out.
+      expect(
+        earlierReleases([
+          ReleaseNotes(v('1.0.0'), '## Behind the scenes\n\n- X'),
+        ], before: v('1.5.0')),
+        isEmpty,
+      );
+      final many = [
+        for (var minor = 0; minor < 15; minor++)
+          ReleaseNotes(v('1.$minor.0'), '## New\n\n- Item $minor'),
+      ];
+      final shown = earlierReleases(many, before: v('1.14.0'));
+      expect(shown, hasLength(whatsNewEarlierVersions));
+      expect('${shown.first.version}', '1.13.0');
+      expect('${shown.last.version}', '1.5.0');
+    });
+
     test('reads the release list, skipping drafts and pre-releases', () {
       expect(
         ReleaseNotes.fromJson({'tag_name': 'v1.5.0', 'body': 'Hi'})?.notes,

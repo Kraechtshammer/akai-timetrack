@@ -219,6 +219,24 @@ List<ReleaseNotes> releasesBetween(
         .toList()
       ..sort((a, b) => b.version.compareTo(a.version));
 
+/// How many earlier versions "What's new" lists below the new changes,
+/// each collapsed.
+const whatsNewEarlierVersions = 9;
+
+/// The versions "What's new" lists collapsed below the new changes: the
+/// releases before [before] that have notes for the user, newest first, at
+/// most [whatsNewEarlierVersions].
+List<ReleaseNotes> earlierReleases(
+  Iterable<ReleaseNotes> releases, {
+  required AppVersion before,
+}) =>
+    (releases
+            .where((r) => before > r.version && userNotes(r.notes).isNotEmpty)
+            .toList()
+          ..sort((a, b) => b.version.compareTo(a.version)))
+        .take(whatsNewEarlierVersions)
+        .toList();
+
 /// The user's notes of several releases in one list: each kind once, in the
 /// order New, Fixed, Improved, other, with the items in the order of
 /// [releases] (newest first).

@@ -194,6 +194,14 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - Developer decisions: a new category rather than switches in "General"; only these two switches for now; the pool default above.
 - **Checked:** `flutter analyze` clean, 134 tests pass (new: the `tipPool` default for fresh and older installs). The developer checked the debug build on the emulator, installed over 1.5.0 data: the pool read as on, both switches hide and bring back their parts, the data stays. Not checked on a phone.
 
+## Done in the eleventh session (2026-11-06): earlier versions in "What's new"
+
+- The "What's new" popup, after an update and from Settings, lists up to 9 older versions below the new changes, under "Earlier versions". Each is a collapsed row that opens its notes (`02-design.md` §12). The developer asked for it in both places; the update-available popup stays as it was.
+- Settings › "What's new" now loads the notes from GitHub each time (the installed version open), and falls back to the stored notes offline. Before, it showed the stored notes first.
+- Code: `earlierReleases` in `domain/app_update.dart` (tested), `WhatsNew.earlier` in `app/update_controller.dart` (the `whatsNew` status key also stores them; older stored notes without them still read), `_EarlierVersion` in `ui/settings/update_tiles.dart`.
+- **Testing the popup without a release:** stop the app, copy `app_flutter/timetrack.sqlite` out with `adb exec-out run-as de.gartenpa.timetrack cat …`, set the `lastRunVersion` row to an older version with the container's `sqlite3`, and write it back with `run-as … sh -c 'cat … > app_flutter/timetrack.sqlite'` (through `/data/local/tmp`). The emulator has no root and no `sqlite3`.
+- **Checked:** `flutter analyze` clean, 135 tests pass. The developer checked the debug build on the emulator: the popup after a simulated update from 1.4.0, and Settings › "What's new". Not checked on a phone.
+
 ## Open points (in rough priority)
 
 0. **Check the new icons on phones** (eighth session; the emulator is done):

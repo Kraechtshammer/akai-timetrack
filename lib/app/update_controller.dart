@@ -68,11 +68,32 @@ class UpdateState {
 /// The changes "What's new" shows.
 @immutable
 class WhatsNew {
-  const WhatsNew(this.version, this.sections);
+  const WhatsNew(this.version, this.sections, {this.earlier = const []});
 
   /// The installed version.
   final AppVersion version;
+
+  /// The new changes, shown open.
   final List<NotesSection> sections;
+
+  /// Older versions, shown collapsed below (see [earlierReleases]).
+  final List<ReleaseNotes> earlier;
+
+  /// The new releases and the earlier ones, merged into [sections] and
+  /// listed in [earlier].
+  factory WhatsNew.of(
+    AppVersion installed,
+    List<ReleaseNotes> releases,
+    List<ReleaseNotes> all,
+  ) => WhatsNew(
+    installed,
+    mergedNotes(releases),
+    earlier: earlierReleases(
+      all,
+      // Newest first, so the last one is the oldest new release.
+      before: releases.lastOrNull?.version ?? installed,
+    ),
+  );
 }
 
 final updateServiceProvider = Provider<UpdateService>((ref) => UpdateService());
@@ -324,36 +345,36 @@ class UpdateController extends Notifier<UpdateState> {
         if (lastRun != installed && onboardingDone) await markVersionSeen();
         return null;
       }
-      final releases = releasesBetween(
-        await _service.fetchReleases(),
-        since: lastRun,
-        upTo: installed,
-      );
-      await _cacheNotes(installed, releases);
+      final all = await _service.fetchReleases();
+      final releases = releasesBetween(all, since: lastRun, upTo: installed);
+      final whatsNew = WhatsNew.of(installed, releases, all);
+      await _cacheNotes(installed, releases, whatsNew.earlier);
       await markVersionSeen();
-      final sections = mergedNotes(releases);
-      return sections.isEmpty ? null : WhatsNew(installed, sections);
+      // Earlier versions alone are no reason to show the popup.
+      return whatsNew.sections.isEmpty ? null : whatsNew;
     } catch (e) {
       debugPrint("What's new failed: $e");
       return null;
     }
   }
 
-  /// For Settings: the changes shown after the last update, or the
-  /// installed version's notes from GitHub. Throws if they aren't stored
-  /// and GitHub can't be reached.
+  /// For Settings: the installed version's notes and the earlier versions,
+  /// from GitHub. Offline, what was stored at the last update. Throws if
+  /// neither works.
   Future<WhatsNew> whatsNew() async {
     final installed = await _installed();
     if (installed == null) throw StateError('Version unknown');
-    final cached = await _cachedNotes(installed);
-    if (cached != null) return WhatsNew(installed, mergedNotes(cached));
-    final releases = releasesBetween(
-      await _service.fetchReleases(),
-      since: null,
-      upTo: installed,
-    );
-    await _cacheNotes(installed, releases);
-    return WhatsNew(installed, mergedNotes(releases));
+    try {
+      final all = await _service.fetchReleases();
+      final releases = releasesBetween(all, since: null, upTo: installed);
+      final whatsNew = WhatsNew.of(installed, releases, all);
+      await _cacheNotes(installed, releases, whatsNew.earlier);
+      return whatsNew;
+    } catch (_) {
+      final cached = await _cachedNotes(installed);
+      if (cached == null) rethrow;
+      return cached;
+    }
   }
 
   /// Records the installed version as seen. Also at the end of the setup,
@@ -367,6 +388,7 @@ class UpdateController extends Notifier<UpdateState> {
   Future<void> _cacheNotes(
     AppVersion version,
     List<ReleaseNotes> releases,
+    List<ReleaseNotes> earlier,
   ) async {
     // Nothing to keep if GitHub has no release for this version (a test
     // build): Settings asks again next time.
@@ -376,11 +398,12 @@ class UpdateController extends Notifier<UpdateState> {
       jsonEncode({
         'version': '$version',
         'releases': [for (final r in releases) r.toJson()],
+        'earlier': [for (final r in earlier) r.toJson()],
       }),
     );
   }
 
-  Future<List<ReleaseNotes>?> _cachedNotes(AppVersion version) async {
+  Future<WhatsNew?> _cachedNotes(AppVersion version) async {
     try {
       final json = jsonDecode(
         await _settings.status(SettingsRepository.whatsNew) ?? '',
@@ -389,11 +412,17 @@ class UpdateController extends Notifier<UpdateState> {
           AppVersion.tryParse('${json['version']}') != version) {
         return null;
       }
-      return [
+      List<ReleaseNotes> read(Object? list) => [
         for (final r
-            in (json['releases'] as List).whereType<Map<String, dynamic>>())
+            in (list as List? ?? const []).whereType<Map<String, dynamic>>())
           ?ReleaseNotes.fromJson(r),
       ];
+      // Stored by 1.5.0 and earlier without 'earlier'.
+      return WhatsNew(
+        version,
+        mergedNotes(read(json['releases'])),
+        earlier: read(json['earlier']),
+      );
     } catch (_) {
       return null; // nothing stored yet, or unreadable
     }

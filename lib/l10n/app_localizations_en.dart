@@ -1064,6 +1064,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'The changes can\'t be loaded right now. Try again later.';
 
   @override
+  String get whatsNewEarlier => 'Earlier versions';
+
+  @override
+  String whatsNewVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
   String get sectionShifts => 'Shifts';
 
   @override
