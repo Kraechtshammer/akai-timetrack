@@ -25,6 +25,34 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  /// Asks first, because Android closes the app when the launcher entry it
+  /// was started from is switched off.
+  Future<void> _changeIcon(AppIcon from, AppIcon to, String label) async {
+    if (to == from) return;
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(label),
+        content: Text(l10n.appIconHint),
+        actions: [
+          M3EButton(
+            style: M3EButtonStyle.text,
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          M3EButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.appIconApply),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await AppIcons.set(to);
+    ref.invalidate(appIconProvider);
+  }
+
   var _allReliable = true;
 
   /// Saves a change. [resync] updates reminders and the calendar afterwards.
@@ -256,43 +284,58 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               title: l10n.appIcon,
               value: switch (ref.watch(appIconProvider).value) {
                 null => '',
-                final icon => appIconLabel(icon, l10n),
+                final icon => iconDesignLabel(icon.design, l10n),
               },
               onTap: () async {
                 final current = ref.read(appIconProvider).value;
-                final icon = await pickOption(
+                // Awaited: nothing may be watching the people list yet
+                // (team planner off), and the secret designs depend on it.
+                final members = await ref.read(teamMembersProvider.future);
+                if (!context.mounted) return;
+                final design = await pickOption(
                   context,
                   title: l10n.appIcon,
-                  options: AppIcon.values,
-                  selected: current ?? AppIcon.round,
-                  label: (i) => appIconLabel(i, l10n),
+                  options: iconDesignsOffered(
+                    members: members,
+                    current: (current ?? AppIcon.fallback).design,
+                  ),
+                  selected: (current ?? AppIcon.fallback).design,
+                  label: (d) => iconDesignLabel(d, l10n),
                 );
-                if (icon == null || icon == current || !context.mounted) {
+                if (design == null || current == null || !context.mounted) {
                   return;
                 }
-                // Android closes the app when the launcher entry it was
-                // started from is switched off, so say so first.
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text(appIconLabel(icon, l10n)),
-                    content: Text(l10n.appIconHint),
-                    actions: [
-                      M3EButton(
-                        style: M3EButtonStyle.text,
-                        onPressed: () => Navigator.pop(context, false),
-                        child: Text(l10n.cancel),
-                      ),
-                      M3EButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        child: Text(l10n.appIconApply),
-                      ),
-                    ],
-                  ),
+                await _changeIcon(
+                  current,
+                  current.withDesign(design),
+                  iconDesignLabel(design, l10n),
                 );
-                if (confirmed != true) return;
-                await AppIcons.set(icon);
-                ref.invalidate(appIconProvider);
+              },
+            ),
+            SettingsTile(
+              icon: Icons.crop_square,
+              title: l10n.appIconShape,
+              value: switch (ref.watch(appIconProvider).value) {
+                null => '',
+                final icon => iconShapeLabel(icon.shape, l10n),
+              },
+              onTap: () async {
+                final current = ref.read(appIconProvider).value;
+                final shape = await pickOption(
+                  context,
+                  title: l10n.appIconShape,
+                  options: IconShape.values,
+                  selected: (current ?? AppIcon.fallback).shape,
+                  label: (s) => iconShapeLabel(s, l10n),
+                );
+                if (shape == null || current == null || !context.mounted) {
+                  return;
+                }
+                await _changeIcon(
+                  current,
+                  current.withShape(shape),
+                  iconShapeLabel(shape, l10n),
+                );
               },
             ),
             SettingsTile(

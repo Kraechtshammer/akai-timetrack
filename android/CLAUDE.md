@@ -18,23 +18,27 @@ Guidance for work in `android/`. The general workflow is in the root `CLAUDE.md`
 - If the key is lost, installed apps can never be updated. The developer must keep a backup of the `.jks` and its password.
 
 ## Launcher icons
-- Three adaptive icons in `res/mipmap-anydpi-v26/`:
-  - `ic_launcher.xml` "Round": red background, dark-red disc. For circle masks (Pixel). Default.
-  - `ic_launcher_squircle.xml`: exactly `branding/app-icon.svg`, its 100-unit box mapped onto the 72 dp visible area (scale 0.72, offset 18), for squircle masks.
-  - `ic_launcher_small.xml` "Small squircle": the whole squircle scaled down on a transparent background.
-- Each one is the icon of an `activity-alias` in `AndroidManifest.xml`: `.IconRound` (enabled), `.IconSquircle`, `.IconSmall`. Exactly one is enabled.
-- `MainActivity.kt` switches them through the channel `de.garten.akaitimetrack/app_icon` (`current`, `set`). Dart side: `lib/platform/app_icon.dart`.
+- 12 adaptive icons in `res/mipmap-anydpi-v26/`: `ic_launcher_<design>_<shape>.xml`, designs `cloche`, `akai`, `penguin_black`, `penguin_navy`, shapes `round` (circle masks, Pixel), `squircle` (squircle masks, Xiaomi), `small` (the whole squircle icon scaled down on a transparent background).
+- **Cloche and penguins are generated:** `node branding/icons/generate.js` writes their mipmaps and drawables (`ic_launcher_panel_*`, `ic_launcher_cloche_*`, `ic_launcher_penguin_*`) from the same geometry as the SVG masters. Never edit those files by hand; change `generate.js` and run it again.
+  - Vector drawables have no masks, so the cloche's cut-out spoon and fork are painted with the panel gradient.
+  - Holes in the monochrome layers are group clip-paths drawn the other way round.
+- **AKAI sign** (`ic_launcher_akai_*`): made by hand earlier. `akai_squircle` is exactly `branding/app-icon.svg`, its 100-unit box mapped onto the 72 dp visible area (scale 0.72, offset 18); `akai_round` has a dark-red disc on the red background colour.
+- The application icon (`android:icon` on `<application>`) is the round cloche.
+- Each mipmap is the icon of an `activity-alias` in `AndroidManifest.xml`. Exactly one is enabled. `.IconRound` (the round cloche) is enabled in the manifest.
+  - The cloche uses `.IconRound`, `.IconSquircle` and `.IconSmall`, the names the AKAI sign had until 1.4.0, so existing installs moved to the cloche in their shape. The sign now has `.IconAkai*`, the penguins `.IconPenguinBlack*` and `.IconPenguinNavy*`.
+  - Never rename an alias: an installed app's enabled alias is stored by name, and a missing one falls back to the manifest default.
+- `MainActivity.kt` switches them through the channel `de.garten.akaitimetrack/app_icon` (`current`, `set`). Icons are keyed `design.shape` (e.g. `penguinNavy.small`) in `ICONS`. `set` enables the new alias before it disables the others. Dart side: `lib/platform/app_icon.dart` and `lib/domain/app_icons.dart`.
 - Component names are built from `MainActivity`'s Java package, not from the `applicationId`. Keep that when editing.
 - Switching makes Android close the app (the task's launcher alias is disabled). The Dart UI asks first.
-- On the first start on Xiaomi/Redmi/POCO the app switches to the squircle icon.
+- On the first start on Xiaomi/Redmi/POCO the app switches to the squircle cloche.
 - `MainActivity` keeps a MAIN/LAUNCHER intent filter marked `tools:node="remove"`. It exists only so `flutter run` finds a launch activity (the Flutter tool ignores aliases). The built app has only the aliases. Do not delete it, do not drop the `remove`.
 - Check the launcher entries (the manifest only; alias names must match):
   `adb shell cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER de.gartenpa.timetrack`
 - Start the app by hand: `adb shell am start -n de.gartenpa.timetrack/de.garten.akaitimetrack.MainActivity`
 - The launcher decides the mask. Apps cannot find out which. On Pixel, transparent icon backgrounds are filled black and non-adaptive icons get a white circle. Both were tried.
-- The squircle vector paths come from `branding/app-icon.svg` (superellipse n=4; half-size 29.5 fits a circle mask). Regenerate them with a script; do not edit the path data by hand.
+- The AKAI squircle vector paths come from `branding/app-icon.svg` (superellipse n=4; half-size 29.5 fits a circle mask). Regenerate them with a script; do not edit the path data by hand.
 - Shell heredocs mangle backslashes in regexes. Put such scripts in files.
-- A new alias needs: manifest entry, mipmap XML, entry in `ICONS` in `MainActivity.kt`, and the Dart enum and labels.
+- A new design needs: its mipmaps (one per shape), three manifest aliases, three entries in `ICONS` in `MainActivity.kt`, and the Dart enum value and label.
 
 ## `res/raw/keep.xml`
 - Resources used only by name are removed by the release resource shrinker. `keep.xml` lists them with `tools:keep`.

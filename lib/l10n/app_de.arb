@@ -313,6 +313,11 @@
   "appIconRound": "Rund",
   "appIconSquircle": "Squircle",
   "appIconSmall": "Squircle klein",
+  "appIconShape": "Symbolform",
+  "appIconCloche": "Servierglocke",
+  "appIconAkai": "AKAI-Schild",
+  "appIconPenguinBlack": "Pinguin, schwarz",
+  "appIconPenguinNavy": "Pinguin, dunkelblau",
   "appIconHint": "Die App schließt sich dabei kurz. Das neue Symbol erscheint nach ein paar Sekunden; auf dem Startbildschirm musst du es eventuell neu ablegen.",
   "appIconApply": "Ändern",
 

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">
+<defs><linearGradient id="p" x1="0" y1="22" x2="0" y2="86" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6E191F"/><stop offset="1" stop-color="#480E12"/></linearGradient><mask id="m"><g transform="translate(54 53.5) scale(0.9) translate(-54 -52.8)">
+  <g fill="#fff"><rect x="48.5" y="33" width="11" height="4.6" rx="2.3"/><rect x="52" y="36" width="4" height="7" rx="1"/>
+  <path d="M30 66 A24 24 0 0 1 78 66 Z"/><rect x="27" y="67.8" width="54" height="4.8" rx="2.4"/></g>
+  <g fill="#000"><path transform="translate(54 62) rotate(-8)" d="M-0.8,1.2 L-0.8,-8 Q-2.3,-9 -2.3,-12.2 Q-2.3,-16.2 0,-16.2 Q2.3,-16.2 2.3,-12.2 Q2.3,-9 0.8,-8 L0.8,1.2 Q0,2.2 -0.8,1.2 Z"/><path transform="translate(54 62) rotate(62)" d="M-1,1.2 L-1,-4.6 Q-2.6,-5.2 -2.6,-7.2 L-2.6,-11.3 Q-2.6,-11.9 -2.0,-11.9 Q-1.5,-11.9 -1.5,-11.3 L-1.5,-8.4 L-0.55,-8.4 L-0.55,-11.3 Q-0.55,-11.9 0,-11.9 Q0.55,-11.9 0.55,-11.3 L0.55,-8.4 L1.5,-8.4 L1.5,-11.3 Q1.5,-11.9 2.0,-11.9 Q2.6,-11.9 2.6,-11.3 L2.6,-7.2 Q2.6,-5.2 1,-4.6 L1,1.2 Q0,2.2 -1,1.2 Z"/></g>
+</g></mask></defs>
+<rect width="108" height="108" fill="#C62A30"/><circle cx="54" cy="54" r="32" fill="url(#p)"/><rect width="108" height="108" fill="#F6F1EC" mask="url(#m)"/>
+</svg>

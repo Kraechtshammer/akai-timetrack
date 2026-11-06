@@ -15,7 +15,8 @@ The app's UI is German first, English second. Docs, code comments and release no
 | `packages/` | Two local Kotlin plugins: `calendar_bridge` (Android calendar), `running_progress` (notification progress / Live Update) | [packages/CLAUDE.md](packages/CLAUDE.md) |
 | `android/` | Android project: manifest, launcher icon variants, signing, `MainActivity` | [android/CLAUDE.md](android/CLAUDE.md) |
 | `docs/` | Research, design, dev setup, handoff, UI concepts | [docs/CLAUDE.md](docs/CLAUDE.md) |
-| `branding/app-icon.svg` | Master of the app icon (the restaurant's sign); the Android icon layers are generated from it | |
+| `branding/app-icon.svg` | Master of the AKAI sign icon (the restaurant's sign), one of the selectable designs | |
+| `branding/icons/` | Masters of the cloche (the default icon) and the two secret penguin icons. `node branding/icons/generate.js` writes the SVGs and the app's vector drawables for them | [android/CLAUDE.md](android/CLAUDE.md), [docs/HANDOFF.md](docs/HANDOFF.md) eighth session |
 | `scripts/` | `build-apk.sh` (APK into `dist/`), `install-apk.sh`, `release-notes.sh` (release notes from commit prefixes), `emulator.sh`, `emulator-test-calendar.sh` (local test calendar), `update_test_server.dart` (fake release for testing the in-app update), `windows/start-adb-server.cmd` | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
 | `.devcontainer/` | The dev container: Flutter 3.47.9, Android SDK, JDK 17, emulator, adb wrapper | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
 | `.github/workflows/` | `ci.yml` (analyze + tests on main and PRs), `release.yml` (signed APK and GitHub release on `v*` tags) | 03-dev-setup.md §9 |

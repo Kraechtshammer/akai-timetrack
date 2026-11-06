@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">
+<defs><linearGradient id="p" x1="0" y1="22" x2="0" y2="86" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6E191F"/><stop offset="1" stop-color="#480E12"/></linearGradient><clipPath id="above"><rect width="108" height="71"/></clipPath></defs>
+<rect width="108" height="108" fill="#C62A30"/><circle cx="54" cy="54" r="32" fill="url(#p)"/>
+<g clip-path="url(#above)"><g transform="translate(65.5 52.4) scale(0.78)">
+  <g fill="#0E1822" stroke="#0E1822" stroke-width="2.4" stroke-linejoin="round"><ellipse cx="-16" cy="3" rx="3.6" ry="8.5" transform="rotate(-40 -16 3)"/><ellipse cx="17.5" cy="13" rx="3.6" ry="8.5" transform="rotate(-35 17.5 13)"/><path d="M-1,-11 Q-2.5,-15.6 1.2,-16.4 Q-0.4,-14.4 1.6,-11.2 Z"/><path d="M0,-11.5 C8,-11.5 13.6,-6 14,1 C14.3,7 17.2,12 17.6,19.5 C18,27.5 12.5,33 0,33 C-12.5,33 -18,27.5 -17.6,19.5 C-17.2,12 -14.3,7 -14,1 C-13.6,-6 -8,-11.5 0,-11.5 Z"/></g>
+  <g fill="#1F3A52"><ellipse cx="-16" cy="3" rx="3.6" ry="8.5" transform="rotate(-40 -16 3)"/><ellipse cx="17.5" cy="13" rx="3.6" ry="8.5" transform="rotate(-35 17.5 13)"/><path d="M-1,-11 Q-2.5,-15.6 1.2,-16.4 Q-0.4,-14.4 1.6,-11.2 Z"/><path d="M0,-11.5 C8,-11.5 13.6,-6 14,1 C14.3,7 17.2,12 17.6,19.5 C18,27.5 12.5,33 0,33 C-12.5,33 -18,27.5 -17.6,19.5 C-17.2,12 -14.3,7 -14,1 C-13.6,-6 -8,-11.5 0,-11.5 Z"/></g>
+  <path d="M0,3.6 C-1,-3 -6,-5.2 -9,-3.7 C-12.2,-1.8 -12.4,3.5 -11.8,7.5 C-11.5,10.5 -13.6,14.5 -13.6,21.5 C-13.6,28.5 -8,32 0,32 C8,32 13.6,28.5 13.6,21.5 C13.6,14.5 11.5,10.5 11.8,7.5 C12.4,3.5 12.2,-1.8 9,-3.7 C6,-5.2 1,-3 0,3.6 Z" fill="#FFFFFF"/>
+  <circle cx="-9.3" cy="7.8" r="1.9" fill="#F7A1B5"/><circle cx="9.3" cy="7.8" r="1.9" fill="#F7A1B5"/>
+  <circle cx="-5.9" cy="3.4" r="2.85" fill="#0E1822"/><circle cx="5.9" cy="3.4" r="2.85" fill="#0E1822"/>
+  <circle cx="-6.7" cy="2.5" r="1.05" fill="#FFFFFF"/><circle cx="5.1" cy="2.5" r="1.05" fill="#FFFFFF"/>
+  <path d="M-3.5,4.1 C-3.5,2.3 3.5,2.3 3.5,4.1 C3.5,6.1 1.8,7.7 0,7.7 C-1.8,7.7 -3.5,6.1 -3.5,4.1 Z" fill="#F5A23A" stroke="#C4691C" stroke-width="0.7" stroke-linejoin="round"/>
+  <path d="M-2.6,5.6 Q0,6.5 2.6,5.6" fill="none" stroke="#C4691C" stroke-width="0.6" stroke-linecap="round"/></g></g>
+<rect x="26.68" y="71.7" width="54.64" height="4.8" rx="2.4" fill="#2A0709" opacity="0.35"/>
+<g fill="#F6F1EC">
+  <rect x="26.68" y="70.5" width="54.64" height="4.8" rx="2.4"/>
+  <g transform="rotate(-50 31 70.5)">
+    <path d="M31 70.5 A17.5 17.5 0 0 1 66 70.5 Z"/>
+    <rect x="44" y="48.5" width="9" height="4" rx="2"/>
+    <rect x="47" y="51.5" width="3" height="4.5" rx="1"/>
+  </g>
+</g>
+</svg>

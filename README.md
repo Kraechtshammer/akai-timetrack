@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="branding/app-icon.svg" width="96" alt="TimeTrack app icon">
+  <img src="branding/icons/cloche.svg" width="96" alt="TimeTrack app icon">
 </p>
 
 <h1 align="center">TimeTrack</h1>
@@ -81,7 +81,7 @@ Off by default; turn it on in Settings › "Team planner". It is for weeks when 
 ### Other details
 
 - Light and dark mode, and a few colour themes. "AKAI red" is the default.
-- Three launcher icon variants, because launchers use different icon shapes: round, squircle and small squircle.
+- Launcher icons in a few designs (a serving cloche by default, the restaurant's sign, and some secret ones), each in three shapes, because launchers use different icon shapes: round, squircle and small squircle.
 - The app checks GitHub for a new release, shows what changed, downloads the APK and hands it to Android's installer.
 
 ## Install

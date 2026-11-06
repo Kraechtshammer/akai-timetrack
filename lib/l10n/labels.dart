@@ -19,11 +19,20 @@ String roundingLabel(RoundingMode mode, AppLocalizations l10n) =>
       RoundingMode.strict => l10n.roundingStrict,
     };
 
-String appIconLabel(AppIcon icon, AppLocalizations l10n) => switch (icon) {
-  AppIcon.round => l10n.appIconRound,
-  AppIcon.squircle => l10n.appIconSquircle,
-  AppIcon.small => l10n.appIconSmall,
-};
+String iconDesignLabel(IconDesign design, AppLocalizations l10n) =>
+    switch (design) {
+      IconDesign.cloche => l10n.appIconCloche,
+      IconDesign.akai => l10n.appIconAkai,
+      IconDesign.penguinBlack => l10n.appIconPenguinBlack,
+      IconDesign.penguinNavy => l10n.appIconPenguinNavy,
+    };
+
+String iconShapeLabel(IconShape shape, AppLocalizations l10n) =>
+    switch (shape) {
+      IconShape.round => l10n.appIconRound,
+      IconShape.squircle => l10n.appIconSquircle,
+      IconShape.small => l10n.appIconSmall,
+    };
 
 String weekMarksLabel(WeekMarkStyle style, AppLocalizations l10n) =>
     switch (style) {

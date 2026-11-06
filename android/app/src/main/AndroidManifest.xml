@@ -19,7 +19,7 @@
     <application
         android:label="TimeTrack"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher_cloche_round">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -45,13 +45,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- Launcher entries, one per app icon variant (Settings › App-Symbol). Exactly one is
-             enabled; the app switches them in MainActivity.kt. "Rund" is enabled by default,
-             the app picks "Squircle" on its first start on Xiaomi phones. -->
+        <!-- Launcher entries, one per app icon design and shape (Settings › App icon, Icon shape).
+             Exactly one is enabled; the app switches them in MainActivity.kt. The cloche, Round,
+             is enabled by default; the app picks the cloche, Squircle, on its first start on
+             Xiaomi phones. The cloche uses the alias names the AKAI sign had until 1.4.0, so
+             existing installs move to the cloche and keep their shape. -->
         <activity-alias
             android:name=".IconRound"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_cloche_round"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -62,7 +64,7 @@
         <activity-alias
             android:name=".IconSquircle"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_squircle"
+            android:icon="@mipmap/ic_launcher_cloche_squircle"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -73,7 +75,106 @@
         <activity-alias
             android:name=".IconSmall"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_small"
+            android:icon="@mipmap/ic_launcher_cloche_small"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconAkaiRound"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_akai_round"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconAkaiSquircle"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_akai_squircle"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconAkaiSmall"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_akai_small"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconPenguinBlackRound"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_penguin_black_round"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconPenguinBlackSquircle"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_penguin_black_squircle"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconPenguinBlackSmall"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_penguin_black_small"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconPenguinNavyRound"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_penguin_navy_round"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconPenguinNavySquircle"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_penguin_navy_squircle"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconPenguinNavySmall"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_penguin_navy_small"
             android:enabled="false"
             android:exported="true">
             <intent-filter>

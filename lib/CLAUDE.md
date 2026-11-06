@@ -6,7 +6,7 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 
 - `core/`: pure helpers. Time (`time.dart`: day keys, ISO weeks, minutes), `format.dart` (HH:mm, `formatHours`, `formatEuros`).
 - `data/`: drift database `database.dart` (+ generated `database.g.dart` and `database.steps.dart`), `database_connection.dart` (opens the file), `shift_repository.dart`, `tip_repository.dart`, `wage_repository.dart`, `roster_repository.dart` (team planner), `settings_repository.dart`, `app_settings.dart`.
-- `domain/`: pure Dart logic (planning, recording, rounding, month summary, export text, reminder planner, tips, salary, team planner `roster.dart`). No Flutter imports. Unit-tested.
+- `domain/`: pure Dart logic (planning, recording, rounding, month summary, export text, reminder planner, tips, salary, team planner `roster.dart`, launcher icon designs and shapes `app_icons.dart`). No Flutter imports. Unit-tested.
 - `platform/`: Android integration. `notification_service.dart`, `calendar_sync.dart`, `device_setup.dart`, `app_icon.dart`.
 - `app/`: `AppServices` (`services.dart`, one per isolate), Riverpod `providers.dart`, `app.dart`, `theme.dart`.
 - `ui/`: screens. `material.dart` is the one UI import. `common.dart` has shared widgets. `ui/roster/` is the team planner (F11): board, shift sheet, answers, people, image and share preview, Settings tiles; shared bits in `roster_common.dart`.
@@ -70,7 +70,7 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 
 ## Platform notes
 
-- `platform/app_icon.dart` uses the MainActivity channel `de.garten.akaitimetrack/app_icon`. It works in the UI isolate only.
+- `platform/app_icon.dart` uses the MainActivity channel `de.garten.akaitimetrack/app_icon`. It works in the UI isolate only. An icon is a design and a shape (`domain/app_icons.dart`), sent as the key `design.shape`. The secret designs are offered by `iconDesignsOffered`, from the team planner's "This is me" person; keep that rule out of the release notes.
 - `platform/app_update.dart` (in-app update) uses the MainActivity channel `de.garten.akaitimetrack/updater`, also UI isolate only. State lives in `app/update_controller.dart` (`updateProvider`); `HomeShell` triggers the check on start and resume. Its status keys (`lastUpdateCheck`, `updatePopupShown`) are filtered out of `SettingsRepository.watch()`. The release URL can be overridden with `--dart-define=UPDATE_RELEASE_URL=...` for tests.
 - Notification ids: `notificationId(shift, kind)` in `domain/reminder_planner.dart` = `shift.notifId * 10 + kind.code`. The running notification is `runningNotificationId` = 1.
 - The running notification's progress bar is moved by the `running_progress` package (exact alarm every 5 min).

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AKAI sign icon, Small squircle: the whole squircle sign, scaled down, on a transparent background.
+     Looks the same under every mask (the launcher fills the rest of its shape).
+     See ic_launcher_akai_round.xml for how the variants are switched. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@android:color/transparent" />
+    <foreground android:drawable="@drawable/ic_launcher_akai_small_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_akai_monochrome" />
+</adaptive-icon>

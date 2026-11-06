@@ -925,6 +925,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get appIconSmall => 'Squircle klein';
 
   @override
+  String get appIconShape => 'Symbolform';
+
+  @override
+  String get appIconCloche => 'Servierglocke';
+
+  @override
+  String get appIconAkai => 'AKAI-Schild';
+
+  @override
+  String get appIconPenguinBlack => 'Pinguin, schwarz';
+
+  @override
+  String get appIconPenguinNavy => 'Pinguin, dunkelblau';
+
+  @override
   String get appIconHint =>
       'Die App schließt sich dabei kurz. Das neue Symbol erscheint nach ein paar Sekunden; auf dem Startbildschirm musst du es eventuell neu ablegen.';
 

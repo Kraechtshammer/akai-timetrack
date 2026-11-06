@@ -924,6 +924,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appIconSmall => 'Small squircle';
 
   @override
+  String get appIconShape => 'Icon shape';
+
+  @override
+  String get appIconCloche => 'Cloche';
+
+  @override
+  String get appIconAkai => 'AKAI sign';
+
+  @override
+  String get appIconPenguinBlack => 'Penguin, black';
+
+  @override
+  String get appIconPenguinNavy => 'Penguin, dark blue';
+
+  @override
   String get appIconHint =>
       'The app closes briefly. The new icon shows up after a few seconds; you may have to add it to the home screen again.';
 

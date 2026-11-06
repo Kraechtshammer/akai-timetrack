@@ -833,11 +833,11 @@ Possible later extensions:
 - **"No calendar":** choosing it deletes the app's events from the old calendar. Switching calendars always moves all events (no question).
 - **Export texts:** neutral, with no mention of the boss.
 - **Monthly export** (2026-11-04): the user sends the hours monthly, so the export covers a month, grouped by week (§4.5). The `exportMonthTotals` setting, its switch in Settings and the switch on the Export screen were removed, because the month total is now always the last line. An old stored `exportMonthTotals` value is ignored.
-- **App icon:** three adaptive variants, selectable in Settings › Appearance & language › App icon, because the launcher decides the mask shape:
-  - "Round": red ring and dark-red disc, for circular masks; the default.
-  - "Squircle": the original sign exactly as in `branding/app-icon.svg`, for squircle masks; the default on Xiaomi.
-  - "Small squircle": the whole sign scaled down.
-  Each variant is an `activity-alias`; the app enables exactly one. Switching closes the app once. Themed icons (monochrome layer) are the same for all three.
+- **App icon:** adaptive icons in a design and a shape, chosen in Settings › Appearance & language › "App icon" and "Icon shape". Two settings, because the launcher decides the mask shape and apps can't find it out.
+  - Designs (2026-11-06): "Cloche" (a serving dome whose clock hands are a spoon and a fork; the default), "AKAI sign" (the restaurant's sign, `branding/app-icon.svg`, the only design until 1.4.0), and two secret penguin designs, "Penguin, black" and "Penguin, dark blue". Masters in `branding/icons/`.
+  - Shapes: "Round" for circular masks (the default), "Squircle" for squircle masks (the default on Xiaomi), "Small squircle" (the whole squircle icon scaled down; the launcher fills the rest).
+  - The penguin designs show in the "App icon" list only when the person marked "This is me" in the team planner's "People" has a certain name (`lib/domain/app_icons.dart`), or when a penguin is already the current icon. The release notes only mention "secret icons".
+  - Each design and shape is an `activity-alias` (12 in all); the app enables exactly one. Switching closes the app once. The cloche took over the alias names of the sign, so installs from 1.4.0 and earlier move to the cloche in their shape without the app closing. Each design has its own monochrome layer for themed icons; the shapes share it.
 - **Package name:** changed to `de.gartenpa.timetrack` at 1.0.0 (was the provisional `de.garten.akaitimetrack`). The Kotlin namespace and `MainActivity` package stay `de.garten.akaitimetrack`.
 - **In-app update** (2026-11-05, §12): not in the original design. No new Flutter packages: dart:io for HTTP, the installer in `MainActivity.kt`. Needs the `INTERNET` permission in the main manifest (Flutter only adds it to debug builds) and `REQUEST_INSTALL_PACKAGES`.
 - **Database:** schema snapshots in `drift_schemas/` since schema version 2 (2026-11-05), configured in `build.yaml`. Migration steps come from the generated `lib/data/database.steps.dart`; tests are in `test/drift/`. Opening the database file moved to `lib/data/database_connection.dart`, because drift's schema export runs `database.dart` without Flutter.

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- App icon "Squircle", background layer: red sign frame + dark-red panel, exactly as in
+<!-- AKAI sign icon, Squircle, background layer: red sign frame + dark-red panel, exactly as in
      branding/app-icon.svg (superellipse n=4). The SVG's 100x100 box is mapped onto the 72dp visible
      area of the 108 canvas (scale 0.72, offset 18), so under a squircle launcher mask (Xiaomi)
      the icon looks like the SVG. Generated from the SVG; do not edit the path data by hand. -->

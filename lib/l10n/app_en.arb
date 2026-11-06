@@ -269,6 +269,11 @@
   "appIconRound": "Round",
   "appIconSquircle": "Squircle",
   "appIconSmall": "Small squircle",
+  "appIconShape": "Icon shape",
+  "appIconCloche": "Cloche",
+  "appIconAkai": "AKAI sign",
+  "appIconPenguinBlack": "Penguin, black",
+  "appIconPenguinNavy": "Penguin, dark blue",
   "appIconHint": "The app closes briefly. The new icon shows up after a few seconds; you may have to add it to the home screen again.",
   "appIconApply": "Change",
 

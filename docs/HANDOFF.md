@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-05; the version is now 1.4.0 (`1.4.0+7`). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-06; the version is now 1.4.0 (`1.4.0+7`). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -107,7 +107,62 @@ Automated checks:
 - How they were made: the emulator's database (`app_flutter/timetrack.sqlite`, read with `adb exec-out run-as de.gartenpa.timetrack cat …`) was backed up, replaced with a demo database built with `sqlite3`, and restored afterwards. The full screenshots were cropped to 1440 × 2920 from y = 120 (no status bar or gesture handle), scaled to 540 px wide, with rounded corners. The seed and crop scripts were not kept in the repo.
 - Found while doing it: on the Pay tab in English, the weekday in the "Daily pool" list wraps ("Mo" / "n"), because the cell is 28 px wide (`ui/pay/pay_screen.dart`). German "Mo" fits. Not fixed yet. The Pay screenshot is cropped above that list.
 
+## Done in the eighth session (2026-11-06): new app icons
+
+The developer designed new app icons, to move away from the restaurant's sign over time. They are built into the app.
+
+**In the app:**
+- **Two settings** in Settings › Appearance & language:
+  - "App icon" picks the design: "Cloche" (the default), "AKAI sign", "Penguin, black", "Penguin, dark blue".
+  - "Icon shape" keeps the earlier choice: "Round", "Squircle", "Small squircle".
+  - Every design comes in every shape (developer decision), so there are 12 `activity-alias`es. Both settings ask first, because switching closes the app.
+- **Secret penguin icons:**
+  - The two penguin designs are offered only when the person marked "This is me" in the team planner's "People" has a certain name. The check is trimmed and ignores case (`secretIconsUnlocked` in `lib/domain/app_icons.dart`).
+  - The people list is read from the database, so it works with the team planner switched off.
+  - A penguin that is already the current icon stays in the list, even if the name changes later.
+  - The release notes only say "secret icons" (developer decision). Keep the unlock rule out of commit subjects and the README.
+- **Cloche is the default without switching:** the cloche took over the alias names the sign had until 1.4.0 (`.IconRound`, `.IconSquircle`, `.IconSmall`). An install updated from 1.4.0 shows the cloche in the shape it had, and the app doesn't close for it. The sign moved to `.IconAkai*`. Never rename aliases; Android stores the enabled one by name.
+- **Code:** `lib/domain/app_icons.dart` (`IconDesign`, `IconShape`, `AppIcon` with the channel key `design.shape`, the unlock rule; tested in `test/app_icons_test.dart`), `lib/platform/app_icon.dart` (channel), two tiles in `ui/settings/settings_screen.dart`, the `ICONS` map in `MainActivity.kt`. `set` now enables the new alias before it disables the old ones.
+- Built with one Sonnet subagent for the Dart side while the drawables were made. Fixed in review: the design list read the people with `ref.read(...).value`, which is empty while nothing watches that provider, so the penguins could be missing; it now awaits `teamMembersProvider.future`.
+
+**Files** in `branding/icons/`. Each is a 108 × 108 adaptive-icon canvas; launchers show the central 72 × 72.
+- `node branding/icons/generate.js` writes all the SVGs **and** the app's vector drawables for the cloche and the penguins (`android/app/src/main/res`, see `android/CLAUDE.md`). It has no dependencies. Change shapes, colours or positions there and run it again; never edit the generated XML.
+- `preview.png` shows the SVGs under their masks.
+
+| File | What |
+|---|---|
+| `cloche.svg`, `cloche-round.svg` | **Default icon.** A cream serving dome on the sign's dark-red panel inside the red frame. The clock hands are a spoon (long) and a fork (short), cut out of the dome. `cloche` is for squircle masks (Xiaomi), `cloche-round` for round masks (Pixel). |
+| `cloche-mono.svg` | Monochrome layer of the cloche for themed icons. |
+| `penguin-navy.svg`, `penguin-navy-round.svg` | **Secret icon "Penguin, dark blue".** A baby penguin with a round belly lifts the dome with one flipper. Navy body with a dark outline. Was "option 1" in the design round. |
+| `penguin-black.svg`, `penguin-black-round.svg` | **Secret icon "Penguin, black".** The same penguin, the whole body in the dark colour without the extra edge, so slightly slimmer. Was "option 2". |
+
+**Design notes:**
+- **The frame is the same width all round.** The squircle panel is the n = 4 launcher squircle moved 4 units inwards along its normals, not scaled down. A scaled panel, as in the AKAI sign's Squircle variant, gives a frame that is thinner on the sides than in the corners. The round versions use a disc of r = 32.
+- **Depth:** in the penguin icons, the plate's ends and the free flipper reach about 1–1.5 units past the panel onto the red ring. The developer likes that sense of depth; keep it, and keep it slight. A faint shadow sits under the plate where it overhangs.
+- **Per-mask layout:** the plate width, the penguin's position and the dome's tilt differ between the squircle and round files, because the panel shapes differ. The values are in `generate.js`.
+- **Small squircle** versions are the squircle icon cut to the launcher squircle and scaled to a half-size of 29.5, like the sign's.
+- **Earlier concepts:** all drafts are on the developer's private design canvas (claude.ai artifact "TimeTrack logo concepts"). The drafts include TT, Clock, Lunch & evening, Day & night, Wavy T, a knife-and-fork cloche and plush penguins. Only the files above went into the repo.
+
+**How the SVGs became vector drawables** (all in `generate.js`):
+- Every shape (rects, circles, ellipses, arcs, quadratic curves) becomes one absolute path of lines and cubics, with the SVG transforms applied to its points. No group transforms, so the gradient coordinates stay absolute.
+- **Layers:** the background is the red frame plus the panel (`ic_launcher_panel_round`, `ic_launcher_panel_squircle`, shared by cloche and penguins); the foreground holds the dome, plate and penguin.
+- **Hands:** vector drawables have no masks, so the spoon and fork are painted with the panel's gradient.
+- **Penguin clip:** the clip above the plate is a group `clip-path`. The shadow's opacity is `fillAlpha`; the navy outline is a stroke under the fill.
+- **Monochrome:** one layer for the cloche, one shared by both penguins (silhouette, face cut out, eyes and beak filled). Holes are cut with a group clip-path whose hole runs the other way round, which works under both fill rules. Two overlapping holes in one even-odd path would fill their overlap again (the spoon and fork overlap).
+
+**Checked:**
+- The refactored `generate.js` writes byte-identical SVGs to the ones the developer approved.
+- The generated drawables were drawn with a throwaway Flutter test (not kept) that read the XML: all 9 cloche and penguin icons under a circle and a squircle mask, plus the monochrome layers. They match `preview.png`.
+- `flutter analyze` is clean, and 125 tests pass. The debug and release APKs build.
+- The debug build was installed over 1.3.1 with the round sign on the emulator: exactly one launcher entry, the round cloche. The developer then checked it on the emulator and found it working: designs, shapes and the penguin unlock.
+- Not checked yet: a phone, themed icons, the release APK on a device (see open point 0).
+
 ## Open points (in rough priority)
+
+0. **Check the new icons on phones** (eighth session; the emulator is done):
+   - **Pixel:** themed icons (monochrome layers), the Round cloche.
+   - **Xiaomi:** the real squircle mask may differ a little from n = 4, so look at the frame width and the penguin overlap there.
+   - **Release build:** start it and switch an icon once (the aliases and mipmaps are referenced from the manifest, so `keep.xml` should not need anything).
 
 0. **Pay tab, English:** the weekday in the "Daily pool" list wraps (see the seventh session). Widen or drop the fixed 28 px width.
 
@@ -149,8 +204,9 @@ lib/
           export_text.dart, reminder_planner.dart, shift_info.dart,
           tips.dart (money parsing, tip weeks and months, Home prompt),
           salary.dart (rate of a day, month pay),
-          roster.dart (team planner: availability, sheet order, Fill)   (pure logic, tested)
-  platform/ notification_service.dart, calendar_sync.dart, device_setup.dart
+          roster.dart (team planner: availability, sheet order, Fill),
+          app_icons.dart (launcher icon designs and shapes, secret designs)   (pure logic, tested)
+  platform/ notification_service.dart, calendar_sync.dart, device_setup.dart, app_icon.dart, app_update.dart
   l10n/ app_de.arb (source), app_en.arb, labels.dart (+ generated app_localizations*.dart)
   ui/   material.dart (the one UI import), home_shell, common (header, Panel, Figure, WavyProgress, WeekSwitcher, pickers),
         today/ (Home tab), plan/, shift_sheet.dart, pay/ (Pay tab, money sheet, wage sheet), export/, settings/, onboarding/,

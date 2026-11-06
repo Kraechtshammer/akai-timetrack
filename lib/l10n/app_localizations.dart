@@ -1628,6 +1628,36 @@ abstract class AppLocalizations {
   /// **'Squircle klein'**
   String get appIconSmall;
 
+  /// No description provided for @appIconShape.
+  ///
+  /// In de, this message translates to:
+  /// **'Symbolform'**
+  String get appIconShape;
+
+  /// No description provided for @appIconCloche.
+  ///
+  /// In de, this message translates to:
+  /// **'Servierglocke'**
+  String get appIconCloche;
+
+  /// No description provided for @appIconAkai.
+  ///
+  /// In de, this message translates to:
+  /// **'AKAI-Schild'**
+  String get appIconAkai;
+
+  /// No description provided for @appIconPenguinBlack.
+  ///
+  /// In de, this message translates to:
+  /// **'Pinguin, schwarz'**
+  String get appIconPenguinBlack;
+
+  /// No description provided for @appIconPenguinNavy.
+  ///
+  /// In de, this message translates to:
+  /// **'Pinguin, dunkelblau'**
+  String get appIconPenguinNavy;
+
   /// No description provided for @appIconHint.
   ///
   /// In de, this message translates to:

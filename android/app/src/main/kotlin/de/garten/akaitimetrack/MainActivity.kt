@@ -198,24 +198,22 @@ class MainActivity : FlutterActivity() {
     private fun currentIcon(): String = ICONS.entries.firstOrNull { (_, alias) ->
         when (packageManager.getComponentEnabledSetting(component(alias))) {
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> true
-            // Not changed yet: the manifest default, "Rund".
-            PackageManager.COMPONENT_ENABLED_STATE_DEFAULT -> alias == ICONS.getValue("round")
+            // Not changed yet: the manifest default, the round cloche.
+            PackageManager.COMPONENT_ENABLED_STATE_DEFAULT -> alias == ICONS.getValue(DEFAULT_ICON)
             else -> false
         }
-    }?.key ?: "round"
+    }?.key ?: DEFAULT_ICON
 
-    /** Enables the alias for [icon] and disables the others. */
+    /** Enables the alias for [icon] first, then disables the others. */
     private fun setIcon(icon: String) {
+        fun set(alias: String, state: Int) = packageManager.setComponentEnabledSetting(
+            component(alias),
+            state,
+            PackageManager.DONT_KILL_APP,
+        )
+        set(ICONS.getValue(icon), PackageManager.COMPONENT_ENABLED_STATE_ENABLED)
         for ((name, alias) in ICONS) {
-            packageManager.setComponentEnabledSetting(
-                component(alias),
-                if (name == icon) {
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                } else {
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-                },
-                PackageManager.DONT_KILL_APP,
-            )
+            if (name != icon) set(alias, PackageManager.COMPONENT_ENABLED_STATE_DISABLED)
         }
     }
 
@@ -228,10 +226,22 @@ class MainActivity : FlutterActivity() {
         private const val UPDATER_CHANNEL = "de.garten.akaitimetrack/updater"
         private const val INSTALL_STATUS_ACTION = "de.gartenpa.timetrack.INSTALL_STATUS"
 
+        // Icon keys ("design.shape", lib/domain/app_icons.dart) to launcher aliases. The cloche
+        // keeps the alias names the AKAI sign had until 1.4.0, so existing installs move to it.
+        private const val DEFAULT_ICON = "cloche.round"
         private val ICONS = mapOf(
-            "round" to ".IconRound",
-            "squircle" to ".IconSquircle",
-            "small" to ".IconSmall",
+            "cloche.round" to ".IconRound",
+            "cloche.squircle" to ".IconSquircle",
+            "cloche.small" to ".IconSmall",
+            "akai.round" to ".IconAkaiRound",
+            "akai.squircle" to ".IconAkaiSquircle",
+            "akai.small" to ".IconAkaiSmall",
+            "penguinBlack.round" to ".IconPenguinBlackRound",
+            "penguinBlack.squircle" to ".IconPenguinBlackSquircle",
+            "penguinBlack.small" to ".IconPenguinBlackSmall",
+            "penguinNavy.round" to ".IconPenguinNavyRound",
+            "penguinNavy.squircle" to ".IconPenguinNavySquircle",
+            "penguinNavy.small" to ".IconPenguinNavySmall",
         )
     }
 }

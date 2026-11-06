@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- App icon "Rund" (default except on Xiaomi), foreground layer: dark-red disc with the AKAI
+<!-- AKAI sign icon, Round, foreground layer: dark-red disc with the AKAI
      lettering, centred. On the red background layer and under a circular launcher mask (Pixel)
      this gives a red ring around a dark-red circle. The disc (radius 32) stays inside the
      visible circle (radius 36 of the 108 canvas), so the ring is about 4 units wide.
-     The squircle variant (Xiaomi) is ic_launcher_squircle_*.xml; see mipmap-anydpi-v26. -->
+     The squircle variant is ic_launcher_akai_squircle_*.xml; see mipmap-anydpi-v26. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
