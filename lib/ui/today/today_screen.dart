@@ -436,7 +436,7 @@ class _MonthCard extends StatelessWidget {
   /// The month's tip payouts (docs/02-design.md §4.7).
   final int tipCents;
 
-  /// The month's gross pay, or null without an hourly wage (§4.8).
+  /// The month's pay, or null without an hourly wage (§4.8).
   final MonthPay? pay;
   final bool ratesLoaded;
   final DateTime now;

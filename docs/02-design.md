@@ -158,13 +158,13 @@ Tips are kept apart from shifts. The pool total belongs to a day, not to a shift
 
 ### Table `wage_rates` (salary, schema version 3)
 
-The user's gross hourly wage. Each rate is valid from a day on, so a raise (for example the minimum wage step on 2027-01-01) doesn't change past months. It goes into a later backup (§14.1).
+The user's hourly wage. Each rate is valid from a day on, so a raise (for example the minimum wage step on 2027-01-01) doesn't change past months. It goes into a later backup (§14.1).
 
 | Table `wage_rates` | Type | Meaning |
 |---|---|---|
 | `id` | text PK (UUID v4) | |
 | `validFrom` | text `yyyy-MM-dd`, unique | the first day the rate applies to |
-| `hourlyCents` | int | gross hourly wage in cents |
+| `hourlyCents` | int | hourly wage in cents |
 | `createdAt`, `updatedAt` | DateTime | |
 
 - One row per start day at most. Saving a rate for a day that already has one updates it.
@@ -353,7 +353,7 @@ Pure function `desiredNotifications(shifts, settings, now) → Set<ScheduledNoti
 
 ### 4.8 Salary (`domain/salary.dart`)
 
-Gross pay only: no tax, no deductions, no tips. Salary is paid per calendar month, so a shift's pay counts for the month of its `day` (unlike tips, which use the Thursday rule).
+The hours times the hourly wage, nothing else: no tax, no deductions, no tips. The app doesn't say whether the wage is gross or net; the pay is whichever the user entered. Salary is paid per calendar month, so a shift's pay counts for the month of its `day` (unlike tips, which use the Thursday rule).
 
 **Rate of a day:** the newest rate whose `validFrom` is on or before the day. Days before the first rate use the first rate, so the first rate entered also counts for earlier months. Without any rate there is no pay figure.
 
@@ -581,7 +581,7 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
 
 - **Month card:** the month of the shown week (by the Thursday rule). Chosen by the developer on 2026-11-05 from three prototypes (a two-column receipt, a big total on top, the old card plus a total). The receipt was dropped because tips have no forecast, so its "Expected" column only repeated them.
   - **Header:** the month, and a chip with the hourly wage ("€14.50/h", the rate at the end of the month). Tap opens the wage sheet. Without a rate the chip reads "Hourly wage" with a plus.
-  - **Pay** (§4.8), the biggest number, because it is what reaches the bank account at the end of the month. The current month shows "Expected pay · gross" with the expected amount, "€412 earned · 28.5 of 67.5 h" below it, and the wavy bar. A past month shows "Pay · gross" with the amount earned, unless shifts were missed; a future month shows the expected amount and "for 67.5 h". Without a rate: a hint and an "Add hourly wage" button.
+  - **Pay** (§4.8), the biggest number, because it is what reaches the bank account at the end of the month. The current month shows "Expected pay" with the expected amount, "€412 earned · 28.5 of 67.5 h" below it, and the wavy bar. A past month shows "Pay" with the amount earned, unless shifts were missed; a future month shows the expected amount and "for 67.5 h". Without a rate: a hint and an "Add hourly wage" button.
   - **"Tips"** with the number of weeks with a payout ("from 3 weeks").
   - **"Total · with tips":** "Earned" and "Expected" side by side, in the style of the hours on the Home tab; one of them for past and future months, by the same rule as the pay. Hidden without a rate.
 - **Week switcher:** the same as on Plan (arrows, swipe, "today" button).
@@ -594,7 +594,7 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
   - one text field with the decimal keyboard and a "€" suffix, focused when the sheet opens;
   - "Save", plus "Delete" if there is a value. Delete doesn't ask; a snack bar offers "Undo" (with `persist: false`).
 - **Wage sheet** (bottom sheet, `ui/pay/wage_sheet.dart`):
-  - title "Hourly wage" and the hint "Gross per hour, without tips."; for the very first rate also "Also counts for earlier months.";
+  - title "Hourly wage" and the hint "Per hour, without tips."; for the very first rate also "Also counts for earlier months.";
   - one money field with a "€/h" suffix, filled with the rate of the month on screen;
   - "Valid from" with a date chip, set to the 1st of the month on screen; shown only once a rate exists, because the first rate counts for every month anyway;
   - "Save" stores the rate for that day (or updates the rate already starting that day);
@@ -854,4 +854,5 @@ Possible later extensions:
 - **Team planner** (F11, planned 2026-11-05): not in the original scope. The user stands in for the boss's weekly service shift plan. Built into the app behind a Settings switch rather than as a separate app (`01-research.md` §10). Tables in §3, rules in §4.9, screens in §7. Schema version 4.
 - **Restaurant name** (2026-11-06, §4.10): not in the original design. The app was made for one restaurant and may be shared with colleagues, so the name became a setting. It goes into the event location, the export header and the team plan picture; the AKAI sign icon is offered only when the name is AKAI, and the default red is called "AKAI red" only then.
 - **What's new** (2026-11-06, §12): a popup after an update with the changes since the last version that ran, and the same popup from Settings › App update.
+- **No "gross"** (2026-11-06, §4.8): the Pay tab and the wage sheet no longer call the wage or the pay gross.
 - **Settings categories** (2026-11-06, §7): the one long Settings page became an overview with seven categories, each on its own page, because the page needed a lot of scrolling. The developer picked seven categories over five, and to show the reliability checks in two places but nothing else.

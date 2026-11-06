@@ -51,7 +51,7 @@ The screenshots show the English UI in dark mode with demo data.
 ### Pay and tips
 
 - The "Hourly wage" has a start date, so a raise doesn't change past months.
-- The Pay tab shows the expected gross pay for the month and the amount earned so far. Tax and deductions are not included.
+- The Pay tab shows the expected pay for the month and the amount earned so far: the hours times the hourly wage.
 - Tips are recorded two ways: the "Daily pool" (everyone's tips combined that day) and "Paid out" (the cash the user got for the week). Both are only for the user's records.
 
 <p align="center">

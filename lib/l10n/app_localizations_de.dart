@@ -97,9 +97,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get paySalary => 'Lohn';
 
   @override
-  String get payGross => 'brutto';
-
-  @override
   String get payExpectedSalary => 'Erwarteter Lohn';
 
   @override
@@ -140,7 +137,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Trag deinen Stundenlohn ein, dann siehst du hier, was du im Monat verdienst.';
 
   @override
-  String get wageSheetHint => 'Brutto pro Stunde, ohne Trinkgeld.';
+  String get wageSheetHint => 'Pro Stunde, ohne Trinkgeld.';
 
   @override
   String get wageFirstHint => 'Gilt auch für frühere Monate.';

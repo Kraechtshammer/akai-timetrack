@@ -79,7 +79,7 @@ Automated checks:
 
 - Design in `02-design.md` §3 (table `wage_rates`), §4.8 (rules), §7 (screens).
 - **Hourly wage:** set on the Pay tab. A rate is valid from a day on (default: the 1st of the month on screen), so a raise doesn't change past months. The first rate also counts for earlier months. The wage sheet lists all rates; each can be deleted.
-- **Pay tab month card:** the expected gross pay for the calendar month as the big number, with the amount earned so far (recorded shifts) and a wavy bar; "Expected" adds planned, running and missed shifts. Then "Tips", then "Total · with tips" as "Earned" and "Expected". Past months show what was earned, future months what is expected. The hourly wage is a chip in the header. The developer picked this layout from three prototypes.
+- **Pay tab month card:** the expected pay for the calendar month as the big number, with the amount earned so far (recorded shifts) and a wavy bar; "Expected" adds planned, running and missed shifts. Then "Tips", then "Total · with tips" as "Earned" and "Expected". Past months show what was earned, future months what is expected. The hourly wage is a chip in the header. The developer picked this layout from three prototypes.
 - **Home tab:** the "Today" tab is now "Home" (icon `home`), and the month card has a "Pay" row above "Tips": "€412 of €980", or "Add hourly wage".
 - No tax or deductions (developer decision). Tips have no forecast: "Expected" totals add the tips paid out so far.
 - **Database schema version 3:** table `wage_rates`, with a migration test from v2.

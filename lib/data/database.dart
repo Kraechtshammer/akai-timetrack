@@ -99,7 +99,7 @@ class TipPayouts extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// The user's gross hourly wage, valid from a day on, so a raise
+/// The user's hourly wage, valid from a day on, so a raise
 /// doesn't change past months. One row per start day at most. See
 /// docs/02-design.md §3 and §4.8.
 @DataClassName('WageRate')

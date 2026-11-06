@@ -97,9 +97,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paySalary => 'Pay';
 
   @override
-  String get payGross => 'gross';
-
-  @override
   String get payExpectedSalary => 'Expected pay';
 
   @override
@@ -140,7 +137,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Add your hourly wage to see what you earn each month.';
 
   @override
-  String get wageSheetHint => 'Gross per hour, without tips.';
+  String get wageSheetHint => 'Per hour, without tips.';
 
   @override
   String get wageFirstHint => 'Also counts for earlier months.';

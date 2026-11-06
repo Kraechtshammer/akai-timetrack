@@ -242,12 +242,6 @@ abstract class AppLocalizations {
   /// **'Lohn'**
   String get paySalary;
 
-  /// No description provided for @payGross.
-  ///
-  /// In de, this message translates to:
-  /// **'brutto'**
-  String get payGross;
-
   /// No description provided for @payExpectedSalary.
   ///
   /// In de, this message translates to:
@@ -317,7 +311,7 @@ abstract class AppLocalizations {
   /// No description provided for @wageSheetHint.
   ///
   /// In de, this message translates to:
-  /// **'Brutto pro Stunde, ohne Trinkgeld.'**
+  /// **'Pro Stunde, ohne Trinkgeld.'**
   String get wageSheetHint;
 
   /// No description provided for @wageFirstHint.

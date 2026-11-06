@@ -13,7 +13,7 @@ import '../common.dart';
 import 'money_sheet.dart';
 import 'wage_sheet.dart';
 
-/// "Pay": the month's gross pay and tips, and the tips of one week
+/// "Pay": the month's pay and tips, and the tips of one week
 /// (docs/02-design.md §7).
 class PayScreen extends ConsumerStatefulWidget {
   const PayScreen({super.key});
@@ -87,8 +87,8 @@ class _PayScreenState extends ConsumerState<PayScreen> {
   }
 }
 
-/// The month of the shown week (docs/02-design.md §7): the expected gross
-/// pay on top (what reaches the bank account), then tips, then the totals
+/// The month of the shown week (docs/02-design.md §7): the expected pay
+/// on top (what reaches the bank account), then tips, then the totals
 /// with tips. The hourly wage is a chip in the header. Pay is for the
 /// calendar month; tips for the weeks whose Thursday is in it (§4.7, §4.8).
 class _MonthCard extends ConsumerWidget {
@@ -155,20 +155,8 @@ class _MonthCard extends ConsumerWidget {
             ],
           ),
           if (rates != null) ...[
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: showExpected
-                        ? l10n.payExpectedSalary
-                        : l10n.paySalary,
-                  ),
-                  TextSpan(
-                    text: ' · ${l10n.payGross}',
-                    style: context.text.bodySmall,
-                  ),
-                ],
-              ),
+            Text(
+              showExpected ? l10n.payExpectedSalary : l10n.paySalary,
               style: context.text.labelLarge,
             ),
             if (pay == null)

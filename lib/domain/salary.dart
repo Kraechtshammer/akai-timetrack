@@ -2,8 +2,8 @@ import '../core/time.dart';
 import '../data/database.dart';
 import 'shift_info.dart';
 
-/// Salary: the user's gross pay from the hours and the hourly wage, without
-/// tax and without tips. The rules are in docs/02-design.md §4.8.
+/// Salary: the user's pay from the hours and the hourly wage, without tips.
+/// The rules are in docs/02-design.md §4.8.
 
 /// The hourly rate in cents that applies on [day] (`yyyy-MM-dd`): the newest
 /// rate that started on or before it. Days before the first rate use the
@@ -35,7 +35,7 @@ List<WageRate> ratesInMonth(DateTime month, List<WageRate> rates) {
   return [if (!inMonth.contains(atStart)) atStart, ...inMonth];
 }
 
-/// A month's gross pay.
+/// A month's pay.
 class MonthPay {
   const MonthPay({
     required this.earnedCents,
