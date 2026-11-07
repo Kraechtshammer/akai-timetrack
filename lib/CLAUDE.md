@@ -80,7 +80,9 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 
 ## Tests
 
-- `test/` mirrors the layers. Run `flutter test`. `flutter analyze` must report no issues.
+- `test/` mirrors the layers. Run `TZ=Europe/Berlin flutter test` (the task *Flutter: Test* and CI do): the container runs in UTC, which has no daylight saving change, so date bugs would pass unnoticed.
+- Calendar arithmetic uses `addDays`, `daysBetween`, `weekStart` and `timesOn` from `core/time.dart`, never `Duration(days: …)` or `difference(…).inDays` on local times.
+- `flutter analyze` must report no issues.
 - Database tests use an in-memory `AppDatabase(NativeDatabase.memory())`. Build shifts with `testShift` from `test/helpers.dart`.
 - Domain tests are pure.
 - `calendar_sync_test.dart` uses `FakeBridge` and calls `tzdata.initializeTimeZones()` in `setUpAll`. Tests that format dates in a locale need `initializeDateFormatting` in `setUpAll` (see `export_text_test.dart`).

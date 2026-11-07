@@ -13,11 +13,20 @@ DateTime parseDayKey(String key) {
 }
 
 /// Monday of the week [t] is in.
-DateTime weekStart(DateTime t) =>
-    dateOnly(t).subtract(Duration(days: t.weekday - DateTime.monday));
+DateTime weekStart(DateTime t) => addDays(t, DateTime.monday - t.weekday);
 
+/// Midnight [days] calendar days after [day]. Unlike adding a `Duration`,
+/// this stays at midnight across a daylight saving change.
 DateTime addDays(DateTime day, int days) =>
     DateTime(day.year, day.month, day.day + days);
+
+/// Calendar days from [from] to [to]. Counted on UTC dates, because a local
+/// difference is an hour short across the spring clock change.
+int daysBetween(DateTime from, DateTime to) => DateTime.utc(
+  to.year,
+  to.month,
+  to.day,
+).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
 
 DateTime monthStart(DateTime t) => DateTime(t.year, t.month);
 DateTime nextMonthStart(DateTime t) => DateTime(t.year, t.month + 1);
@@ -29,7 +38,7 @@ int isoWeekNumber(DateTime t) {
   final thursday = addDays(day, DateTime.thursday - day.weekday);
   final firstThursday = DateTime(thursday.year, 1, 4);
   final firstWeekStart = weekStart(firstThursday);
-  return weekStart(thursday).difference(firstWeekStart).inDays ~/ 7 + 1;
+  return daysBetween(firstWeekStart, weekStart(thursday)) ~/ 7 + 1;
 }
 
 /// A time of day as minutes after midnight, e.g. 17:30 = 1050.
@@ -45,7 +54,9 @@ DateTime atMinutes(DateTime day, Minutes minutes) =>
 (DateTime, DateTime) timesOn(DateTime day, Minutes start, Minutes end) {
   final from = atMinutes(day, start);
   var to = atMinutes(day, end);
-  if (!to.isAfter(from)) to = to.add(const Duration(days: 1));
+  // The next calendar day, not 24 hours later: on a clock-change night
+  // those differ by an hour.
+  if (!to.isAfter(from)) to = atMinutes(addDays(day, 1), end);
   return (from, to);
 }
 

@@ -21,4 +21,7 @@ jobs:
 
       - run: flutter pub get
       - run: flutter analyze
+      # Berlin time, so tests see daylight saving changes (UTC has none).
       - run: flutter test
+        env:
+          TZ: Europe/Berlin

@@ -19,7 +19,7 @@
     {
       "label": "Flutter: Test",
       "type": "shell",
-      "command": "flutter test",
+      "command": "TZ=Europe/Berlin flutter test",
       "group": { "kind": "test", "isDefault": true },
       "problemMatcher": []
     },

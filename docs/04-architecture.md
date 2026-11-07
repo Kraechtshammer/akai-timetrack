@@ -138,7 +138,7 @@ Channel names still start with the first package name `de.garten.…`. They are 
 - **Comments:** `///` on public classes, fields and non-obvious functions. They say what and why, in plain English, and point to the design doc (`docs/02-design.md §4.8`). Comments follow the docs style: English only and "the user". Some older comments still break it (§10).
 - **Time:**
   - `DateTime` in local time.
-  - `dateOnly`, `addDays`, `weekStart` and `timesOn` from `core/time.dart` for calendar arithmetic.
+  - `dateOnly`, `addDays`, `daysBetween`, `weekStart` and `timesOn` from `core/time.dart` for calendar arithmetic, never a `Duration` of days, which is an hour off across a clock change.
   - Day keys for storage.
   - `tz` only for scheduling notifications.
 - **Money:** integer cents, `formatEuros` to show, `parseEuroCents` to read.
@@ -163,7 +163,7 @@ Channel names still start with the first package name `de.garten.…`. They are 
 - **Migrations** have generated tests in `test/drift/`.
 - **Widget tests:** only the team plan image and the shift colours. There are none for the screens.
 - **Not tested:** `syncAll`, `handleNotificationAction` and `NotificationService.reconcile`.
-- **Time zone:** the dev container and CI run in UTC, so no test sees a daylight-saving change (§10).
+- **Time zone:** the dev container runs in UTC, which has no daylight saving change. CI and the VS Code test task run the tests with `TZ=Europe/Berlin`, and `test/time_and_rounding_test.dart` has cases across both clock changes.
 
 ## 9. Decisions, reviewed on 2026-11-06
 
@@ -185,10 +185,6 @@ Channel names still start with the first package name `de.garten.…`. They are 
 ## 10. Known weaknesses
 
 Found in the review on 2026-11-06. Remove an item when it is fixed.
-
-**Bugs:**
-- `isoWeekNumber` (`core/time.dart`) divides a `Duration` across the spring clock change. From late March to late October the week number is one too low, for example 2026-04-15 shows week 15 instead of 16. It affects the Plan and Pay headers and the tip payout title. Reproduced with `TZ=Europe/Berlin`.
-- `timesOn` adds 24 hours for a shift that ends after midnight. On the two clock-change nights such a shift ends an hour early or late (an 18:00–01:00 shift on 2026-03-29 ends at 02:00).
 
 **Data integrity:**
 - The shift sheet saves a new shift as `create` followed by `save`, and `save` replaces the whole row with the sheet's copy. A notification button pressed while the sheet is open can be undone by saving the sheet.
