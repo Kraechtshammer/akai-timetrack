@@ -10,6 +10,8 @@ import 'platform/app_icon.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // create() can't throw: the time zone is guarded and the database opens
+  // lazily, so a broken database only shows up in later queries.
   final services = await AppServices.create();
   try {
     await services.notifications.initialize(

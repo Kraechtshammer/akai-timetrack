@@ -99,9 +99,17 @@ class NotificationService {
     final wanted = planReminders(shifts, settings, now);
     final wantedIds = wanted.map((r) => r.id).toSet();
 
-    // Remove start/overrun reminders that are no longer wanted. Snoozes are
-    // left alone; they're cancelled when the shift starts.
-    for (final pending in await _plugin.pendingNotificationRequests()) {
+    // Remove start/overrun reminders that are no longer wanted, and snoozes
+    // whose shift is gone, started or recorded.
+    final pendingRequests = await _plugin.pendingNotificationRequests();
+    for (final id in staleSnoozeIds(
+      pendingRequests.map((p) => p.id),
+      shifts,
+      now,
+    )) {
+      await _plugin.cancel(id: id);
+    }
+    for (final pending in pendingRequests) {
       final kind = pending.id % 10;
       final managed =
           kind == ReminderKind.start.code || kind == ReminderKind.overrun.code;

@@ -152,6 +152,11 @@ object RunningProgress {
 /** Woken by the alarm: moves the progress bar forward. */
 class ProgressTickReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        RunningProgress.update(context)
+        // An exception escaping an alarm receiver would crash the process.
+        try {
+            RunningProgress.update(context)
+        } catch (e: Exception) {
+            android.util.Log.w("RunningProgress", "Progress tick failed", e)
+        }
     }
 }

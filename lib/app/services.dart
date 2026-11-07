@@ -103,16 +103,22 @@ class AppServices {
       final now = DateTime.now();
       final l10n = await this.l10n();
       await notifications.reconcile(
-        shifts: await shifts.getFrom(dateOnly(now)),
+        // From yesterday: a pending snooze may belong to a shift that
+        // started just before midnight.
+        shifts: await shifts.getFrom(addDays(dateOnly(now), -1)),
         running: await shifts.running(),
         settings: await settings.load(),
         l10n: l10n,
         now: now,
       );
-      lastCalendarResult = await calendar.run(l10n);
+    } catch (e, stack) {
+      debugPrint('Notification sync failed: $e\n$stack');
+    }
+    try {
+      lastCalendarResult = await calendar.run(await l10n());
     } catch (e, stack) {
       lastCalendarResult = CalendarSyncResult.failed;
-      debugPrint('Sync failed: $e\n$stack');
+      debugPrint('Calendar sync failed: $e\n$stack');
     }
   }
 
@@ -151,6 +157,10 @@ Future<void> onNotificationActionInBackground(
   NotificationResponse response,
 ) async {
   DartPluginRegistrant.ensureInitialized();
-  final services = await AppServices.create();
-  await services.handleNotificationAction(response);
+  try {
+    final services = await AppServices.create();
+    await services.handleNotificationAction(response);
+  } catch (e, stack) {
+    debugPrint('Notification action failed: $e\n$stack');
+  }
 }

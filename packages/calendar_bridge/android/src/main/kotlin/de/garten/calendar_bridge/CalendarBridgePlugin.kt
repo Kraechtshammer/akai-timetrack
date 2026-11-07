@@ -15,6 +15,7 @@ import android.provider.CalendarContract.Events
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /**
@@ -27,17 +28,20 @@ class CalendarBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private lateinit var context: Context
 
     // Calendar queries can be slow, so they run off the main thread.
-    private val worker = Executors.newSingleThreadExecutor()
+    private var worker: ExecutorService = Executors.newSingleThreadExecutor()
     private val mainThread = Handler(Looper.getMainLooper())
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
+        // Recreated here: onDetachedFromEngine shuts the old one down.
+        if (worker.isShutdown) worker = Executors.newSingleThreadExecutor()
         channel = MethodChannel(binding.binaryMessenger, "de.garten.calendar_bridge")
         channel.setMethodCallHandler(this)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        worker.shutdown()
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {

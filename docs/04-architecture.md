@@ -63,12 +63,12 @@ The background isolate cannot use Riverpod, which is why the services live in a 
 2. The repository writes the row with `syncState = dirty` and a new `updatedAt`.
 3. The service calls its `onChanged` callback, which is `AppServices.syncAll()`.
 4. `syncAll()` chains runs on `_lastSync`, so only one runs at a time in this isolate. A run:
-   - `NotificationService.reconcile` plans the wanted reminders (`planReminders`), cancels pending start and overrun reminders that are no longer wanted, schedules the wanted ones, and shows or removes the running notification.
+   - `NotificationService.reconcile` gets the shifts from yesterday on. It plans the wanted reminders (`planReminders`), cancels pending start and overrun reminders that are no longer wanted and snoozes whose shift is gone or no longer planned (`staleSnoozeIds`), schedules the wanted ones, and shows or removes the running notification.
    - `CalendarSync.run` deletes events of `pendingDelete` shifts, inserts or updates each dirty shift's event, and re-creates events deleted in Google Calendar for shifts from this week on.
    - `ShiftRepository.setSynced` marks a row synced only if its `updatedAt` hasn't changed since the run read it, so a change made during the run is not lost.
 5. drift's streams fire, providers emit, screens rebuild.
 
-Errors in a run are caught once for the whole run and only logged with `debugPrint`. Dirty shifts wait for the next run, which happens after the next change, on start and on resume.
+Errors are caught separately for the notifications and the calendar, so one failing doesn't skip the other, and only logged with `debugPrint`. Dirty shifts wait for the next run, which happens after the next change, on start and on resume.
 
 ### 3.4 Isolates
 
@@ -173,7 +173,7 @@ Channel names still start with the first package name `de.garten.…`. They are 
 | `AppServices` as a plain object, Riverpod only as a thin view layer | Keep. The background isolate needs the services without Riverpod. |
 | drift row classes as domain models | Keep. A mapping layer would cost more than it saves. |
 | Key-value settings with hand-written `fromMap`, `toMap` and `copyWith` | Keep the table. Each new setting touches five places in `app_settings.dart`, which is tolerable at 23 settings. |
-| One `syncAll` chain per isolate, errors only logged | Keep the chain. Split the try/catch so a notification error doesn't skip the calendar (§10). |
+| One `syncAll` chain per isolate, errors only logged | Keep. Notifications and calendar have separate try/catch blocks since 2026-11-07. |
 | Own Kotlin calendar plugin; MainActivity channels for icon and updater | Keep. |
 | Old channel names `de.garten.…` | Keep. Cosmetic. |
 | No router, `IndexedStack` with visit counters | Keep. |
@@ -185,12 +185,6 @@ Channel names still start with the first package name `de.garten.…`. They are 
 ## 10. Known weaknesses
 
 Found in the review on 2026-11-06. Remove an item when it is fixed.
-
-**Robustness:**
-- `onNotificationActionInBackground` has no try/catch, so a failed button tap leaves no trace.
-- `ProgressTickReceiver.onReceive` has no try/catch, so an exception there crashes the process from an alarm.
-- `reconcile` doesn't cancel snoozed reminders, so a snooze for a shift deleted in those 10 minutes still fires.
-- `AppServices.create()` in `main()` is outside a try/catch, although the rule says start-up must reach `runApp`.
 
 **UI:**
 - Status and display rules live in widgets and are untested:

@@ -65,3 +65,23 @@ List<PlannedReminder> planReminders(
   }
   return reminders;
 }
+
+/// Pending snooze notifications to cancel: those whose shift is gone, or
+/// has started, been recorded or ended. [shifts] must include every shift
+/// a snooze can still belong to (a snooze lasts only minutes, so from
+/// yesterday on is enough).
+List<int> staleSnoozeIds(
+  Iterable<int> pendingIds,
+  Iterable<Shift> shifts,
+  DateTime now,
+) {
+  final planned = {
+    for (final s in shifts)
+      if (s.statusAt(now) == ShiftStatus.planned) s.notifId,
+  };
+  return [
+    for (final id in pendingIds)
+      if (id % 10 == ReminderKind.snooze.code && !planned.contains(id ~/ 10))
+        id,
+  ];
+}

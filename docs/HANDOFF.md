@@ -219,7 +219,7 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 
 Done and removed on 2026-11-06, as the developer confirmed: the new icons and the release build checked on the Pixel and the Xiaomi; the Live Update and icon checks on the Pixel 7 Pro; the handover (M6) with the release key backed up, the GitHub secrets set, the old test install removed, and the app in daily use on the user's Xiaomi since 2026-11-04.
 
-0. **Review findings** (2026-11-06): two time-zone bugs (week number one too low in summer time, overnight shifts on clock-change nights), a stale-write risk in the shift sheet, missing error handling on the notification paths. Full list in `04-architecture.md` §10.
+0. **Review findings** (2026-11-06): fixed on 2026-11-07 (time-zone bugs, stale writes, notification error handling, column widths). What is left is in `04-architecture.md` §10.
 
 0. **Team planner in real use:** the developer is asking how the shared picture looks in WhatsApp (Standard quality shrinks it to about 1600 px; expected to be fine). Set the real staff counts. Maybe later: drag and drop, "Same as last week", kitchen staff (`01-research.md` §10).
 

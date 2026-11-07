@@ -73,6 +73,35 @@ void main() {
         DateTime(2026, 11, 5, 0, 10),
       );
     });
+
+    test('stale snoozes are cancelled, valid ones and other kinds kept', () {
+      final running = testShift(
+        day: DateTime(2026, 11, 4),
+        rawStart: DateTime(2026, 11, 4, 17, 32),
+      );
+      int snooze(Shift s) => notificationId(s, ReminderKind.snooze);
+      final pending = [
+        snooze(upcoming), // planned: keep
+        snooze(running), // started: cancel
+        snooze(recorded), // recorded: cancel
+        snooze(missed), // ended: cancel
+        999 * 10 + ReminderKind.snooze.code, // deleted shift: cancel
+        notificationId(running, ReminderKind.overrun), // not a snooze
+        runningNotificationId,
+      ];
+      final stale = staleSnoozeIds(pending, [
+        upcoming,
+        running,
+        recorded,
+        missed,
+      ], now);
+      expect(stale, [
+        snooze(running),
+        snooze(recorded),
+        snooze(missed),
+        999 * 10 + ReminderKind.snooze.code,
+      ]);
+    });
   });
 
   test('custom shifts count as lunch when they start before 15:00', () {
