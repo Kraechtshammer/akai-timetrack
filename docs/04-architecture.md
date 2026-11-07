@@ -198,8 +198,6 @@ Found in the review on 2026-11-06. Remove an item when it is fixed.
   - `showEarned` and `showExpected` in `pay_screen.dart`;
   - the missing count in `export_screen.dart`;
   - the same worked-minutes sum in three screens.
-- `ref.settings` (a `watch`) is used inside event handlers in `settings_pages.dart` and `shift_sheet.dart`.
-- Four places read `settingsProvider).value!`.
 - The card frame (rounded container, today border, divided rows) is written three times: Plan, Team and Pay.
 
 **Docs and style:**

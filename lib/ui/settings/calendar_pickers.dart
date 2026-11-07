@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../material.dart';
 
 import '../../app/providers.dart';
+import '../../data/app_settings.dart';
 import '../../l10n/labels.dart';
 import '../../platform/calendar_sync.dart';
 import '../../platform/device_setup.dart';
@@ -55,6 +56,7 @@ class _CalendarChooserState extends ConsumerState<CalendarChooser> {
     } catch (_) {
       // Reading the list again still helps.
     }
+    if (!mounted) return;
     await _load();
     _reloadLater?.cancel();
     _reloadLater = Timer(const Duration(seconds: 6), () async {
@@ -73,6 +75,7 @@ class _CalendarChooserState extends ConsumerState<CalendarChooser> {
         // Events are still written; they reach Google once sync is on.
       }
     }
+    if (!mounted) return;
     widget.onSelected(calendar);
   }
 
@@ -91,6 +94,7 @@ class _CalendarChooserState extends ConsumerState<CalendarChooser> {
 
   Future<void> _requestPermission() async {
     await DeviceSetup.requestCalendar();
+    if (!mounted) return;
     await _load();
   }
 
@@ -176,47 +180,46 @@ class _CalendarChooserState extends ConsumerState<CalendarChooser> {
 }
 
 /// Settings: choose the calendar, or none.
-Future<void> showCalendarPicker(BuildContext context, WidgetRef ref) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      showDragHandle: true,
-      builder: (context) {
-        final l10n = context.l10n;
-        final settings = ref.read(settingsProvider).value!;
-        Future<void> choose(CalendarInfo? calendar) async {
-          Navigator.pop(context);
-          if (calendar?.id == settings.calendarId) return;
-          await ref.services.calendar.switchCalendar(calendar);
-          await ref.services.syncAll();
-        }
+Future<void> showCalendarPicker(
+  BuildContext context,
+  WidgetRef ref,
+) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  useSafeArea: true,
+  showDragHandle: true,
+  builder: (context) {
+    final l10n = context.l10n;
+    final settings = ref.read(settingsProvider).value ?? const AppSettings();
+    Future<void> choose(CalendarInfo? calendar) async {
+      Navigator.pop(context);
+      if (calendar?.id == settings.calendarId) return;
+      await ref.services.calendar.switchCalendar(calendar);
+      await ref.services.syncAll();
+    }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(l10n.calendar, style: context.text.headlineSmall),
-              ),
-              CalendarChooser(
-                selectedId: settings.calendarId,
-                onSelected: choose,
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.event_busy),
-                title: Text(l10n.calendarNone),
-                subtitle: Text(l10n.calendarNoneHint),
-                onTap: () => choose(null),
-              ),
-            ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(l10n.calendar, style: context.text.headlineSmall),
           ),
-        );
-      },
+          CalendarChooser(selectedId: settings.calendarId, onSelected: choose),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.event_busy),
+            title: Text(l10n.calendarNone),
+            subtitle: Text(l10n.calendarNoneHint),
+            onTap: () => choose(null),
+          ),
+        ],
+      ),
     );
+  },
+);
 
 /// Choose the event color for all shifts in the calendar.
 Future<void> showEventColorPicker(BuildContext context, WidgetRef ref) =>
@@ -243,12 +246,15 @@ class _EventColorSheetState extends ConsumerState<_EventColorSheet> {
   @override
   void initState() {
     super.initState();
-    _selectedKey = ref.read(settingsProvider).value!.eventColorKey;
+    _selectedKey =
+        (ref.read(settingsProvider).value ?? const AppSettings()).eventColorKey;
     _load();
   }
 
   Future<void> _load() async {
-    final calendarId = ref.read(settingsProvider).value!.calendarId!;
+    final calendarId =
+        (ref.read(settingsProvider).value ?? const AppSettings()).calendarId;
+    if (calendarId == null) return;
     final bridge = ref.services.calendar.bridge;
     final colors = await bridge.eventColors(calendarId);
     final calendars = await bridge.writableCalendars();

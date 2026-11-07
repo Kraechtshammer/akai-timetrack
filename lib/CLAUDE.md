@@ -49,6 +49,7 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 - `app.dart` wraps the app in `M3ETheme(data: M3EThemeData.fromMaterial(Theme.of(context)))`.
 - Use the helpers in `ui/common.dart`: `PageHeader`, `Panel`, `Figure`, `WeekSwitcher`, `TimeField`, `pickTime`, `pickOption`, and `context.l10n/colors/text/locale/showSnack`.
 - Columns of aligned one-line texts get their width from `textColumnWidth` (`common.dart`), not a fixed number, so English labels and large fonts don't wrap.
+- In event handlers read settings with `ref.read(settingsProvider).value ?? const AppSettings()`; `ref.settings` and `ref.now` are `watch`es, for `build` only. Never `value!`.
 - Check the screen in dark and in light mode.
 
 ### Change colours

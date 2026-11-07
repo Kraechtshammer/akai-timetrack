@@ -223,25 +223,33 @@ class _CalendarPage extends ConsumerWidget {
 
   Future<void> _editTitle(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
-    final controller = TextEditingController(text: ref.settings.eventTitle);
-    final title = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.eventTitle),
-        content: TextField(controller: controller, autofocus: true),
-        actions: [
-          M3EButton(
-            style: M3EButtonStyle.text,
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          M3EButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
+    final controller = TextEditingController(
+      text:
+          (ref.read(settingsProvider).value ?? const AppSettings()).eventTitle,
     );
+    final String? title;
+    try {
+      title = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.eventTitle),
+          content: TextField(controller: controller, autofocus: true),
+          actions: [
+            M3EButton(
+              style: M3EButtonStyle.text,
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel),
+            ),
+            M3EButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: Text(l10n.save),
+            ),
+          ],
+        ),
+      );
+    } finally {
+      controller.dispose();
+    }
     if (title != null && title.isNotEmpty) {
       await _update(
         ref,
@@ -489,47 +497,58 @@ class _GeneralPage extends ConsumerWidget {
 
   Future<void> _editRestaurant(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
-    final controller = TextEditingController(text: ref.settings.restaurant);
-    final name = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.restaurant),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-          decoration: InputDecoration(
-            helperText: l10n.restaurantHint,
-            helperMaxLines: 2,
-            // Empty is a valid answer, so make it one tap away.
-            suffixIcon: ListenableBuilder(
-              listenable: controller,
-              builder: (context, _) => controller.text.isEmpty
-                  ? const SizedBox.shrink()
-                  : IconButton(
-                      tooltip: l10n.clearField,
-                      icon: const Icon(Icons.close),
-                      onPressed: controller.clear,
-                    ),
+    final controller = TextEditingController(
+      text:
+          (ref.read(settingsProvider).value ?? const AppSettings()).restaurant,
+    );
+    final String? name;
+    try {
+      name = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.restaurant),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(
+              helperText: l10n.restaurantHint,
+              helperMaxLines: 2,
+              // Empty is a valid answer, so make it one tap away.
+              suffixIcon: ListenableBuilder(
+                listenable: controller,
+                builder: (context, _) => controller.text.isEmpty
+                    ? const SizedBox.shrink()
+                    : IconButton(
+                        tooltip: l10n.clearField,
+                        icon: const Icon(Icons.close),
+                        onPressed: controller.clear,
+                      ),
+              ),
             ),
           ),
+          actions: [
+            M3EButton(
+              style: M3EButtonStyle.text,
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel),
+            ),
+            M3EButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: Text(l10n.save),
+            ),
+          ],
         ),
-        actions: [
-          M3EButton(
-            style: M3EButtonStyle.text,
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          M3EButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
-    );
+      );
+    } finally {
+      controller.dispose();
+    }
     // Empty is allowed: no restaurant anywhere. The events carry it as
     // their location.
-    if (name != null && name != ref.settings.restaurant) {
+    if (name != null &&
+        name !=
+            (ref.read(settingsProvider).value ?? const AppSettings())
+                .restaurant) {
       await _update(
         ref,
         (s) => s.copyWith(restaurant: name),
