@@ -458,5 +458,7 @@
   "teamAwayShort": "Nicht da",
   "teamDeleteTitle": "{name} löschen?",
   "@teamDeleteTitle": {"placeholders":{"name":{"type":"String"}}},
-  "teamDeleteBody": "Die Antworten und Schichten dieser Person werden in allen Wochen mit gelöscht."
+  "teamDeleteBody": "Die Antworten und Schichten dieser Person werden in allen Wochen mit gelöscht.",
+  "minutesUnit": "min",
+  "shiftChangedMeanwhile": "Die Schicht wurde inzwischen geändert, zum Beispiel über die Benachrichtigung. Bitte prüfe sie noch einmal."
 }

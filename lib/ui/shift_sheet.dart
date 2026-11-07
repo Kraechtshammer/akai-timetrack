@@ -7,6 +7,7 @@ import 'material.dart';
 import '../app/providers.dart';
 import '../core/format.dart';
 import '../core/time.dart';
+import '../data/app_settings.dart';
 import '../data/database.dart';
 import '../domain/planning.dart';
 import '../domain/shift_info.dart';
@@ -63,7 +64,7 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
       _type = ShiftType.custom;
       final times = defaultTimes(
         ShiftType.custom,
-        ref.read(settingsProvider).value!,
+        ref.read(settingsProvider).value ?? const AppSettings(),
       );
       _plannedStart = times.start;
       _plannedEnd = times.end;
@@ -80,7 +81,10 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
     setState(() {
       _type = type;
       if (!_plannedCustomized) {
-        final times = defaultTimes(type, ref.settings);
+        final times = defaultTimes(
+          type,
+          ref.read(settingsProvider).value ?? const AppSettings(),
+        );
         _plannedStart = times.start;
         _plannedEnd = times.end;
       }
@@ -103,19 +107,34 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
         ? timesOn(widget.day, _actualStart!, _actualEnd!)
         : null;
 
-    var shift =
-        widget.shift ??
-        await planning.create(widget.day, _type, plannedStart, plannedEnd);
-    shift = shift.copyWith(
-      type: _type,
-      plannedStart: plannedStart,
-      plannedEnd: plannedEnd,
-      plannedCustomized: _plannedCustomized,
-      actualStart: Value(actual?.$1),
-      actualEnd: Value(actual?.$2),
-      breakMinutes: _break,
-    );
-    await planning.save(shift);
+    final shift = widget.shift;
+    if (shift == null) {
+      await planning.create(
+        widget.day,
+        _type,
+        plannedStart,
+        plannedEnd,
+        plannedCustomized: _plannedCustomized,
+        actualStart: actual?.$1,
+        actualEnd: actual?.$2,
+        breakMinutes: _break,
+      );
+    } else {
+      final saved = await planning.saveEdited(
+        shift.copyWith(
+          type: _type,
+          plannedStart: plannedStart,
+          plannedEnd: plannedEnd,
+          plannedCustomized: _plannedCustomized,
+          actualStart: Value(actual?.$1),
+          actualEnd: Value(actual?.$2),
+          breakMinutes: _break,
+        ),
+      );
+      if (!saved && mounted) {
+        context.showSnack(context.l10n.shiftChangedMeanwhile);
+      }
+    }
     if (mounted) Navigator.pop(context);
   }
 
@@ -134,7 +153,7 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
           controller: controller,
           autofocus: true,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(suffixText: 'min'),
+          decoration: InputDecoration(suffixText: context.l10n.minutesUnit),
         ),
         actions: [
           M3EButton(
@@ -150,6 +169,7 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
         ],
       ),
     );
+    controller.dispose();
     if (minutes != null && minutes >= 0) setState(() => _break = minutes);
   }
 

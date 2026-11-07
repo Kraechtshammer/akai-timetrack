@@ -84,8 +84,9 @@ class SettingsRepository {
 
   /// Applies [change] to the current settings and saves the result.
   Future<AppSettings> update(AppSettings Function(AppSettings) change) async {
-    final next = change(await load());
-    await _db.transaction(() async {
+    // Load inside the transaction, so two quick updates can't lose one.
+    return _db.transaction(() async {
+      final next = change(await load());
       for (final MapEntry(:key, :value) in next.toMap().entries) {
         if (value == null) {
           await (_db.delete(
@@ -99,8 +100,8 @@ class SettingsRepository {
               );
         }
       }
+      return next;
     });
-    return next;
   }
 
   Map<String, String> _toMap(List<SettingEntry> rows) => {

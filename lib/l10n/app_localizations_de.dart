@@ -1366,4 +1366,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get teamDeleteBody =>
       'Die Antworten und Schichten dieser Person werden in allen Wochen mit gelöscht.';
+
+  @override
+  String get minutesUnit => 'min';
+
+  @override
+  String get shiftChangedMeanwhile =>
+      'Die Schicht wurde inzwischen geändert, zum Beispiel über die Benachrichtigung. Bitte prüfe sie noch einmal.';
 }

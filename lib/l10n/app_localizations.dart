@@ -2329,6 +2329,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Die Antworten und Schichten dieser Person werden in allen Wochen mit gelöscht.'**
   String get teamDeleteBody;
+
+  /// No description provided for @minutesUnit.
+  ///
+  /// In de, this message translates to:
+  /// **'min'**
+  String get minutesUnit;
+
+  /// No description provided for @shiftChangedMeanwhile.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Schicht wurde inzwischen geändert, zum Beispiel über die Benachrichtigung. Bitte prüfe sie noch einmal.'**
+  String get shiftChangedMeanwhile;
 }
 
 class _AppLocalizationsDelegate

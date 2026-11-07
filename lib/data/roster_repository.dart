@@ -95,13 +95,15 @@ class RosterRepository {
   )..where((t) => t.weekStart.equals(dayKey(weekStart)))).watch();
 
   /// Saves the person's answer for the week, replacing an earlier one.
+  /// Select and write share a transaction, so a double tap can't hit the
+  /// unique key.
   Future<void> setAnswer(
     DateTime weekStart,
     String memberId, {
     required AnswerMode mode,
     required int marks,
     int? maxShifts,
-  }) async {
+  }) => _db.transaction(() async {
     final key = dayKey(weekStart);
     final existing =
         await (_db.select(_db.teamAnswers)..where(
@@ -136,7 +138,7 @@ class RosterRepository {
             ),
           );
     }
-  }
+  });
 
   /// Back to "No answer yet".
   Future<void> removeAnswer(DateTime weekStart, String memberId) =>

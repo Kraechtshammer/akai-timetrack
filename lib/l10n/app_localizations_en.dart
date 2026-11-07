@@ -1364,4 +1364,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get teamDeleteBody =>
       'Their answers and shifts in all weeks are deleted too.';
+
+  @override
+  String get minutesUnit => 'min';
+
+  @override
+  String get shiftChangedMeanwhile =>
+      'This shift was changed in the meantime, for example from the notification. Please check it again.';
 }

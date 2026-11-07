@@ -56,36 +56,64 @@ class ShiftRepository {
     required DateTime plannedStart,
     required DateTime plannedEnd,
     bool plannedCustomized = false,
-  }) async {
+    DateTime? actualStart,
+    DateTime? actualEnd,
+    int breakMinutes = 0,
+  }) {
     final now = DateTime.now();
-    final shift = Shift(
-      id: _uuid.v4(),
-      notifId: await _nextNotifId(),
-      day: dayKey(day),
-      type: type,
-      plannedStart: plannedStart,
-      plannedEnd: plannedEnd,
-      plannedCustomized: plannedCustomized,
-      breakMinutes: 0,
-      syncState: SyncState.dirty,
-      createdAt: now,
-      updatedAt: now,
-    );
-    await _db.into(_db.shifts).insert(shift);
-    return shift;
+    // The id lookup and the insert share a transaction, so two creations
+    // can't get the same notification id.
+    return _db.transaction(() async {
+      final shift = Shift(
+        id: _uuid.v4(),
+        notifId: await _nextNotifId(),
+        day: dayKey(day),
+        type: type,
+        plannedStart: plannedStart,
+        plannedEnd: plannedEnd,
+        plannedCustomized: plannedCustomized,
+        actualStart: actualStart,
+        actualEnd: actualEnd,
+        breakMinutes: breakMinutes,
+        syncState: SyncState.dirty,
+        createdAt: now,
+        updatedAt: now,
+      );
+      await _db.into(_db.shifts).insert(shift);
+      return shift;
+    });
   }
 
-  /// Saves a changed shift and marks it for the calendar sync.
-  Future<void> save(Shift shift) => _db
-      .update(_db.shifts)
-      .replace(
-        shift.copyWith(
-          syncState: shift.syncState == SyncState.pendingDelete
-              ? SyncState.pendingDelete
-              : SyncState.dirty,
-          updatedAt: DateTime.now(),
-        ),
-      );
+  /// Saves a changed shift and marks it for the calendar sync. For callers
+  /// that read the shift right before: it overwrites the whole row.
+  Future<void> save(Shift shift) =>
+      _db.update(_db.shifts).replace(_touched(shift));
+
+  /// Like [save], but only if the stored shift still has the `updatedAt` of
+  /// [shift] (nobody changed it since it was read, e.g. the notification
+  /// started a recording). Returns whether the row was written.
+  Future<bool> saveEdited(Shift shift) async {
+    final rows =
+        await (_db.update(_db.shifts)..where(
+              (s) =>
+                  s.id.equals(shift.id) & s.updatedAt.equals(shift.updatedAt),
+            ))
+            .write(_touched(shift).toCompanion(false));
+    return rows > 0;
+  }
+
+  Shift _touched(Shift shift) {
+    // `updatedAt` is stored in whole seconds; keep it strictly increasing so
+    // two changes within a second still differ for [saveEdited].
+    final now = DateTime.now();
+    final floor = shift.updatedAt.add(const Duration(seconds: 1));
+    return shift.copyWith(
+      syncState: shift.syncState == SyncState.pendingDelete
+          ? SyncState.pendingDelete
+          : SyncState.dirty,
+      updatedAt: now.isAfter(floor) ? now : floor,
+    );
+  }
 
   /// Stores the calendar event of a shift after a sync. The shift only counts
   /// as synced if nobody changed it meanwhile ([seenUpdatedAt]).
@@ -94,7 +122,7 @@ class ShiftRepository {
     required String? eventId,
     required String? calendarId,
     required DateTime seenUpdatedAt,
-  }) async {
+  }) => _db.transaction(() async {
     await (_db.update(_db.shifts)..where((s) => s.id.equals(id))).write(
       ShiftsCompanion(
         calendarEventId: Value(eventId),
@@ -108,7 +136,7 @@ class ShiftRepository {
               s.syncState.equalsValue(SyncState.dirty),
         ))
         .write(ShiftsCompanion(syncState: Value(SyncState.synced)));
-  }
+  });
 
   /// Forgets all calendar events (e.g. when sync is switched off) and marks
   /// the shifts for a fresh sync.

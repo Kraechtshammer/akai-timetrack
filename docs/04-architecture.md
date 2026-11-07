@@ -104,9 +104,9 @@ Channel names still start with the first package name `de.garten.…`. They are 
 - **No foreign keys.** Repositories keep related rows in step, for example `deleteMember` in one transaction.
 - **Settings** are a key-value table read into one immutable `AppSettings` (23 settings). The background isolate can read them, and new settings need no migration. Device status values (`lastCalendarSync`, `whatsNew`, …) share the table. `SettingsRepository.watch()` filters them out so they don't rebuild the app.
 - **Writes:**
-  - `ShiftRepository.save` and `delete` replace the whole row with the object the caller passes.
-  - `SettingsRepository.update` loads the settings, applies a change and writes all keys in one transaction. The load is outside that transaction.
-  - Apart from that, only the roster repository uses transactions.
+  - `ShiftRepository.save` and `delete` replace the whole row with the object the caller passes. Services use them right after reading the shift.
+  - The shift sheet holds a shift while it is open, so it saves with `saveEdited`. That writes only if the row's `updatedAt` is still the one the sheet read; otherwise the sheet closes with "This shift was changed in the meantime…". `updatedAt` is stored in whole seconds, so every write moves it forward by at least a second.
+  - Read-then-write steps run in a transaction: creating a shift (with its notification id), `setSynced`, `SettingsRepository.update`, and the tip, wage, answer and roster upserts.
 
 ## 5. Domain
 
@@ -180,16 +180,11 @@ Channel names still start with the first package name `de.garten.…`. They are 
 | No loading or error UI | Keep for a local database. |
 | `flutter_lints` only | Revisit: `unawaited_futures` would catch fire-and-forget calls such as `ref.services.syncAll()` in `home_shell.dart`. |
 | Status and display rules inside widgets | Revisit: move them to `domain/` with tests (§10). |
-| Whole-row writes in `ShiftRepository.save` | Revisit (§10). |
+| Whole-row writes in `ShiftRepository.save` | Keep for services; the shift sheet uses the checked `saveEdited`. |
 
 ## 10. Known weaknesses
 
 Found in the review on 2026-11-06. Remove an item when it is fixed.
-
-**Data integrity:**
-- The shift sheet saves a new shift as `create` followed by `save`, and `save` replaces the whole row with the sheet's copy. A notification button pressed while the sheet is open can be undone by saving the sheet.
-- `SettingsRepository.update` loads the settings outside its write transaction, so two quick changes can lose one.
-- The tip, wage and answer upserts read and then insert without a transaction, so a double tap can hit the unique key.
 
 **Robustness:**
 - `onNotificationActionInBackground` has no try/catch, so a failed button tap leaves no trace.

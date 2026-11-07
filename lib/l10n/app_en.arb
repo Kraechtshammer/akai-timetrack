@@ -388,5 +388,7 @@
   "teamAway": "Away this week",
   "teamAwayShort": "Away",
   "teamDeleteTitle": "Delete {name}?",
-  "teamDeleteBody": "Their answers and shifts in all weeks are deleted too."
+  "teamDeleteBody": "Their answers and shifts in all weeks are deleted too.",
+  "minutesUnit": "min",
+  "shiftChangedMeanwhile": "This shift was changed in the meantime, for example from the notification. Please check it again."
 }

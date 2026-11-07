@@ -61,23 +61,40 @@ class PlanningService {
     return result;
   }
 
-  /// Creates a shift from the edit sheet.
+  /// Creates a shift from the edit sheet with all its values in one step.
   Future<Shift> create(
     DateTime day,
     ShiftType type,
     DateTime plannedStart,
-    DateTime plannedEnd,
-  ) async {
+    DateTime plannedEnd, {
+    required bool plannedCustomized,
+    DateTime? actualStart,
+    DateTime? actualEnd,
+    int breakMinutes = 0,
+  }) async {
     final shift = await _shifts.create(
       day: day,
       type: type,
       plannedStart: plannedStart,
       plannedEnd: plannedEnd,
-      plannedCustomized: type == ShiftType.custom,
+      plannedCustomized: plannedCustomized,
+      actualStart: actualStart,
+      actualEnd: actualEnd,
+      breakMinutes: breakMinutes,
     );
     await _adjustLunch(day);
     await _onChanged();
     return shift;
+  }
+
+  /// Saves a shift the edit sheet held for a while. Returns false (and
+  /// writes nothing) if the shift changed meanwhile, e.g. from the
+  /// notification.
+  Future<bool> saveEdited(Shift shift) async {
+    if (!await _shifts.saveEdited(shift)) return false;
+    await _adjustLunch(shift.dayDate);
+    await _onChanged();
+    return true;
   }
 
   Future<void> save(Shift shift) async {

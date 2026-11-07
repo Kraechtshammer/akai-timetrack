@@ -1,3 +1,4 @@
+import '../ui/material.dart';
 import '../data/app_settings.dart';
 import '../data/database.dart';
 import '../domain/rounding.dart';
@@ -10,6 +11,12 @@ String shiftTypeLabel(ShiftType type, AppLocalizations l10n) => switch (type) {
   ShiftType.lunch => l10n.shiftLunch,
   ShiftType.evening => l10n.shiftEvening,
   ShiftType.custom => l10n.shiftCustom,
+};
+
+IconData shiftTypeIcon(ShiftType type) => switch (type) {
+  ShiftType.lunch => Icons.light_mode,
+  ShiftType.evening => Icons.dark_mode,
+  ShiftType.custom => Icons.schedule,
 };
 
 String roundingLabel(RoundingMode mode, AppLocalizations l10n) =>
