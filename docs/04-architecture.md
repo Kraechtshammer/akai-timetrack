@@ -128,7 +128,7 @@ Channel names still start with the first package name `de.garten.…`. They are 
 
 ## 7. Code style
 
-- **Formatting:** `dart format`. Lints: `flutter_lints` only, no extra rules. `flutter analyze` must be clean.
+- **Formatting:** `dart format`. Lints: `flutter_lints` plus `unawaited_futures`, `discarded_futures`, `cancel_subscriptions`, `close_sinks`, `avoid_dynamic_calls`, `prefer_final_locals` and a few more (`analysis_options.yaml`). A future that is meant to run on its own is wrapped in `unawaited(...)`. `flutter analyze` must be clean.
 - **Files:** one screen per file, with its parts as private widget classes (`_RunningCard`, `_WeekStrip`) rather than methods returning widgets. Shared pieces move to `common.dart` or `roster_common.dart` once a second screen needs them.
 - **Names:**
   - Dart names follow the language conventions.
@@ -179,7 +179,7 @@ Channel names still start with the first package name `de.garten.…`. They are 
 | Old channel names `de.garten.…` | Keep. Cosmetic. |
 | No router, `IndexedStack` with visit counters | Keep. |
 | No loading or error UI | Keep for a local database. |
-| `flutter_lints` only | Revisit: `unawaited_futures` would catch fire-and-forget calls such as `ref.services.syncAll()` in `home_shell.dart`. |
+| Lints | Stricter since 2026-11-07: fire-and-forget futures must be marked with `unawaited`. |
 | Status and display rules inside widgets | Moved to `domain/display_rules.dart` with tests on 2026-11-07. Keep new ones there. |
 | Whole-row writes in `ShiftRepository.save` | Keep for services; the shift sheet uses the checked `saveEdited`. |
 

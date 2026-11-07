@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,9 +31,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
-    DeviceSetup.isXiaomi().then((xiaomi) {
-      if (xiaomi && mounted) setState(() => _steps = _Step.values);
-    });
+    unawaited(
+      DeviceSetup.isXiaomi().then((xiaomi) {
+        if (xiaomi && mounted) setState(() => _steps = _Step.values);
+      }),
+    );
   }
 
   _Step get _step => _steps[_index];

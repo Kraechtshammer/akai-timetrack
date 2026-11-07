@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../material.dart';
@@ -46,7 +48,7 @@ class _ReliabilityChecklistState extends ConsumerState<ReliabilityChecklist>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _check();
+    unawaited(_check());
   }
 
   @override
@@ -57,7 +59,7 @@ class _ReliabilityChecklistState extends ConsumerState<ReliabilityChecklist>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _check();
+    if (state == AppLifecycleState.resumed) unawaited(_check());
   }
 
   Future<void> _check() async {

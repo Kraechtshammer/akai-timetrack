@@ -119,7 +119,7 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
                   onPressed: () async {
                     final picked = await pickTime(context, start);
                     if (picked == null) return;
-                    roster.setStart(
+                    await roster.setStart(
                       assignment,
                       picked == normalStart ? null : picked,
                     );

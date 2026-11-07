@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -80,8 +82,8 @@ class UpdateTiles extends ConsumerWidget {
             onTap: update.phase == UpdatePhase.downloading
                 ? null
                 : () {
-                    controller.install();
-                    showUpdateDialog(context);
+                    unawaited(controller.install());
+                    unawaited(showUpdateDialog(context));
                   },
           ),
         SettingsTile(

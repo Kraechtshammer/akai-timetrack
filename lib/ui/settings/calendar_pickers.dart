@@ -38,7 +38,7 @@ class _CalendarChooserState extends ConsumerState<CalendarChooser> {
   @override
   void initState() {
     super.initState();
-    _load();
+    unawaited(_load());
   }
 
   @override
@@ -248,7 +248,7 @@ class _EventColorSheetState extends ConsumerState<_EventColorSheet> {
     super.initState();
     _selectedKey =
         (ref.read(settingsProvider).value ?? const AppSettings()).eventColorKey;
-    _load();
+    unawaited(_load());
   }
 
   Future<void> _load() async {

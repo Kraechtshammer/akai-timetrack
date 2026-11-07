@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'material.dart';
@@ -80,8 +82,8 @@ class _HomeShellState extends ConsumerState<HomeShell>
     // Back in the app: catch up on reminders and the calendar
     // (e.g. events deleted in Google Calendar meanwhile).
     if (state == AppLifecycleState.resumed) {
-      ref.services.syncAll();
-      _lookForUpdate(resumed: true);
+      unawaited(ref.services.syncAll());
+      unawaited(_lookForUpdate(resumed: true));
     }
   }
 
