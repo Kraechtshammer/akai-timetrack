@@ -221,8 +221,6 @@ Done and removed on 2026-11-06, as the developer confirmed: the new icons and th
 
 0. **Review findings** (2026-11-06): two time-zone bugs (week number one too low in summer time, overnight shifts on clock-change nights), a stale-write risk in the shift sheet, missing error handling on the notification paths. Full list in `04-architecture.md` §10.
 
-0. **Pay tab, English:** the weekday in the "Daily pool" list wraps (see the seventh session). Widen or drop the fixed 28 px width.
-
 0. **Team planner in real use:** the developer is asking how the shared picture looks in WhatsApp (Standard quality shrinks it to about 1600 px; expected to be fine). Set the real staff counts. Maybe later: drag and drop, "Same as last week", kitchen staff (`01-research.md` §10).
 
 1. **In-app update on the Xiaomi:** the path with the release key and GitHub is checked with debug builds and the fake server on the emulator, but no confirmed in-app update on the user's phone yet. Some MIUI versions had trouble with session installs from third-party apps; if it fails there, fall back to the system installer intent (FileProvider + ACTION_VIEW).

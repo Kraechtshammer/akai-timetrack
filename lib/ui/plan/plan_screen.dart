@@ -251,7 +251,9 @@ class _ShiftRow extends ConsumerWidget {
           children: [
             Icon(icon, size: 20, color: iconColor),
             SizedBox(
-              width: 72,
+              width: textColumnWidth(context, context.text.labelLarge, [
+                for (final type in ShiftType.values) shiftTypeLabel(type, l10n),
+              ], min: 72),
               child: Text(
                 shiftTypeLabel(shift.type, l10n),
                 style: context.text.labelLarge?.copyWith(
@@ -281,7 +283,9 @@ class _ShiftRow extends ConsumerWidget {
               ),
             ),
             SizedBox(
-              width: 56,
+              width: textColumnWidth(context, context.text.labelLarge, [
+                l10n.hours(formatHours(630, context.locale)),
+              ], min: 56),
               child: Text(
                 l10n.hours(formatHours(shift.expectedMinutes, context.locale)),
                 textAlign: TextAlign.right,

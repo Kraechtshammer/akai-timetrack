@@ -25,6 +25,34 @@ extension ContextHelpers on BuildContext {
     );
 }
 
+/// Width for a column of aligned one-line texts: at least [min], and wide
+/// enough for the widest of [samples] at the current text scale and language.
+/// At the default scale a column keeps [min] unless a sample is wider.
+double textColumnWidth(
+  BuildContext context,
+  TextStyle? style,
+  Iterable<String> samples, {
+  double min = 0,
+}) {
+  final scaler = MediaQuery.textScalerOf(context);
+  final direction = Directionality.of(context);
+  var width = min;
+  for (final sample in samples) {
+    final painter = TextPainter(
+      text: TextSpan(text: sample, style: style),
+      textDirection: direction,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    // Round up so the last pixel of the glyphs never wraps.
+    if (painter.width.ceilToDouble() > width) {
+      width = painter.width.ceilToDouble();
+    }
+    painter.dispose();
+  }
+  return width;
+}
+
 /// Big title at the top of a tab, with optional buttons on the right.
 class PageHeader extends StatelessWidget {
   const PageHeader({

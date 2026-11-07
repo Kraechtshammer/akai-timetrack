@@ -170,7 +170,10 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
                   onPressed: needed > 0 ? () => setNeeded(needed - 1) : null,
                 ),
                 SizedBox(
-                  width: 64,
+                  width: textColumnWidth(context, context.text.titleMedium, [
+                    l10n.teamClosed,
+                    '20',
+                  ], min: 64),
                   child: Text(
                     needed == 0 ? l10n.teamClosed : '$needed',
                     textAlign: TextAlign.center,

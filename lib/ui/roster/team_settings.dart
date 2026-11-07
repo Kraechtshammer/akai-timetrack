@@ -142,7 +142,9 @@ class _Stepper extends StatelessWidget {
         onPressed: value > 0 ? () => onChanged(value - 1) : null,
       ),
       SizedBox(
-        width: 40,
+        width: textColumnWidth(context, context.text.labelSmall, [
+          context.l10n.teamClosed,
+        ], min: 40),
         child: Text(
           value == 0 ? context.l10n.teamClosed : '$value',
           textAlign: TextAlign.center,

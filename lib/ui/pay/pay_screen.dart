@@ -394,14 +394,21 @@ class _PoolCard extends ConsumerWidget {
             spacing: 10,
             children: [
               SizedBox(
-                width: 28,
+                width: textColumnWidth(context, context.text.titleSmall, [
+                  for (var i = 1; i <= 7; i++)
+                    shortWeekday(DateTime(2024, 1, i), locale),
+                ], min: 28),
                 child: Text(
                   shortWeekday(day, locale),
                   style: context.text.titleSmall,
                 ),
               ),
               SizedBox(
-                width: 52,
+                width: textColumnWidth(context, context.text.bodySmall, [
+                  for (final month in [1, 5, 8, 10, 12])
+                    DateFormat(l10n.exportDayPattern)
+                        .format(DateTime(2024, month, 28)),
+                ], min: 52),
                 child: Text(
                   DateFormat(l10n.exportDayPattern).format(day),
                   style: context.text.bodySmall,
