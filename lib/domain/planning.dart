@@ -30,7 +30,7 @@ class PlanningService {
   /// Runs calendar sync and notification updates after a change.
   final Future<void> Function() _onChanged;
 
-  /// Tap on "Mittag" or "Abend": adds the shift or removes it again.
+  /// Tap on "Lunch" or "Evening": adds the shift or removes it again.
   /// Recorded or running shifts are never removed this way.
   Future<ToggleResult> toggle(DateTime day, ShiftType type) async {
     final shifts = await _shiftsOn(day);

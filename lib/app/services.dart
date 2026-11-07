@@ -85,7 +85,7 @@ class AppServices {
   /// How the last calendar sync in this isolate ended.
   CalendarSyncResult? lastCalendarResult;
 
-  /// The "Jetzt synchronisieren" button: syncs everything and asks Android
+  /// The "Sync now" button: syncs everything and asks Android
   /// to upload the calendar to Google right away.
   Future<CalendarSyncResult> syncNow() async {
     await syncAll();

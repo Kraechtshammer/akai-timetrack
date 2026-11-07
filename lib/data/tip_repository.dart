@@ -4,8 +4,8 @@ import 'package:uuid/uuid.dart';
 import '../core/time.dart';
 import 'database.dart';
 
-/// Reads and writes the daily pool totals ("Tagestopf") and the weekly
-/// payouts ("Ausgezahlt"). See docs/02-design.md §3 and §4.7.
+/// Reads and writes the daily pool totals ("Daily pool") and the weekly
+/// payouts ("Paid out"). See docs/02-design.md §3 and §4.7.
 class TipRepository {
   TipRepository(this._db);
 

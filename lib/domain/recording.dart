@@ -8,10 +8,10 @@ import 'planning.dart';
 import 'rounding.dart';
 import 'shift_info.dart';
 
-/// How long before its planned start a shift can be started from "Heute".
+/// How long before its planned start a shift can be started from the Home tab.
 const startWindow = Duration(hours: 2);
 
-/// The shift the big Start button on "Heute" would start: today's first
+/// The shift the big Start button on the Home tab would start: today's first
 /// shift that isn't recorded yet and starts within [startWindow] or has
 /// already begun. null if there is none.
 Shift? shiftToStart(List<Shift> todaysShifts, DateTime now) {
@@ -56,7 +56,7 @@ class RecordingService {
   }
 
   /// Stops recording and saves the rounded times. With [atPlannedEnd], the
-  /// shift ends at its planned end ("Ende 23:00" in the notification).
+  /// shift ends at its planned end ("End 23:00" in the notification).
   Future<Shift?> stop({DateTime? at, bool atPlannedEnd = false}) async {
     final shift = await _shifts.running();
     if (shift == null) return null;

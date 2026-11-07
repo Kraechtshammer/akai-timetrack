@@ -132,7 +132,7 @@ class NotificationService {
     }
   }
 
-  /// "Später": the start reminder once more, in 10 minutes.
+  /// "Later": the start reminder once more, in 10 minutes.
   Future<void> snooze(
     Shift shift,
     AppSettings settings,
@@ -203,7 +203,7 @@ class NotificationService {
     );
   }
 
-  /// The ongoing "Erfassung läuft" notification. Android draws the running
+  /// The ongoing "Recording" notification. Android draws the running
   /// timer itself from the start time, so the app doesn't need to run. The
   /// progress bar (from the start to the planned end) is moved forward by
   /// the running_progress plugin; on Android 16 it becomes a Live Update.

@@ -17,7 +17,7 @@ class _Status {
   final bool xiaomi;
 }
 
-/// A list of permission rows with "Erlauben"/"Öffnen" buttons. Checks again
+/// A list of permission rows with "Allow"/"Open" buttons. Checks again
 /// whenever the user comes back from Android's settings.
 class ReliabilityChecklist extends ConsumerStatefulWidget {
   const ReliabilityChecklist({

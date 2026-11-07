@@ -3,13 +3,13 @@ import '../data/database.dart';
 import 'shift_info.dart';
 
 enum ReminderKind {
-  /// "Schicht beginnt in 15 min"
+  /// "Shift starts in 15 min"
   start(1),
 
   /// "Noch bei der Arbeit?"
   overrun(2),
 
-  /// "Später" on a start reminder: once more, 10 minutes later.
+  /// "Later" on a start reminder: once more, 10 minutes later.
   snooze(3);
 
   const ReminderKind(this.code);
@@ -56,7 +56,7 @@ List<PlannedReminder> planReminders(
       case ShiftStatus.running:
         final overrun = Duration(minutes: settings.overrunMinutes);
         var at = shift.plannedEnd.add(overrun);
-        // Already past (e.g. "Weiter" was tapped): ask again later.
+        // Already past (e.g. "Keep going" was tapped): ask again later.
         if (!at.isAfter(now)) at = now.add(overrun);
         reminders.add(PlannedReminder(shift, ReminderKind.overrun, at));
       case ShiftStatus.recorded || ShiftStatus.missed:

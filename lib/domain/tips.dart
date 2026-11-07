@@ -81,7 +81,7 @@ List<DateTime> tipWorkdays({
   return keys.map(parseDayKey).toList();
 }
 
-/// The day the "Trinkgeld eintragen" prompt on Heute asks about, or null.
+/// The day the "Add the tips" prompt on the Home tab asks about, or null.
 ///
 /// The newest of today and yesterday that has a recorded shift, no shift
 /// still running or planned, no pool total, and wasn't dismissed.

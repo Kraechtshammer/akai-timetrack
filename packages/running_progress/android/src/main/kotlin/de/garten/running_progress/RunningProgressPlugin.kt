@@ -13,7 +13,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 /**
- * Moves the progress bar of the "Erfassung läuft" notification forward.
+ * Moves the progress bar of the "Recording" notification forward.
  *
  * The app (flutter_local_notifications) posts that notification with its
  * buttons. This plugin only updates it in place every few minutes, rebuilt

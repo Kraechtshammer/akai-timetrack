@@ -273,7 +273,7 @@ Future<Minutes?> pickTime(BuildContext context, Minutes initial) async {
   return picked == null ? null : picked.hour * 60 + picked.minute;
 }
 
-/// A tappable "time field" with a label above, e.g. "Beginn 17:30".
+/// A tappable "time field" with a label above, e.g. "Start 17:30".
 class TimeField extends StatelessWidget {
   const TimeField({
     super.key,

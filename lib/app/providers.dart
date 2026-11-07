@@ -25,13 +25,13 @@ final shiftsProvider = StreamProvider.family<List<Shift>, DayRange>(
       ref.watch(servicesProvider).shifts.watchDays(range.$1, range.$2),
 );
 
-/// Daily pool totals ("Tagestopf") with a day in the range.
+/// Daily pool totals with a day in the range.
 final tipDaysProvider = StreamProvider.family<List<TipDay>, DayRange>(
   (ref, range) =>
       ref.watch(servicesProvider).tips.watchDays(range.$1, range.$2),
 );
 
-/// Weekly payouts ("Ausgezahlt") of the weeks starting in the range.
+/// Weekly payouts ("Paid out") of the weeks starting in the range.
 final tipPayoutsProvider = StreamProvider.family<List<TipPayout>, DayRange>(
   (ref, range) =>
       ref.watch(servicesProvider).tips.watchPayouts(range.$1, range.$2),
@@ -42,7 +42,7 @@ final wageRatesProvider = StreamProvider<List<WageRate>>(
   (ref) => ref.watch(servicesProvider).wages.watchAll(),
 );
 
-/// The day whose tip prompt on Heute she closed (`yyyy-MM-dd`).
+/// The day whose tip prompt on the Home tab the user closed (`yyyy-MM-dd`).
 final tipPromptDismissedProvider = StreamProvider<String?>(
   (ref) => ref
       .watch(servicesProvider)

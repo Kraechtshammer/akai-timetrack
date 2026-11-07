@@ -8,7 +8,7 @@ import '../../core/time.dart';
 import '../../domain/tips.dart';
 import '../common.dart';
 
-/// Opens the sheet for a day's pool total ("Tagestopf"). [current]: the
+/// Opens the sheet for a day's pool total ("Daily pool"). [current]: the
 /// stored amount in cents, if any.
 Future<void> showTipDaySheet(
   BuildContext context,
@@ -28,7 +28,7 @@ Future<void> showTipDaySheet(
   );
 }
 
-/// Opens the sheet for a week's payout ("Ausgezahlt").
+/// Opens the sheet for a week's payout ("Paid out").
 Future<void> showTipPayoutSheet(
   BuildContext context,
   WidgetRef ref, {
@@ -80,7 +80,7 @@ Future<void> _showMoneySheet(
   }
 }
 
-/// One money field with "Speichern" and, for a stored amount, "Löschen".
+/// One money field with "Save" and, for a stored amount, "Delete".
 /// Pops `true` when the amount was deleted (so the caller offers undo).
 class _MoneySheet extends StatefulWidget {
   const _MoneySheet({

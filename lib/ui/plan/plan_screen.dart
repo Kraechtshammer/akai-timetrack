@@ -14,7 +14,7 @@ import '../../l10n/labels.dart';
 import '../common.dart';
 import '../shift_sheet.dart';
 
-/// "Plan": one week, Mittag/Abend toggles per day.
+/// The Plan tab: one week, with Lunch and Evening toggles per day.
 class PlanScreen extends ConsumerWidget {
   const PlanScreen({
     super.key,
@@ -291,7 +291,7 @@ class _ShiftRow extends ConsumerWidget {
   }
 }
 
-/// Deletes a shift and offers "Rückgängig". Recorded shifts ask first.
+/// Deletes a shift and offers "Undo". Recorded shifts ask first.
 /// Returns false if the user cancelled.
 Future<bool> deleteWithUndo(
   BuildContext context,

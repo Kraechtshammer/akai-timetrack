@@ -6,7 +6,7 @@ enum ThemeSeed { system, akaiRed, terracotta, blue, green, violet }
 
 enum AppThemeMode { system, light, dark }
 
-/// How the week strip on Heute marks lunch and evening shifts.
+/// How the week strip on the Home tab marks lunch and evening shifts.
 enum WeekMarkStyle { icons, bars }
 
 /// Default start and end of a shift type, in minutes after midnight.

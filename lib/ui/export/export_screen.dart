@@ -13,7 +13,7 @@ import '../../domain/display_rules.dart';
 import '../../domain/export_text.dart';
 import '../common.dart';
 
-/// "Export": the month's hours as text for the boss, grouped by week, to copy
+/// The Export tab: the month's hours as text for the boss, grouped by week, to copy
 /// or share.
 class ExportScreen extends ConsumerStatefulWidget {
   const ExportScreen({super.key});

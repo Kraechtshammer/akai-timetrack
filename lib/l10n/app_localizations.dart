@@ -830,12 +830,6 @@ abstract class AppLocalizations {
   /// **'Die erfasste Arbeitszeit geht dabei verloren.'**
   String get deleteRecordedBody;
 
-  /// No description provided for @startMustBeBeforeEnd.
-  ///
-  /// In de, this message translates to:
-  /// **'Das Ende muss nach dem Beginn liegen.'**
-  String get startMustBeBeforeEnd;
-
   /// No description provided for @exportSubtitle.
   ///
   /// In de, this message translates to:

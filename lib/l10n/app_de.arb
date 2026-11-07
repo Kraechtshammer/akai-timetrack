@@ -151,7 +151,6 @@
   "@calendarInfo": {"placeholders": {"calendar": {"type": "String"}, "title": {"type": "String"}}},
   "deleteRecordedTitle": "Erfasste Schicht löschen?",
   "deleteRecordedBody": "Die erfasste Arbeitszeit geht dabei verloren.",
-  "startMustBeBeforeEnd": "Das Ende muss nach dem Beginn liegen.",
 
   "exportSubtitle": "Arbeitszeiten des Monats als Text",
   "monthTotalLabel": "Monat gesamt",

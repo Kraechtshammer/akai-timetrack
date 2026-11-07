@@ -447,9 +447,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die erfasste Arbeitszeit geht dabei verloren.';
 
   @override
-  String get startMustBeBeforeEnd => 'Das Ende muss nach dem Beginn liegen.';
-
-  @override
   String get exportSubtitle => 'Arbeitszeiten des Monats als Text';
 
   @override

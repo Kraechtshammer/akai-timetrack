@@ -128,7 +128,6 @@
   "calendarInfo": "Calendar \"{calendar}\" · \"{title}\"",
   "deleteRecordedTitle": "Delete recorded shift?",
   "deleteRecordedBody": "The recorded working time will be lost.",
-  "startMustBeBeforeEnd": "The end must be after the start.",
 
   "exportSubtitle": "The month's working hours as text",
   "monthTotalLabel": "Month total",

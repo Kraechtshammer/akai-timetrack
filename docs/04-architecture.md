@@ -10,7 +10,7 @@ How the code is built and written, as of version 1.6.1 (2026-11-06). The behavio
 |---|---|---|
 | `lib/` Dart, without generated files | about 12,400 | 33 UI files; the largest is `ui/today/today_screen.dart` (861) |
 | Kotlin | about 600 | two plugins in `packages/`, `MainActivity.kt` |
-| `test/`, without generated schema files | about 2,700 | 149 tests |
+| `test/`, without generated schema files | about 3,100 | 172 tests |
 | Texts | 372 keys | `app_de.arb` (template) and `app_en.arb` |
 
 One developer, one user, one Android phone. Every decision below is measured against that size.
@@ -136,7 +136,7 @@ Channel names still start with the first package name `de.garten.…`. They are 
   - Repositories have `watch…` for streams, `get…` or `load` for one-off reads, and `set…`, `save` or `delete` for writes.
   - Domain functions are verbs (`planReminders`, `summarizeMonth`).
 - **Imports:** packages first, then `material.dart` in UI files, then relative imports of our own files.
-- **Comments:** `///` on public classes, fields and non-obvious functions. They say what and why, in plain English, and point to the design doc (`docs/02-design.md §4.8`). Comments follow the docs style: English only and "the user". Some older comments still break it (§10).
+- **Comments:** `///` on public classes, fields and non-obvious functions. They say what and why, in plain English, and point to the design doc (`docs/02-design.md §4.8`). Comments follow the docs style: English only, UI elements by their English label, and "the user".
 - **Time:**
   - `DateTime` in local time.
   - `dateOnly`, `addDays`, `daysBetween`, `weekStart` and `timesOn` from `core/time.dart` for calendar arithmetic, never a `Duration` of days, which is an hour off across a clock change.
@@ -185,14 +185,14 @@ Channel names still start with the first package name `de.garten.…`. They are 
 
 ## 10. Known weaknesses
 
-Found in the review on 2026-11-06. Remove an item when it is fixed.
+The review on 2026-11-06 found two time-zone bugs, stale writes from the shift sheet, missing error handling on the notification paths, fixed-width columns, untested display rules in widgets, and comments against the docs style. All were fixed on 2026-11-07 (commits `1482f64` to the comment clean-up that followed `d835059`). What is left is small. Remove an item when it is fixed.
 
-**UI:**
-
-**Docs and style:**
-- Some comments use German UI terms or "she"/"her" (`app/providers.dart`, `data/database.dart`, `app/services.dart`, `ui/plan/plan_screen.dart`).
-- The ARB key `startMustBeBeforeEnd` is unused.
-- The diagram in 02-design.md §2 shows the original plan (an `ExportService`, Pigeon, 3 tabs). §2 of this file is the current structure.
+- Two imports still go against the layer order (§2): `data/` uses `FillPick`, `TeamSlot` and `RoundingMode` from `domain/`.
+- The UI isolate and the background isolate each have their own sync chain, so two runs can overlap (§3.4). Rare; the steps are mostly idempotent.
+- The background isolate never closes its database connection. It lives only for one button tap.
+- There are no widget tests for the screens. The rules they show are tested in `domain/`.
+- `deleteWithUndo` lives in `ui/plan/plan_screen.dart`, but `ui/shift_sheet.dart` uses it too.
+- `ui/today/today_screen.dart` is still about 850 lines. It splits naturally into the shift cards and the week strip when it is next changed.
 
 ## 11. Keeping this current
 

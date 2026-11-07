@@ -63,8 +63,8 @@ class Settings extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-/// "Tagestopf": the tips of everyone combined on one workday (not her
-/// share). One row per day at most. See docs/02-design.md §3 and §4.7.
+/// "Daily pool": the tips of everyone combined on one workday (not the
+/// user's share). One row per day at most. See docs/02-design.md §3 and §4.7.
 @DataClassName('TipDay')
 class TipDays extends Table {
   /// UUID, so backups can be merged later.
@@ -81,7 +81,7 @@ class TipDays extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// "Ausgezahlt": the cash she got for one tip week (Monday to Sunday).
+/// "Paid out": the cash the user got for one tip week (Monday to Sunday).
 /// One row per week at most.
 @DataClassName('TipPayout')
 class TipPayouts extends Table {

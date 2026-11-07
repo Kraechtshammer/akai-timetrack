@@ -446,9 +446,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRecordedBody => 'The recorded working time will be lost.';
 
   @override
-  String get startMustBeBeforeEnd => 'The end must be after the start.';
-
-  @override
   String get exportSubtitle => 'The month\'s working hours as text';
 
   @override

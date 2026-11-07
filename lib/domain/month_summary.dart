@@ -1,7 +1,7 @@
 import '../data/database.dart';
 import 'shift_info.dart';
 
-/// Figures for the month card on "Heute".
+/// Figures for the month card on the Home tab.
 class MonthSummary {
   const MonthSummary({
     required this.recordedMinutes,
