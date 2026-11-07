@@ -47,7 +47,8 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 - The wavy bar is `WavyProgress` (wraps `M3EProgressIndicator.linearWavy`).
 - Segmented buttons, chips, sheets and dialogs are still plain Material.
 - `app.dart` wraps the app in `M3ETheme(data: M3EThemeData.fromMaterial(Theme.of(context)))`.
-- Use the helpers in `ui/common.dart`: `PageHeader`, `Panel`, `Figure`, `WeekSwitcher`, `TimeField`, `pickTime`, `pickOption`, and `context.l10n/colors/text/locale/showSnack`.
+- Decisions about what to show (status precedence, which totals, which shift is next) go in `domain/display_rules.dart` with a test, not in the widget.
+- Use the helpers in `ui/common.dart`: `PageHeader`, `Panel`, `Figure`, `WeekSwitcher`, `TimeField`, `pickTime`, `pickOption`, `DayCard`, `DividedRow`, `textColumnWidth`, and `context.l10n/colors/text/locale/showSnack`.
 - Columns of aligned one-line texts get their width from `textColumnWidth` (`common.dart`), not a fixed number, so English labels and large fonts don't wrap.
 - In event handlers read settings with `ref.read(settingsProvider).value ?? const AppSettings()`; `ref.settings` and `ref.now` are `watch`es, for `build` only. Never `value!`.
 - Check the screen in dark and in light mode.

@@ -255,17 +255,10 @@ class _DayCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
     final isToday = day == dateOnly(ref.now);
-    return Container(
+    return DayCard(
+      isToday: isToday,
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
-        border: isToday
-            ? Border.all(color: context.shiftColors.today, width: 2)
-            : null,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -319,12 +312,9 @@ class _SlotRow extends ConsumerWidget {
     return InkWell(
       onTap: () =>
           showTeamShiftSheet(context, week: week.weekStart, slot: slot),
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 44),
+      child: DividedRow(
+        minHeight: 44,
         padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: colors.outlineVariant)),
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 6,

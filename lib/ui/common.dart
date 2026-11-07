@@ -132,6 +132,63 @@ class Panel extends StatelessWidget {
   );
 }
 
+/// Rounded card for a day or a list of rows, with the "today" border when
+/// [isToday]. Rows inside are separated with [DividedRow].
+class DayCard extends StatelessWidget {
+  const DayCard({
+    super.key,
+    required this.child,
+    this.isToday = false,
+    this.padding,
+    this.clip = false,
+  });
+
+  final Widget child;
+  final bool isToday;
+  final EdgeInsets? padding;
+
+  /// Clips the rows to the rounded corners.
+  final bool clip;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: padding,
+    clipBehavior: clip ? Clip.antiAlias : Clip.none,
+    decoration: BoxDecoration(
+      color: context.colors.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(20),
+      border: isToday
+          ? Border.all(color: context.shiftColors.today, width: 2)
+          : null,
+    ),
+    child: child,
+  );
+}
+
+/// A row in a [DayCard], divided from the one above by a hairline.
+class DividedRow extends StatelessWidget {
+  const DividedRow({
+    super.key,
+    required this.child,
+    required this.minHeight,
+    this.padding,
+  });
+
+  final Widget child;
+  final double minHeight;
+  final EdgeInsets? padding;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    constraints: BoxConstraints(minHeight: minHeight),
+    decoration: BoxDecoration(
+      border: Border(top: BorderSide(color: context.colors.outlineVariant)),
+    ),
+    padding: padding,
+    child: child,
+  );
+}
+
 /// "‹ KW 45 · 2. – 8. Nov. ›"
 class WeekSwitcher extends StatelessWidget {
   const WeekSwitcher({

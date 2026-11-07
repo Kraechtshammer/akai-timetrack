@@ -9,8 +9,8 @@ import 'package:share_plus/share_plus.dart';
 import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/time.dart';
+import '../../domain/display_rules.dart';
 import '../../domain/export_text.dart';
-import '../../domain/shift_info.dart';
 import '../common.dart';
 
 /// "Export": the month's hours as text for the boss, grouped by week, to copy
@@ -41,17 +41,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     final monthEnd = nextMonthStart(_month);
     final shifts =
         ref.watch(shiftsProvider((_month, monthEnd))).value ?? const [];
-    final recorded = shifts.where((s) => s.isRecorded).toList();
-    final minutes = recorded.fold(0, (sum, s) => sum + s.workedMinutes!);
-    final days = recorded.map((s) => s.day).toSet().length;
-    final missing = shifts
-        .where(
-          (s) => const [
-            ShiftStatus.missed,
-            ShiftStatus.running,
-          ].contains(s.statusAt(now)),
-        )
-        .length;
+    final minutes = shifts.recordedMinutes;
+    final days = shifts.recordedDays;
+    final missing = shifts.missingCount(now);
     final text = buildExportText(
       month: _month,
       shifts: shifts,
@@ -108,7 +100,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                       ),
                     ),
                     Text(
-                      '${l10n.shiftsCount(recorded.length)}\n${l10n.daysCount(days)}',
+                      '${l10n.shiftsCount(shifts.recordedCount)}\n${l10n.daysCount(days)}',
                       textAlign: TextAlign.right,
                       style: TextStyle(color: colors.onPrimaryContainer),
                     ),
@@ -150,7 +142,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                       ),
                       onPressed: () async {
                         await Clipboard.setData(ClipboardData(text: text));
-                        setState(() => _copied = true);
+                        if (mounted) setState(() => _copied = true);
                       },
                       icon: Icon(_copied ? Icons.check : Icons.content_copy),
                       label: Text(_copied ? l10n.copied : l10n.copy),

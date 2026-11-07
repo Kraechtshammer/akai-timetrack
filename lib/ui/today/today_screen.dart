@@ -11,9 +11,9 @@ import '../../core/time.dart';
 import '../../data/app_settings.dart';
 import '../../data/database.dart';
 import '../../data/settings_repository.dart';
+import '../../domain/display_rules.dart';
 import '../../domain/month_summary.dart';
 import '../../domain/recording.dart';
-import '../../domain/rounding.dart';
 import '../../domain/salary.dart';
 import '../../domain/shift_info.dart';
 import '../../domain/tips.dart';
@@ -42,17 +42,13 @@ class TodayScreen extends ConsumerWidget {
     final weekShifts =
         ref.watch(shiftsProvider((week, addDays(week, 7)))).value ?? const [];
     final upcoming =
-        ref.watch(shiftsProvider((today, addDays(today, 15)))).value ??
+        ref
+            .watch(shiftsProvider((today, addDays(today, nextShiftWindowDays))))
+            .value ??
         const [];
-    final next = upcoming
-        .where(
-          (s) => !s.isRecorded && !s.isRunning && s.plannedEnd.isAfter(now),
-        )
-        .firstOrNull;
+    final next = nextShift(upcoming, now);
     final summary = summarizeMonth(monthShifts, now);
-    final missed = monthShifts
-        .where((s) => s.statusAt(now) == ShiftStatus.missed)
-        .firstOrNull;
+    final missed = firstMissedShift(monthShifts, now);
     final recent = (addDays(today, -1), addDays(today, 1));
     final recentShifts = ref.watch(shiftsProvider(recent)).value;
     final recentTips = ref.watch(tipDaysProvider(recent)).value;
@@ -308,12 +304,10 @@ class _RunningCardState extends ConsumerState<_RunningCard> {
     final shift = widget.shift;
     final now = DateTime.now();
     final elapsed = now.difference(shift.rawStart!);
-    final (roundedStart, roundedEnd) = roundShift(
-      shift.rawStart!,
-      now,
-      ref.settings.roundingMode,
-    );
-    final roundedMinutes = roundedEnd.difference(roundedStart).inMinutes;
+    final preview = stopPreview(shift, now, ref.settings.roundingMode);
+    final roundedStart = preview.start;
+    final roundedEnd = preview.end;
+    final roundedMinutes = preview.minutes;
 
     return Column(
       spacing: 12,
@@ -755,22 +749,24 @@ class _WeekStrip extends StatelessWidget {
     final l10n = context.l10n;
     final colors = context.colors;
     final ofDay = shifts.where((s) => s.day == dayKey(day)).toList();
-    final recordedMinutes = ofDay
-        .where((s) => s.isRecorded)
-        .fold(0, (sum, s) => sum + s.workedMinutes!);
+    final recordedMinutes = ofDay.recordedMinutes;
     final isToday = day == dateOnly(now);
     final shiftColors = context.shiftColors;
-    final statuses = ofDay.map((s) => s.statusAt(now)).toList();
 
     // The circle shows the whole day: a missed shift wins, then "all
     // recorded"; anything still ahead or running is neutral.
-    final (Color? fill, Color text) = ofDay.isEmpty
-        ? (null, colors.onSurfaceVariant)
-        : statuses.contains(ShiftStatus.missed)
-        ? (shiftColors.missedContainer, shiftColors.onMissedContainer)
-        : statuses.every((s) => s == ShiftStatus.recorded)
-        ? (shiftColors.recordedContainer, shiftColors.onRecordedContainer)
-        : (colors.surfaceContainerHighest, colors.onSurface);
+    final (Color? fill, Color text) = switch (dayStatus(ofDay, now)) {
+      DayStatus.off => (null, colors.onSurfaceVariant),
+      DayStatus.missed => (
+        shiftColors.missedContainer,
+        shiftColors.onMissedContainer,
+      ),
+      DayStatus.recorded => (
+        shiftColors.recordedContainer,
+        shiftColors.onRecordedContainer,
+      ),
+      DayStatus.open => (colors.surfaceContainerHighest, colors.onSurface),
+    };
 
     return Column(
       spacing: 4,
@@ -811,13 +807,12 @@ class _WeekStrip extends StatelessWidget {
     final colors = context.colors;
     final shiftColors = context.shiftColors;
     // A slot counts as recorded if any of its shifts is.
-    Color markColor(Iterable<Shift> slot) {
-      final statuses = slot.map((s) => s.statusAt(now)).toSet();
-      if (statuses.contains(ShiftStatus.recorded)) return shiftColors.recorded;
-      if (statuses.contains(ShiftStatus.running)) return colors.primary;
-      if (statuses.contains(ShiftStatus.missed)) return shiftColors.missed;
-      return colors.outline;
-    }
+    Color markColor(Iterable<Shift> slot) => switch (slotStatus(slot, now)) {
+      SlotStatus.recorded => shiftColors.recorded,
+      SlotStatus.running => colors.primary,
+      SlotStatus.missed => shiftColors.missed,
+      SlotStatus.planned => colors.outline,
+    };
 
     switch (style) {
       case WeekMarkStyle.icons:
@@ -825,15 +820,7 @@ class _WeekStrip extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             for (final s in ofDay)
-              Icon(
-                switch (s.type) {
-                  ShiftType.lunch => Icons.light_mode,
-                  ShiftType.evening => Icons.dark_mode,
-                  ShiftType.custom => Icons.schedule,
-                },
-                size: 15,
-                color: markColor([s]),
-              ),
+              Icon(shiftTypeIcon(s.type), size: 15, color: markColor([s])),
           ],
         );
       case WeekMarkStyle.bars:

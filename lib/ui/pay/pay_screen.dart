@@ -7,7 +7,9 @@ import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/time.dart';
 import '../../data/database.dart';
+import '../../domain/display_rules.dart';
 import '../../domain/salary.dart';
+import '../../l10n/labels.dart';
 import '../../domain/tips.dart';
 import '../common.dart';
 import 'money_sheet.dart';
@@ -117,11 +119,14 @@ class _MonthCard extends ConsumerWidget {
     final rate = rates == null ? null : ratesInMonth(month, rates).lastOrNull;
     // The current month shows both; a past month only what was earned,
     // unless shifts are missing; a future month only what is expected.
-    final current = monthStart(now);
-    final showEarned = !month.isAfter(current);
-    final showExpected =
-        !month.isBefore(current) ||
-        (pay != null && pay.expectedCents != pay.earnedCents);
+    final columns = payColumns(
+      month: month,
+      now: now,
+      earnedCents: pay?.earnedCents,
+      expectedCents: pay?.expectedCents,
+    );
+    final showEarned = columns.earned;
+    final showExpected = columns.expected;
     final divider = Divider(height: 8, color: colors.outlineVariant);
     String hours(int minutes) => formatHours(minutes, locale);
 
@@ -384,11 +389,8 @@ class _PoolCard extends ConsumerWidget {
       return InkWell(
         onTap: () =>
             showTipDaySheet(context, ref, day: day, current: tip?.poolCents),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 48),
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: colors.outlineVariant)),
-          ),
+        child: DividedRow(
+          minHeight: 48,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             spacing: 10,
@@ -417,11 +419,7 @@ class _PoolCard extends ConsumerWidget {
               for (final type in ShiftType.values)
                 if (types.contains(type))
                   Icon(
-                    switch (type) {
-                      ShiftType.lunch => Icons.light_mode,
-                      ShiftType.evening => Icons.dark_mode,
-                      ShiftType.custom => Icons.schedule,
-                    },
+                    shiftTypeIcon(type),
                     size: 18,
                     color: colors.onSurfaceVariant,
                   ),
@@ -440,12 +438,8 @@ class _PoolCard extends ConsumerWidget {
       );
     }
 
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
-      ),
+    return DayCard(
+      clip: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

@@ -110,7 +110,8 @@ Channel names still start with the first package name `de.garten.…`. They are 
 
 ## 5. Domain
 
-- **Pure functions** take their inputs and the current time as parameters: `roundShift`, `summarizeMonth(shifts, now)`, `planReminders(shifts, settings, now)`, `payForMonth`, `tipWeeksOf`, `buildExportText`. `RosterWeek` holds every team-planner rule, and `fill()` is deterministic.
+- **Pure functions** take their inputs and the current time as parameters: `roundShift`, `summarizeMonth(shifts, now)`, `planReminders(shifts, settings, now)`, `payForMonth`, `tipWeeksOf`, `buildExportText`.
+- **Display rules** that screens share live in `domain/display_rules.dart`: sums over shifts (`recordedMinutes`, `missingCount`), `nextShift`, the week strip's `dayStatus` and `slotStatus`, `stopPreview` for the running card, and `payColumns`. Screens map the results to colours and texts. `RosterWeek` holds every team-planner rule, and `fill()` is deterministic.
 - **Two services:** `PlanningService` and `RecordingService` take `ShiftRepository`, `SettingsRepository` and an `onChanged` callback. Their methods take an optional `at:` time for tests.
 - **The callback** is the only link from the rules to platform code. It keeps notifications and the calendar out of `domain/`, and tests pass a stub.
 
@@ -120,9 +121,9 @@ Channel names still start with the first package name `de.garten.…`. They are 
 - **Data:** screens are `ConsumerWidget`s, or `ConsumerStatefulWidget`s when they hold local state or a timer. They read streams as `ref.watch(provider).value ?? fallback`. There is no loading or error UI, because a local database answers in milliseconds.
 - **Writes** go through `ref.services` (services or repositories), never to tables.
 - **Shared pieces:**
-  - `ui/common.dart`: `PageHeader`, `Panel`, `Figure`, `WeekSwitcher`, `TimeField`, `pickTime`, `pickOption`, and the `context.l10n`, `colors`, `text`, `locale` and `showSnack` helpers.
+  - `ui/common.dart`: `PageHeader`, `Panel`, `Figure`, `WeekSwitcher`, `TimeField`, `pickTime`, `pickOption`, the day card frame `DayCard` with `DividedRow`, `textColumnWidth` for aligned columns, and the `context.l10n`, `colors`, `text`, `locale` and `showSnack` helpers.
   - `context.shiftColors` (`app/shift_colors.dart`) for status and shift-type colours.
-  - `l10n/labels.dart` for enum texts.
+  - `l10n/labels.dart` for enum texts and `shiftTypeIcon`.
 - **Material:** every UI file imports `ui/material.dart`, which re-exports `material_ui` and `material_3_expressive` and hides their name clash. Nothing imports `package:flutter/material.dart`.
 
 ## 7. Code style
@@ -179,7 +180,7 @@ Channel names still start with the first package name `de.garten.…`. They are 
 | No router, `IndexedStack` with visit counters | Keep. |
 | No loading or error UI | Keep for a local database. |
 | `flutter_lints` only | Revisit: `unawaited_futures` would catch fire-and-forget calls such as `ref.services.syncAll()` in `home_shell.dart`. |
-| Status and display rules inside widgets | Revisit: move them to `domain/` with tests (§10). |
+| Status and display rules inside widgets | Moved to `domain/display_rules.dart` with tests on 2026-11-07. Keep new ones there. |
 | Whole-row writes in `ShiftRepository.save` | Keep for services; the shift sheet uses the checked `saveEdited`. |
 
 ## 10. Known weaknesses
@@ -187,12 +188,6 @@ Channel names still start with the first package name `de.garten.…`. They are 
 Found in the review on 2026-11-06. Remove an item when it is fixed.
 
 **UI:**
-- Status and display rules live in widgets and are untested:
-  - the day-circle and slot precedence in `today_screen.dart`;
-  - `showEarned` and `showExpected` in `pay_screen.dart`;
-  - the missing count in `export_screen.dart`;
-  - the same worked-minutes sum in three screens.
-- The card frame (rounded container, today border, divided rows) is written three times: Plan, Team and Pay.
 
 **Docs and style:**
 - Some comments use German UI terms or "she"/"her" (`app/providers.dart`, `data/database.dart`, `app/services.dart`, `ui/plan/plan_screen.dart`).

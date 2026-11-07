@@ -7,6 +7,7 @@ import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/time.dart';
 import '../../data/database.dart';
+import '../../domain/display_rules.dart';
 import '../../domain/planning.dart';
 import '../../domain/shift_info.dart';
 import '../../l10n/labels.dart';
@@ -31,10 +32,8 @@ class PlanScreen extends ConsumerWidget {
     final now = ref.now;
     final shifts =
         ref.watch(shiftsProvider((week, addDays(week, 7)))).value ?? const [];
-    final recorded = shifts
-        .where((s) => s.isRecorded)
-        .fold(0, (sum, s) => sum + s.workedMinutes!);
-    final total = shifts.fold(0, (sum, s) => sum + s.expectedMinutes);
+    final recorded = shifts.recordedMinutes;
+    final total = shifts.expectedMinutes;
     final dates = DateFormat.MMMd(locale);
 
     return ListView(
@@ -143,13 +142,9 @@ class _DayCard extends ConsumerWidget {
             );
     }
 
-    return Container(
+    return DayCard(
+      isToday: isToday,
       padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
-        border: isToday ? Border.all(color: shiftColors.today, width: 2) : null,
-      ),
       child: Column(
         children: [
           Row(
@@ -240,11 +235,8 @@ class _ShiftRow extends ConsumerWidget {
     return InkWell(
       onTap: () => showShiftSheet(context, day: shift.dayDate, shift: shift),
       onLongPress: () => deleteWithUndo(context, ref, shift),
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 44),
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: colors.outlineVariant)),
-        ),
+      child: DividedRow(
+        minHeight: 44,
         padding: const EdgeInsets.only(right: 8),
         child: Row(
           spacing: 10,
