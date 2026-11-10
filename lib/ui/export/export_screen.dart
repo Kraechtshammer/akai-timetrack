@@ -72,6 +72,14 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                 onNext: () => _changeMonth(1),
                 previousTooltip: l10n.previousMonth,
                 nextTooltip: l10n.nextMonth,
+                homeTooltip: l10n.currentMonth,
+                homeIsBefore: monthStart(now).isBefore(_month),
+                onHome: _month == monthStart(now)
+                    ? null
+                    : () => setState(() {
+                        _month = monthStart(now);
+                        _copied = false;
+                      }),
               ),
               Panel(
                 color: colors.primaryContainer,

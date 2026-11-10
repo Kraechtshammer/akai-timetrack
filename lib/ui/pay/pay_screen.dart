@@ -53,18 +53,7 @@ class _PayScreenState extends ConsumerState<PayScreen> {
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
       children: [
-        PageHeader(
-          title: l10n.tabPay,
-          subtitle: l10n.paySubtitle,
-          actions: [
-            M3EIconButton(
-              variant: M3EIconButtonVariant.standard,
-              tooltip: l10n.currentWeek,
-              icon: const Icon(Icons.today_outlined),
-              onPressed: () => setState(() => _week = weekStart(now)),
-            ),
-          ],
-        ),
+        PageHeader(title: l10n.tabPay, subtitle: l10n.paySubtitle),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
@@ -78,6 +67,10 @@ class _PayScreenState extends ConsumerState<PayScreen> {
                     '${dates.format(week)} – ${dates.format(addDays(week, 6))}',
                 onPrevious: () => setState(() => _week = addDays(week, -7)),
                 onNext: () => setState(() => _week = addDays(week, 7)),
+                onHome: week == weekStart(now)
+                    ? null
+                    : () => setState(() => _week = weekStart(now)),
+                homeIsBefore: weekStart(now).isBefore(week),
               ),
               _PayoutCard(week: week, payout: payout),
               if (ref.settings.tipPool)

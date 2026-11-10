@@ -243,6 +243,12 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - **Code:** `domain/team_sync.dart` (`teamSyncActions`, pure), `PlanningService.syncTeamShifts` applies it; `AppServices.startTeamSync()` listens to the team tables (`RosterRepository.watchChanges`) and the settings, UI isolate only (started in `main`).
 - **Checked:** `flutter analyze` clean, 218 tests pass (11 in `test/team_sync_test.dart`, a migration test v5 → v6, the setting's round trip). The developer tried it on the emulator (copies on Plan, the explanation dialog); after that the toggles of copies got the team icon (not looked at again). Not on a phone.
 
+## Small improvements on 2026-11-10 (not released)
+
+- The "Above the week's share" explanation no longer states the exact extra that is fine; the share is in whole hours (developer's wish).
+- The shift sheet shows the hours warnings only for people in the shift (developer's wish).
+- **Week switcher jumps back:** on any week other than the home one (this week on Plan and Pay, next week on Team, this month on Export), a small tonal double-arrow button sits next to the centred week, on the side the home week lies. Replaces the calendar icon in the Plan and Pay headers and the Team tab's "Next week" text button. A label under the dates was tried first and dropped. `WeekSwitcher.onHome` / `homeIsBefore` in `ui/common.dart`. Checked: analyze clean, tests pass, installed on the emulator; the look not yet confirmed by the developer.
+
 ## Open points (in rough priority)
 
 Done and removed on 2026-11-06, as the developer confirmed: the new icons and the release build checked on the Pixel and the Xiaomi; the Live Update and icon checks on the Pixel 7 Pro; the handover (M6) with the release key backed up, the GitHub secrets set, the old test install removed, and the app in daily use on the user's Xiaomi since 2026-11-04.

@@ -375,6 +375,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get currentWeek => 'Zur aktuellen Woche';
 
   @override
+  String get currentMonth => 'Zum aktuellen Monat';
+
+  @override
   String get noShift => 'Keine Schicht';
 
   @override
@@ -1330,7 +1333,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get teamNextWeek => 'Nächste Woche';
+  String get teamBackToNextWeek => 'Zur nächsten Woche';
 
   @override
   String get sectionTeam => 'Dienstplan';

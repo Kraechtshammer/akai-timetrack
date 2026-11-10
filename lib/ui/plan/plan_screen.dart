@@ -51,18 +51,7 @@ class PlanScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
       children: [
-        PageHeader(
-          title: l10n.tabPlan,
-          subtitle: l10n.planSubtitle,
-          actions: [
-            M3EIconButton(
-              variant: M3EIconButtonVariant.standard,
-              tooltip: l10n.currentWeek,
-              icon: const Icon(Icons.today_outlined),
-              onPressed: () => onWeekChanged(weekStart(now)),
-            ),
-          ],
-        ),
+        PageHeader(title: l10n.tabPlan, subtitle: l10n.planSubtitle),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
@@ -75,6 +64,10 @@ class PlanScreen extends ConsumerWidget {
                     '${dates.format(week)} – ${dates.format(addDays(week, 6))}',
                 onPrevious: () => onWeekChanged(addDays(week, -7)),
                 onNext: () => onWeekChanged(addDays(week, 7)),
+                onHome: week == weekStart(now)
+                    ? null
+                    : () => onWeekChanged(weekStart(now)),
+                homeIsBefore: weekStart(now).isBefore(week),
               ),
               Wrap(
                 spacing: 8,

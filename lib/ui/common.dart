@@ -189,7 +189,7 @@ class DividedRow extends StatelessWidget {
   );
 }
 
-/// "‹ KW 45 · 2. – 8. Nov. ›"
+/// "‹ KW 45 · 2. – 8. Nov. ›", with a jump back to the home week.
 class WeekSwitcher extends StatelessWidget {
   const WeekSwitcher({
     super.key,
@@ -199,6 +199,9 @@ class WeekSwitcher extends StatelessWidget {
     required this.onNext,
     this.previousTooltip,
     this.nextTooltip,
+    this.onHome,
+    this.homeIsBefore = true,
+    this.homeTooltip,
   });
 
   final String title;
@@ -210,36 +213,71 @@ class WeekSwitcher extends StatelessWidget {
   final String? previousTooltip;
   final String? nextTooltip;
 
+  /// Back to the week the tab opens on (this week, or next week on the
+  /// team planner); null while it is shown. A tonal button with a double
+  /// arrow next to the title, on the side the home week lies.
+  final VoidCallback? onHome;
+
+  /// The home week lies before the shown one: the button sits left.
+  final bool homeIsBefore;
+  final String? homeTooltip;
+
   @override
-  Widget build(BuildContext context) => Panel(
-    radius: 28,
-    padding: const EdgeInsets.all(4),
-    color: context.colors.surfaceContainer,
-    child: Row(
-      children: [
-        M3EIconButton(
-          variant: M3EIconButtonVariant.standard,
-          tooltip: previousTooltip ?? context.l10n.previousWeek,
-          icon: const Icon(Icons.chevron_left),
-          onPressed: onPrevious,
-        ),
-        Expanded(
-          child: Column(
-            children: [
-              Text(title, style: context.text.titleMedium),
-              Text(subtitle, style: context.text.bodySmall),
-            ],
+  Widget build(BuildContext context) {
+    // Both sides keep the button's width, so the title stays centred.
+    Widget slot(bool left) => SizedBox(
+      width: 40,
+      child: onHome != null && homeIsBefore == left
+          ? IconButton.filledTonal(
+              visualDensity: VisualDensity.compact,
+              tooltip: homeTooltip ?? context.l10n.currentWeek,
+              onPressed: onHome,
+              icon: Icon(
+                left
+                    ? Icons.keyboard_double_arrow_left
+                    : Icons.keyboard_double_arrow_right,
+                size: 20,
+              ),
+            )
+          : null,
+    );
+
+    return Panel(
+      radius: 28,
+      padding: const EdgeInsets.all(4),
+      color: context.colors.surfaceContainer,
+      child: Row(
+        children: [
+          M3EIconButton(
+            variant: M3EIconButtonVariant.standard,
+            tooltip: previousTooltip ?? context.l10n.previousWeek,
+            icon: const Icon(Icons.chevron_left),
+            onPressed: onPrevious,
           ),
-        ),
-        M3EIconButton(
-          variant: M3EIconButtonVariant.standard,
-          tooltip: nextTooltip ?? context.l10n.nextWeek,
-          icon: const Icon(Icons.chevron_right),
-          onPressed: onNext,
-        ),
-      ],
-    ),
-  );
+          slot(true),
+          Expanded(
+            child: Column(
+              children: [
+                Text(title, style: context.text.titleMedium),
+                Text(
+                  subtitle,
+                  style: context.text.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          slot(false),
+          M3EIconButton(
+            variant: M3EIconButtonVariant.standard,
+            tooltip: nextTooltip ?? context.l10n.nextWeek,
+            icon: const Icon(Icons.chevron_right),
+            onPressed: onNext,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// Progress bar with a wavy filled part (Material 3 Expressive).

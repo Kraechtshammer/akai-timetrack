@@ -588,7 +588,7 @@ The first tab, "Home" (it was "Today" until 2026-11-05). Icon: `home`. It was re
 - **Week strip:** tap a day → Plan tab at that week. Under each day, lunch and evening shifts are marked either with icons (sun, moon, clock for custom; the default) or with two bars (left lunch, right evening; custom shifts by start time). The marks are coloured by status (§8): "recorded", "not recorded", grey for planned, the theme colour while running. The day circle shows the whole day: the "not recorded" container if a shift was missed, the "recorded" container if all shifts are recorded, otherwise grey. Today has a border in the today colour. A legend below names the three colours. Chosen in Settings › Appearance › Week overview.
 
 ### Plan
-- **Week navigation:** arrows, swipe, and a "today" button.
+- **Week navigation:** arrows and swipe. On any other week than the current one, a small tonal button with a double arrow ("Go to this week") sits next to the centred week, on the side the current week lies, and jumps back to it. Until 2026-11-10 that was a calendar icon in the header, which the developer found unclear.
 - **Header chips:** recorded and total hours for the week.
 - **Shift rows:**
   - Icon shows the status (clock = planned, filled check = recorded, warning = missed), in the status colours (§8). The type label is in the lunch or evening colour (custom shifts by start time, as in the week strip).
@@ -614,7 +614,7 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
   - **Pay** (§4.8), the biggest number, because it is what reaches the bank account at the end of the month. The current month shows "Expected pay" with the expected amount, "€412 earned · 28.5 of 67.5 h" below it, and the wavy bar. A past month shows "Pay" with the amount earned, unless shifts were missed; a future month shows the expected amount and "for 67.5 h". Without a rate: a hint and an "Add hourly wage" button.
   - **"Tips"** with the number of weeks with a payout ("from 3 weeks").
   - **"Total · with tips":** "Earned" and "Expected" side by side, in the style of the hours on the Home tab; one of them for past and future months, by the same rule as the pay. Hidden without a rate.
-- **Week switcher:** the same as on Plan (arrows, swipe, "today" button).
+- **Week switcher:** the same as on Plan (arrows, swipe, the double-arrow jump back to this week).
 - **"Paid out" card:** the week's payout, or an "Add" button if there is none. Tap opens the money sheet.
 - **"Daily pool" list** (only while Settings › Features › "Daily pool" is on): one row per workday (§4.7): weekday and date, the shift types worked (sun/moon icons as on the Home tab), and the pool total or "–". Tap opens the money sheet for that day. Below the list: "Total" with the sum of the week's pool totals.
 - **A week without workdays:** "No shifts this week." The payout can still be entered.
@@ -631,7 +631,7 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
   - "All hourly wages": every rate, newest first, each with a delete button that asks first. Not a snack bar with "Undo", because the sheet would cover it.
 
 ### Export
-- **Month picker:** always opens on the **current month**, also when coming back to the tab (developer decision 2026-11-04). Earlier months are one tap back.
+- **Month picker:** always opens on the **current month**, also when coming back to the tab (developer decision 2026-11-04). Earlier months are one tap back. Like the week switcher, other months show the double-arrow jump back to the current month ("Go to this month").
 - **Summary card:** "Month total" with the hours, shifts and days of the month.
 - **Copy** puts the text on the clipboard. **Share** opens the share sheet (WhatsApp etc.).
 
@@ -640,7 +640,7 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
 The fifth tab, last in the bar, shown only while Settings › Features › "Team planner" is on. Turning the switch off hides the tab and keeps the data. The label is provisional: "Team" in English, "Dienstplan" in German, icon `groups`. The developer decides on the name once the screen is built. Last in the bar, so the other tabs keep their places when it is switched on or off. Rules: §4.9.
 
 **Board** (`ui/roster/team_screen.dart`). It opens on **next week** on each visit to the tab, like Pay opens on the current week.
-- **Header:** `PageHeader` and the `WeekSwitcher` (arrows, swipe, a button back to next week). An hourglass button opens "Hours per month" on the month of the week's Thursday (since 1.8.0). A menu (⋮) has "People" and, if a person is marked "This is me", has shifts this week and "Sync my shifts with Plan" is off, "Add my shifts to Plan".
+- **Header:** `PageHeader` and the `WeekSwitcher` (arrows, swipe; on other weeks the double-arrow jump back to next week, "Go to next week", since the planner's home is the week being planned. Until 2026-11-10 a separate "Next week" text button below the switcher, which was confusing and took a row). An hourglass button opens "Hours per month" on the month of the week's Thursday (since 1.8.0). A menu (⋮) has "People" and, if a person is marked "This is me", has shifts this week and "Sync my shifts with Plan" is off, "Add my shifts to Plan".
 - **Answers card:** "Answers: 5 of 7" and the button "Enter answers". It starts the walk-through at the first person without an answer, or at the first person if everyone has answered. Without any people, the card reads "Add the people you plan for" with an "Add people" button instead.
 - **Action row:** "Fill" (tonal), "Clear" (text) and "Share" (filled). "Clear" is disabled on an empty board. "Share" opens the preview.
 - **Day cards:** one per open day, in the style of the Plan tab's cards.
@@ -908,3 +908,4 @@ Possible later extensions:
 - **Extras in the setup** (2026-11-10, §7 Onboarding): a last setup step with the feature switches and the theme. The developer wanted the features mentioned so people know they exist; one step for both, to keep the setup short. The controls are shared with Settings (`ui/settings/look_and_features.dart`).
 - **Monthly hours limits** (2026-11-10, §3, §4.9, §7): the developer asked for a way to keep the mini-jobbers on the team under their monthly limit. People get an optional "Max. hours per month"; a page "Hours per month" (from the board's header) shows everyone's planned hours against it; the shift sheet and the board warn when someone goes over it or above the week's share of it, with an explanation on tap, and Fill goes beyond neither. The week's share allows one long shift on top (the developer's choice over a percentage). The developer chose hours over euros (no wages needed) and the shift times' end times over a separate "hours per shift" setting. Because of that, the team's separate start times were dropped: the team planner now uses the "Default shift times" for both start and end, shown in Settings › Team planner as "Shift times".
 - **Sync my shifts with Plan** (2026-11-10, §3, §4.9, §7): the developer asked that the user's team shifts go onto Plan by themselves and leave again unless recorded, behind a setting. Copies are linked through the new `shifts.teamStart` (schema version 6) rather than matched by day, so shifts added by hand are never touched. Removing a copy on Plan also takes the user out of the team shift, with a message; copies carry a small team icon on Plan.
+- **Back to this week** (2026-11-10, §7): the Plan and Pay tabs had a calendar icon in the header and the Team tab a "Next week" text button under the switcher. The developer found the icon unclear and the button misleading, so the week switcher itself now shows a small tonal double-arrow button next to the centred week, pointing to the home week (this week; next week on the team planner; this month on Export), only while another week is shown. A label under the dates was tried first and dropped the same day.

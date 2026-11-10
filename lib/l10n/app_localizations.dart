@@ -698,6 +698,12 @@ abstract class AppLocalizations {
   /// **'Zur aktuellen Woche'**
   String get currentWeek;
 
+  /// No description provided for @currentMonth.
+  ///
+  /// In de, this message translates to:
+  /// **'Zum aktuellen Monat'**
+  String get currentMonth;
+
   /// No description provided for @noShift.
   ///
   /// In de, this message translates to:
@@ -2264,11 +2270,11 @@ abstract class AppLocalizations {
   /// **'KW {week} · {range}'**
   String teamImageWeek(int week, String range);
 
-  /// No description provided for @teamNextWeek.
+  /// No description provided for @teamBackToNextWeek.
   ///
   /// In de, this message translates to:
-  /// **'Nächste Woche'**
-  String get teamNextWeek;
+  /// **'Zur nächsten Woche'**
+  String get teamBackToNextWeek;
 
   /// No description provided for @sectionTeam.
   ///

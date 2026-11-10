@@ -148,17 +148,15 @@ class _TeamScreenState extends ConsumerState<TeamScreen> {
                   subtitle: weekRange(_week, context.locale),
                   onPrevious: () => _shift(-1),
                   onNext: () => _shift(1),
+                  // The planner's home is next week, the one being planned.
+                  homeTooltip: l10n.teamBackToNextWeek,
+                  homeIsBefore: nextPlanWeek(DateTime.now()).isBefore(_week),
+                  onHome: _week == nextPlanWeek(DateTime.now())
+                      ? null
+                      : () => setState(
+                          () => _week = nextPlanWeek(DateTime.now()),
+                        ),
                 ),
-                if (_week != nextPlanWeek(DateTime.now()))
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: M3EButton(
-                      style: M3EButtonStyle.text,
-                      onPressed: () =>
-                          setState(() => _week = nextPlanWeek(DateTime.now())),
-                      child: Text(l10n.teamNextWeek),
-                    ),
-                  ),
                 if (week == null)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 48),

@@ -375,6 +375,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currentWeek => 'Go to this week';
 
   @override
+  String get currentMonth => 'Go to this month';
+
+  @override
   String get noShift => 'No shift';
 
   @override
@@ -1327,7 +1330,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get teamNextWeek => 'Next week';
+  String get teamBackToNextWeek => 'Go to next week';
 
   @override
   String get sectionTeam => 'Team planner';
