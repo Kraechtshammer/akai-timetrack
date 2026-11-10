@@ -111,7 +111,7 @@ Channel names still start with the first package name `de.garten.…`. They are 
 ## 5. Domain
 
 - **Pure functions** take their inputs and the current time as parameters: `roundShift`, `summarizeMonth(shifts, now)`, `planReminders(shifts, settings, now)`, `payForMonth`, `tipWeeksOf`, `buildExportText`.
-- **Display rules** that screens share live in `domain/display_rules.dart`: sums over shifts (`recordedMinutes`, `missingCount`), `nextShift`, the week strip's `dayStatus` and `slotStatus`, `stopPreview` for the running card, `payColumns`, and the Plan tab's `planToggles` and `planDayShown` (closed shifts, from the team planner's `WeekNeeds`). Screens map the results to colours and texts. `RosterWeek` holds every team-planner rule, and `fill()` is deterministic.
+- **Display rules** that screens share live in `domain/display_rules.dart`: sums over shifts (`recordedMinutes`, `missingCount`), `nextShift`, the week strip's `dayStatus` and `slotStatus`, `stopPreview` for the running card, `payColumns`, and the Plan tab's `planToggles` and `planDayShown` (closed shifts, from `WeekNeeds`), and `openShiftsSummary`. Screens map the results to colours and texts. `RosterWeek` holds every team-planner rule, and `fill()` is deterministic.
 - **Two services:** `PlanningService` and `RecordingService` take `ShiftRepository`, `SettingsRepository` and an `onChanged` callback. Their methods take an optional `at:` time for tests.
 - **The callback** is the only link from the rules to platform code. It keeps notifications and the calendar out of `domain/`, and tests pass a stub.
 

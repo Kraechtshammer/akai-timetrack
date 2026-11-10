@@ -36,14 +36,15 @@ class PlanScreen extends ConsumerWidget {
     final recorded = shifts.recordedMinutes;
     final total = shifts.expectedMinutes;
     final dates = DateFormat.MMMd(locale);
-    // With the team planner on, closed shifts ("Staff needed" 0) are hidden.
+    // Closed shifts are hidden. The week's own staff counts from the team
+    // board count only while the team planner is on.
     final settings = ref.settings;
-    final needs = settings.teamPlanner
-        ? WeekNeeds(
-            ref.watch(teamNeedsProvider(week)).value ?? const [],
-            settings.teamStaffNeeded,
-          )
-        : null;
+    final needs = WeekNeeds(
+      settings.teamPlanner
+          ? ref.watch(teamNeedsProvider(week)).value ?? const []
+          : const [],
+      settings.teamStaffNeeded,
+    );
     final days = [for (var i = 0; i < 7; i++) addDays(week, i)]
         .where((d) => planDayShown(d, shifts.on(d), needs));
 

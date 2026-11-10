@@ -1091,7 +1091,8 @@ class AppLocalizationsDe extends AppLocalizations {
       'Damit Erinnerungen pünktlich kommen, auch wenn die App geschlossen ist.';
 
   @override
-  String get settingsShiftsSummary => 'Standardzeiten, Rundung';
+  String get settingsShiftsSummary =>
+      'Standardzeiten, geöffnete Schichten, Rundung';
 
   @override
   String settingsTeamPeople(int count) {
@@ -1345,11 +1346,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get teamStartTimes => 'Startzeiten';
 
   @override
-  String teamDayNeeded(String lunch, String evening) {
-    return 'Mittag $lunch · Abend $evening';
-  }
-
-  @override
   String get teamAway => 'Diese Woche nicht da';
 
   @override
@@ -1370,4 +1366,27 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get shiftChangedMeanwhile =>
       'Die Schicht wurde inzwischen geändert, zum Beispiel über die Benachrichtigung. Bitte prüfe sie noch einmal.';
+
+  @override
+  String get openShifts => 'Geöffnete Schichten';
+
+  @override
+  String get openShiftsHint =>
+      'Geschlossene Schichten erscheinen nicht im Plan.';
+
+  @override
+  String get staffNeededHint =>
+      'Wie viele Leute jede Schicht braucht. Bei 0 ist geschlossen, dann erscheint die Schicht nicht im Plan.';
+
+  @override
+  String openShiftsCount(int count) {
+    return '$count von 14 Schichten';
+  }
+
+  @override
+  String get openShiftsTitle => 'Wann hat dein Restaurant geöffnet?';
+
+  @override
+  String get openShiftsBody =>
+      'Schalte die Schichten aus, in denen geschlossen ist. Sie erscheinen dann nicht im Plan. Du kannst das jederzeit in den Einstellungen ändern.';
 }

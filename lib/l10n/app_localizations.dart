@@ -1907,7 +1907,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsShiftsSummary.
   ///
   /// In de, this message translates to:
-  /// **'Standardzeiten, Rundung'**
+  /// **'Standardzeiten, geöffnete Schichten, Rundung'**
   String get settingsShiftsSummary;
 
   /// No description provided for @settingsTeamPeople.
@@ -2294,12 +2294,6 @@ abstract class AppLocalizations {
   /// **'Startzeiten'**
   String get teamStartTimes;
 
-  /// No description provided for @teamDayNeeded.
-  ///
-  /// In de, this message translates to:
-  /// **'Mittag {lunch} · Abend {evening}'**
-  String teamDayNeeded(String lunch, String evening);
-
   /// No description provided for @teamAway.
   ///
   /// In de, this message translates to:
@@ -2335,6 +2329,42 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Die Schicht wurde inzwischen geändert, zum Beispiel über die Benachrichtigung. Bitte prüfe sie noch einmal.'**
   String get shiftChangedMeanwhile;
+
+  /// No description provided for @openShifts.
+  ///
+  /// In de, this message translates to:
+  /// **'Geöffnete Schichten'**
+  String get openShifts;
+
+  /// No description provided for @openShiftsHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Geschlossene Schichten erscheinen nicht im Plan.'**
+  String get openShiftsHint;
+
+  /// No description provided for @staffNeededHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie viele Leute jede Schicht braucht. Bei 0 ist geschlossen, dann erscheint die Schicht nicht im Plan.'**
+  String get staffNeededHint;
+
+  /// No description provided for @openShiftsCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} von 14 Schichten'**
+  String openShiftsCount(int count);
+
+  /// No description provided for @openShiftsTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Wann hat dein Restaurant geöffnet?'**
+  String get openShiftsTitle;
+
+  /// No description provided for @openShiftsBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Schalte die Schichten aus, in denen geschlossen ist. Sie erscheinen dann nicht im Plan. Du kannst das jederzeit in den Einstellungen ändern.'**
+  String get openShiftsBody;
 }
 
 class _AppLocalizationsDelegate

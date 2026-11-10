@@ -316,7 +316,7 @@
   "tipPoolSwitchSubtitle": "Note everyone's tips for each workday. The app asks after the shift.",
   "sectionPermissions": "Permissions",
   "permissionsHint": "So that reminders arrive on time, even when the app is closed.",
-  "settingsShiftsSummary": "Default times, rounding",
+  "settingsShiftsSummary": "Default times, open shifts, rounding",
   "settingsTeamPeople": "{count, plural, =0{No one added yet} =1{1 person} other{{count} people}}",
   "settingsUpdateSummary": "Version {version}",
   "clearField": "Clear",
@@ -382,12 +382,17 @@
   "teamPlannerSwitch": "Team planner",
   "teamPlannerSubtitle": "Plan the team's shifts and share the plan as a picture",
   "teamStartTimes": "Start times",
-  "teamDayNeeded": "Lunch {lunch} · Evening {evening}",
 
   "teamAway": "Away this week",
   "teamAwayShort": "Away",
   "teamDeleteTitle": "Delete {name}?",
   "teamDeleteBody": "Their answers and shifts in all weeks are deleted too.",
   "minutesUnit": "min",
-  "shiftChangedMeanwhile": "This shift was changed in the meantime, for example from the notification. Please check it again."
+  "shiftChangedMeanwhile": "This shift was changed in the meantime, for example from the notification. Please check it again.",
+  "openShifts": "Open shifts",
+  "openShiftsHint": "Closed shifts don't show on Plan.",
+  "staffNeededHint": "How many people each shift needs. 0 means closed, and the shift doesn't show on Plan.",
+  "openShiftsCount": "{count} of 14 shifts",
+  "openShiftsTitle": "When is your restaurant open?",
+  "openShiftsBody": "Switch off the shifts when it's closed. They won't show on Plan. You can change this any time in Settings."
 }

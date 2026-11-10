@@ -57,6 +57,10 @@ TeamAssignment placed(String memberId, TeamSlot slot, {int? start}) =>
       updatedAt: created,
     );
 
+/// The week these tests were written for: 2 at lunch and 3 in the
+/// evening, closed on Sunday. (Not the app's default since 2026-11-10.)
+const monToSat = StaffNeeds([2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 0, 0]);
+
 /// Only Monday is open: 1 at lunch, [evening] in the evening.
 StaffNeeds mondayOnly({int lunch = 1, int evening = 1}) =>
     StaffNeeds([lunch, evening, for (var i = 0; i < 12; i++) 0]);
@@ -66,7 +70,7 @@ RosterWeek week({
   List<TeamAnswer> answers = const [],
   List<TeamAssignment> assignments = const [],
   List<TeamNeed> needs = const [],
-  StaffNeeds defaults = StaffNeeds.standard,
+  StaffNeeds defaults = monToSat,
 }) => RosterWeek(
   weekStart: monday,
   members: members,
@@ -103,7 +107,7 @@ void main() {
         read.teamStaffNeeded.needed(DateTime.friday, TeamShift.evening),
         5,
       );
-      expect(read.teamStaffNeeded.needed(DateTime.sunday, TeamShift.lunch), 0);
+      expect(read.teamStaffNeeded.needed(DateTime.monday, TeamShift.lunch), 0);
       expect(read.teamStarts.lunch, 11 * 60 + 30);
       expect(read.teamStarts.of(TeamShift.evening), 18 * 60);
     });

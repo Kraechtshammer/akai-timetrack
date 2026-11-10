@@ -1088,7 +1088,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'So that reminders arrive on time, even when the app is closed.';
 
   @override
-  String get settingsShiftsSummary => 'Default times, rounding';
+  String get settingsShiftsSummary => 'Default times, open shifts, rounding';
 
   @override
   String settingsTeamPeople(int count) {
@@ -1343,11 +1343,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamStartTimes => 'Start times';
 
   @override
-  String teamDayNeeded(String lunch, String evening) {
-    return 'Lunch $lunch · Evening $evening';
-  }
-
-  @override
   String get teamAway => 'Away this week';
 
   @override
@@ -1368,4 +1363,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get shiftChangedMeanwhile =>
       'This shift was changed in the meantime, for example from the notification. Please check it again.';
+
+  @override
+  String get openShifts => 'Open shifts';
+
+  @override
+  String get openShiftsHint => 'Closed shifts don\'t show on Plan.';
+
+  @override
+  String get staffNeededHint =>
+      'How many people each shift needs. 0 means closed, and the shift doesn\'t show on Plan.';
+
+  @override
+  String openShiftsCount(int count) {
+    return '$count of 14 shifts';
+  }
+
+  @override
+  String get openShiftsTitle => 'When is your restaurant open?';
+
+  @override
+  String get openShiftsBody =>
+      'Switch off the shifts when it\'s closed. They won\'t show on Plan. You can change this any time in Settings.';
 }

@@ -1,4 +1,5 @@
 import '../core/time.dart';
+import '../data/app_settings.dart';
 import '../data/database.dart';
 import 'roster.dart';
 import 'rounding.dart';
@@ -119,26 +120,44 @@ SlotStatus slotStatus(Iterable<Shift> slot, DateTime now) {
 }
 
 /// The Lunch and Evening toggles the Plan tab offers on [day]
-/// (docs/02-design.md §7). [needs] is null while the team planner is off:
-/// then both are offered. Otherwise a shift with "Staff needed" 0 that week
-/// is closed and has no toggle, unless the user already has that shift
-/// there, so it can still be removed.
+/// (docs/02-design.md §4.1). A closed shift ("Open shifts" off, or
+/// "Staff needed" 0 that week) has no toggle, unless the user already has
+/// that shift there, so it can still be removed.
 List<ShiftType> planToggles(
   DateTime day,
   Iterable<Shift> ofDay,
-  WeekNeeds? needs,
+  WeekNeeds needs,
 ) => [
   for (final (type, team) in const [
     (ShiftType.lunch, TeamShift.lunch),
     (ShiftType.evening, TeamShift.evening),
   ])
-    if (needs == null ||
-        needs.isOpen(TeamSlot(day, team)) ||
-        ofDay.any((s) => s.type == type))
+    if (needs.isOpen(TeamSlot(day, team)) || ofDay.any((s) => s.type == type))
       type,
 ];
 
 /// The Plan tab hides a day with no toggle and no shift, such as a day the
 /// restaurant is closed.
-bool planDayShown(DateTime day, Iterable<Shift> ofDay, WeekNeeds? needs) =>
+bool planDayShown(DateTime day, Iterable<Shift> ofDay, WeekNeeds needs) =>
     ofDay.isNotEmpty || planToggles(day, ofDay, needs).isNotEmpty;
+
+/// The summary of "Open shifts" in Settings: a run of whole open days
+/// (`from` … `to`, weekdays 1–7, e.g. Tuesday–Sunday) when every other day
+/// is closed, otherwise only the number of open shifts out of 14.
+({int count, (int, int)? days}) openShiftsSummary(StaffNeeds needs) {
+  bool open(int wd, TeamShift s) => needs.isOpen(wd, s);
+  final count = [
+    for (var wd = DateTime.monday; wd <= DateTime.sunday; wd++)
+      for (final s in TeamShift.values)
+        if (open(wd, s)) 1,
+  ].length;
+  final whole = [
+    for (var wd = DateTime.monday; wd <= DateTime.sunday; wd++)
+      if (TeamShift.values.every((s) => open(wd, s))) wd,
+  ];
+  final isRun =
+      whole.isNotEmpty &&
+      whole.length * 2 == count &&
+      whole.last - whole.first == whole.length - 1;
+  return (count: count, days: isRun ? (whole.first, whole.last) : null);
+}

@@ -17,6 +17,7 @@ import '../../l10n/labels.dart';
 import '../common.dart';
 import '../roster/team_settings.dart';
 import 'calendar_pickers.dart';
+import 'open_shifts.dart';
 import 'reliability.dart';
 import 'settings_screen.dart';
 import 'update_tiles.dart';
@@ -112,6 +113,12 @@ class _ShiftsPage extends ConsumerWidget {
     final s = ref.settings;
     return Column(
       children: [
+        SettingsSection(null, [
+          OpenShiftsTile(
+            icon: Icons.storefront_outlined,
+            title: l10n.openShifts,
+          ),
+        ]),
         SettingsSection(l10n.sectionDefaultTimes, const [DefaultTimesTiles()]),
         SettingsSection(l10n.sectionRecording, [
           SettingsTile(

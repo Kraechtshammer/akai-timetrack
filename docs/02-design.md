@@ -175,7 +175,7 @@ The user's hourly wage. Each rate is valid from a day on, so a raise (for exampl
 
 ### Team planner tables (F11, schema version 4)
 
-The team planner (§4.9) has its own tables and no link to `shifts`, calendar sync or reminders. Two things cross over: "Add my shifts to Plan" writes shifts, and the Plan tab reads the staff counts to hide closed shifts (§4.1). Research and decisions: `01-research.md` §10. Shift kinds are stored as `TeamShift` (`lunch` = 0, `evening` = 1), not as `ShiftType`, because the planner has no custom shifts.
+The team planner (§4.9) has its own tables and no link to `shifts`, calendar sync or reminders. Two things cross over: "Add my shifts to Plan" writes shifts, and the Plan tab reads the week's staff counts, while the planner is on, to hide closed shifts (§4.1). Research and decisions: `01-research.md` §10. Shift kinds are stored as `TeamShift` (`lunch` = 0, `evening` = 1), not as `ShiftType`, because the planner has no custom shifts.
 
 | Table `team_members` | Type | Meaning |
 |---|---|---|
@@ -224,7 +224,7 @@ The team planner (§4.9) has its own tables and no link to `shifts`, calendar sy
 | Key | Default | Meaning |
 |---|---|---|
 | `teamPlanner` | false | shows the fifth tab and the "Team planner" page in Settings |
-| `teamStaffNeeded` | `2,3;2,3;2,3;2,3;2,3;2,3;0,0` | staff needed per weekday (Monday first), lunch then evening. 0 = closed |
+| `teamStaffNeeded` | `0,0;2,3;2,3;2,3;2,3;2,3;2,3` | "Open shifts", and for the team planner the staff needed, per weekday (Monday first), lunch then evening. 0 = closed. The default is a typical small restaurant (closed on Monday); until 2026-11-10 it was `2,3;…;2,3;0,0` (closed on Sunday), which existing installs keep because every settings save writes all keys |
 | `teamStarts` | `12:00,17:30` | the normal start of lunch and evening, shown on the board and in the image |
 
 The team start times are separate from the user's "Default shift times", because those are the user's own times (lunch may end at 15:30, the evening may start later), and changing them shouldn't change the team plan.
@@ -240,7 +240,7 @@ The team start times are separate from the user's "Default shift times", because
   - Adding an evening shift on a day with a lunch shift moves the lunch end to 15:30, but only if the lunch shift still has default times (`plannedCustomized == false`) and isn't recorded yet.
   - Removing the evening shift moves it back to 16:00.
 - **"+"** opens the sheet with type *Custom* and empty times, defaulting to 18:00–22:00 so the pickers start somewhere sensible.
-- **Closed shifts** (2026-11-10): while the team planner is on, a Lunch or Evening shift with "Staff needed" 0 that week (§4.9: the week's own number, else the default in `teamStaffNeeded`) is closed. Its toggle is hidden, unless the user already has that shift on that day, so it can still be removed. A day with no toggle left and no shift is hidden, like a closed day on the team board. With the default staff counts that is Sunday. Rules: `planToggles` and `planDayShown` in `domain/display_rules.dart`. With the team planner off, every day shows both toggles.
+- **Closed shifts** (2026-11-10): a Lunch or Evening shift switched off in "Open shifts" (the setting `teamStaffNeeded`, 0 = closed) has no toggle, unless the user already has that shift on that day, so it can still be removed. A day with no toggle left and no shift is hidden, like a closed day on the team board; with the default that is Monday. While the team planner is on, the week's own staff counts from the board (§4.9) count too. Rules: `planToggles` and `planDayShown` in `domain/display_rules.dart`.
 - **Past weeks** are fully editable. Recorded shifts are never changed automatically.
 
 ### 4.2 Recording (`RecordingService`)
@@ -571,7 +571,7 @@ The first tab, "Home" (it was "Today" until 2026-11-05). Icon: `home`. It was re
 - **Header chips:** recorded and total hours for the week.
 - **Shift rows:**
   - Icon shows the status (clock = planned, filled check = recorded, warning = missed), in the status colours (§8). The type label is in the lunch or evening colour (custom shifts by start time, as in the week strip).
-- **Toggles:** a planned "Lunch" or "Evening" toggle is filled in the lunch or evening colour (§8). With the team planner on, closed shifts have no toggle and closed days no card (§4.1). Today's card has a border in the today colour.
+- **Toggles:** a planned "Lunch" or "Evening" toggle is filled in the lunch or evening colour (§8). Closed shifts have no toggle and closed days no card (§4.1). Today's card has a border in the today colour.
   - Tap opens the edit sheet.
   - Long-press offers "Delete" with an undo snackbar.
 
@@ -661,11 +661,11 @@ An overview with one row per category (icon, title, a short summary, a chevron).
 
 | Category | Summary on the overview | Page |
 |---|---|---|
-| Shifts | "Default times, rounding" | "Default shift times" (Lunch, Lunch before evening, Evening); "Recording & export" ("Rounding") |
+| Shifts | "Default times, open shifts, rounding" | "Open shifts" (summary "Tue–Sun", "11 of 14 shifts" or "Closed"; a sheet with a header row Lunch / Evening and one row per weekday: a switch per shift, or with the team planner on the − / + counters of "Staff needed"; off writes 0, on writes 2 at lunch and 3 in the evening); "Default shift times" (Lunch, Lunch before evening, Evening); "Recording & export" ("Rounding") |
 | Reminders | the lead time, "15 minutes before" | "Before a shift starts", "Ask if not stopped"; "Permissions" with every reliability check and its status |
 | Calendar | the calendar's name or "No calendar" | calendar, "Event title", **"Event color"**, "Sync now" |
 | Features | the features turned on, "Daily pool · Team planner", or "None turned on" | one switch per optional feature: "Daily pool" (`tipPool`, subtitle "Note everyone's tips for each workday. The app asks after the shift.") and "Team planner" (`teamPlanner`, subtitle "Plan the team's shifts and share the plan as a picture"). Turning one off hides it and keeps its data |
-| Team planner | the number of people, "7 people" | only on the overview while the feature is on. "Staff needed" (a sheet with − / + per weekday for Lunch and Evening; 0 shows "Closed"), "Start times" (`teamStarts`) and "People" |
+| Team planner | the number of people, "7 people" | only on the overview while the feature is on. "Staff needed" (the "Open shifts" sheet, which shows the − / + counters while the team planner is on; 0 shows "Closed"), "Start times" (`teamStarts`) and "People" |
 | Appearance | colour and dark mode, "Red · Dark" | "Color", "Dark mode", "App icon" (only when more than one design is offered), "Icon shape", "Week overview" |
 | General | restaurant and language, "Not set · Same as the phone" | "Restaurant" (optional; the dialog has a clear button), "Language" |
 | App update | "Version 1.4.1", or "Update to version 1.5.0" with a dot | "Check for updates", "What's new", the found update, "Restart update", "Delete update file" (§12) |
@@ -680,6 +680,7 @@ An overview with one row per category (icon, title, a short summary, a chevron).
 4. **Calendar:** the hint about a separate calendar, the permission, the selection list, then the event colour.
 5. **Xiaomi only:** Autostart and battery set to "No restrictions", with buttons that open the right settings pages.
 6. **Default times:** confirm or adjust.
+7. **Open shifts** (2026-11-10): "When is your restaurant open?", the switch grid of "Open shifts", starting from the default week.
 
 ## 8. Theming (F9)
 
@@ -873,4 +874,4 @@ Possible later extensions:
 - **Settings categories** (2026-11-06, §7): the one long Settings page became an overview with seven categories, each on its own page, because the page needed a lot of scrolling. The developer picked seven categories over five, and to show the reliability checks in two places but nothing else.
 - **Shift colours** (2026-11-06, §6 and §8): the week strip only told recorded (theme colour) from not recorded (grey), so missed and planned shifts looked the same. Status, lunch and evening now have their own soft colours, chosen with the developer on an artboard of options. A red "not recorded" was rejected, because the error red is almost the AKAI red; honey was taken instead. The pay amount on the Home tab lost its theme colour. New themes on calmer surfaces were shown too; the developer kept the existing themes, because a new theme would put the AKAI red on the next-shift card even for someone who did not pick it.
 - **Features page** (2026-11-06, §7): a Settings category "Features" with a switch per optional feature. The "Team planner" switch moved there from its own page, which now shows on the overview only while the feature is on. The "Daily pool" (§4.7) became optional, because few people at the restaurant track it: off on a fresh install, on for installs from 1.5.0 and earlier. The developer chose a new category over adding the switches to "General", and only these two switches for now.
-- **Closed shifts on Plan** (2026-11-10, §4.1): the developer asked that shifts the team planner doesn't staff (Saturday lunch, Sunday) no longer show on the Plan tab. Only while the team planner is on, because its staff counts can only be set there.
+- **Closed shifts on Plan** (2026-11-10, §4.1): the developer asked that shifts the restaurant doesn't open (AKAI: Saturday lunch, Sunday) no longer show on the Plan tab. First built on the team planner's "Staff needed", then the same day made a setting of its own, "Open shifts" in Settings › Shifts and in the first-start setup: switches with the team planner off, the counters with it on, one value for both. The default became a typical small restaurant's week (closed on Monday; AKAI is closed on Sunday because it is on a shopping street); people set their own week in the setup.

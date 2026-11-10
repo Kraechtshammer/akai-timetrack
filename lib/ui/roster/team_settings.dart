@@ -2,7 +2,6 @@
 // on (Settings › Features).
 // See docs/02-design.md §7, "Settings".
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../material.dart';
 
@@ -10,6 +9,7 @@ import '../../app/providers.dart';
 import '../../core/time.dart';
 import '../../data/database.dart';
 import '../common.dart';
+import '../settings/open_shifts.dart';
 import '../settings/settings_screen.dart';
 import 'people_screen.dart';
 import 'roster_common.dart';
@@ -26,20 +26,8 @@ class TeamSettingsSection extends ConsumerWidget {
 
     return Column(
       children: [
-        SettingsTile(
-          icon: Icons.tune,
-          title: l10n.teamStaffNeeded,
-          value: l10n.teamDayNeeded(
-            '${s.teamStaffNeeded.needed(DateTime.monday, TeamShift.lunch)}',
-            '${s.teamStaffNeeded.needed(DateTime.monday, TeamShift.evening)}',
-          ),
-          onTap: () => showModalBottomSheet<void>(
-            context: context,
-            showDragHandle: true,
-            isScrollControlled: true,
-            builder: (_) => const _StaffNeededSheet(),
-          ),
-        ),
+        // The same sheet as Settings › Shifts › "Open shifts", with counters.
+        OpenShiftsTile(icon: Icons.tune, title: l10n.teamStaffNeeded),
         SettingsTile(
           icon: Icons.schedule,
           title: l10n.teamStartTimes,
@@ -63,103 +51,6 @@ class TeamSettingsSection extends ConsumerWidget {
       ],
     );
   }
-}
-
-/// One row per weekday with a stepper for lunch and for evening.
-class _StaffNeededSheet extends ConsumerWidget {
-  const _StaffNeededSheet();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final needs = ref.settings.teamStaffNeeded;
-    final dayName = DateFormat.EEEE(context.locale);
-    // 2024-01-01 was a Monday.
-    DateTime dateOf(int weekday) => DateTime(2024, 1, weekday);
-
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(context.l10n.teamStaffNeeded, style: context.text.titleLarge),
-            const SizedBox(height: 8),
-            for (var wd = DateTime.monday; wd <= DateTime.sunday; wd++)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        dayName.format(dateOf(wd)),
-                        style: context.text.titleSmall,
-                      ),
-                    ),
-                    for (final shift in TeamShift.values)
-                      _Stepper(
-                        shift: shift,
-                        value: needs.needed(wd, shift),
-                        onChanged: (n) => ref.services.settings.update(
-                          (s) => s.copyWith(
-                            teamStaffNeeded: s.teamStaffNeeded.withNeeded(
-                              wd,
-                              shift,
-                              n,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// "sun − 2 +" with 0 shown as "Closed".
-class _Stepper extends StatelessWidget {
-  const _Stepper({
-    required this.shift,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final TeamShift shift;
-  final int value;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Icon(teamShiftIcon(shift), size: 18, color: context.colors.outline),
-      M3EIconButton(
-        icon: const Icon(Icons.remove),
-        tooltip: '−',
-        onPressed: value > 0 ? () => onChanged(value - 1) : null,
-      ),
-      SizedBox(
-        width: textColumnWidth(context, context.text.labelSmall, [
-          context.l10n.teamClosed,
-        ], min: 40),
-        child: Text(
-          value == 0 ? context.l10n.teamClosed : '$value',
-          textAlign: TextAlign.center,
-          style: value == 0
-              ? context.text.labelSmall
-              : context.text.titleMedium,
-        ),
-      ),
-      M3EIconButton(
-        icon: const Icon(Icons.add),
-        tooltip: '+',
-        onPressed: value < 9 ? () => onChanged(value + 1) : null,
-      ),
-    ],
-  );
 }
 
 /// Two rows: the start of lunch and of evening.

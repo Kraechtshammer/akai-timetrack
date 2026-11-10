@@ -11,10 +11,12 @@ import '../../l10n/labels.dart';
 import '../../platform/device_setup.dart';
 import '../common.dart';
 import '../settings/calendar_pickers.dart';
+import '../settings/open_shifts.dart';
 import '../settings/reliability.dart';
 import '../settings/settings_screen.dart';
 
-/// First start: language, reminders, calendar, Xiaomi settings, times.
+/// First start: language, reminders, calendar, Xiaomi settings, times,
+/// open shifts.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -22,7 +24,7 @@ class OnboardingScreen extends ConsumerStatefulWidget {
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-enum _Step { welcome, reminders, calendar, xiaomi, times }
+enum _Step { welcome, reminders, calendar, xiaomi, times, openShifts }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   var _steps = [..._Step.values]..remove(_Step.xiaomi);
@@ -86,6 +88,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       _Step.calendar => const _Calendar(),
                       _Step.xiaomi => const _Xiaomi(),
                       _Step.times => const _Times(),
+                      _Step.openShifts => const _OpenShifts(),
                     },
                   ),
                 ),
@@ -375,6 +378,24 @@ class _Times extends StatelessWidget {
         body: context.l10n.timesBody,
       ),
       const DefaultTimesTiles(),
+    ],
+  );
+}
+
+class _OpenShifts extends StatelessWidget {
+  const _OpenShifts();
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _StepTitle(
+        icon: Icons.storefront_outlined,
+        title: context.l10n.openShiftsTitle,
+        body: context.l10n.openShiftsBody,
+      ),
+      // The team planner is off on a first start, so these are switches.
+      const OpenShiftsGrid(counts: false),
     ],
   );
 }

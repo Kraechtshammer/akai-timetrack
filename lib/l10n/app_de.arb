@@ -369,7 +369,7 @@
   "tipPoolSwitchSubtitle": "Das Trinkgeld aller an jedem Arbeitstag notieren. Nach der Schicht fragt die App danach.",
   "sectionPermissions": "Berechtigungen",
   "permissionsHint": "Damit Erinnerungen pünktlich kommen, auch wenn die App geschlossen ist.",
-  "settingsShiftsSummary": "Standardzeiten, Rundung",
+  "settingsShiftsSummary": "Standardzeiten, geöffnete Schichten, Rundung",
   "settingsTeamPeople": "{count, plural, =0{Noch niemand angelegt} =1{1 Person} other{{count} Personen}}",
   "@settingsTeamPeople": {"placeholders": {"count": {"type": "int"}}},
   "settingsUpdateSummary": "Version {version}",
@@ -450,8 +450,6 @@
   "teamPlannerSwitch": "Dienstplan",
   "teamPlannerSubtitle": "Schichten fürs Team planen und den Plan als Bild teilen",
   "teamStartTimes": "Startzeiten",
-  "teamDayNeeded": "Mittag {lunch} · Abend {evening}",
-  "@teamDayNeeded": {"placeholders":{"lunch":{"type":"String"},"evening":{"type":"String"}}},
 
   "teamAway": "Diese Woche nicht da",
   "teamAwayShort": "Nicht da",
@@ -459,5 +457,12 @@
   "@teamDeleteTitle": {"placeholders":{"name":{"type":"String"}}},
   "teamDeleteBody": "Die Antworten und Schichten dieser Person werden in allen Wochen mit gelöscht.",
   "minutesUnit": "min",
-  "shiftChangedMeanwhile": "Die Schicht wurde inzwischen geändert, zum Beispiel über die Benachrichtigung. Bitte prüfe sie noch einmal."
+  "shiftChangedMeanwhile": "Die Schicht wurde inzwischen geändert, zum Beispiel über die Benachrichtigung. Bitte prüfe sie noch einmal.",
+  "openShifts": "Geöffnete Schichten",
+  "openShiftsHint": "Geschlossene Schichten erscheinen nicht im Plan.",
+  "staffNeededHint": "Wie viele Leute jede Schicht braucht. Bei 0 ist geschlossen, dann erscheint die Schicht nicht im Plan.",
+  "openShiftsCount": "{count} von 14 Schichten",
+  "@openShiftsCount": {"placeholders":{"count":{"type":"int"}}},
+  "openShiftsTitle": "Wann hat dein Restaurant geöffnet?",
+  "openShiftsBody": "Schalte die Schichten aus, in denen geschlossen ist. Sie erscheinen dann nicht im Plan. Du kannst das jederzeit in den Einstellungen ändern."
 }

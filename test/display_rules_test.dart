@@ -128,24 +128,17 @@ void main() {
     // Week 46 of 2026: Monday 9 Nov … Sunday 15 Nov.
     final saturday = DateTime(2026, 11, 14);
     final sunday = DateTime(2026, 11, 15);
-    // The defaults, but Saturday is open in the evening only.
-    final defaults = StaffNeeds.standard.withNeeded(
-      DateTime.saturday,
-      TeamShift.lunch,
-      0,
-    );
-    final needs = WeekNeeds(const [], defaults);
+    // AKAI: Saturday evening only, closed on Sunday.
+    final akai = StaffNeeds.parse('2,3;2,3;2,3;2,3;2,3;0,3;0,0')!;
+    final needs = WeekNeeds(const [], akai);
     const both = [ShiftType.lunch, ShiftType.evening];
 
-    test('team planner off: both toggles every day', () {
-      expect(planToggles(sunday, const [], null), both);
-      expect(planDayShown(sunday, const [], null), isTrue);
-    });
     test('closed shifts have no toggle, closed days are hidden', () {
       expect(planToggles(day, const [], needs), both);
       expect(planToggles(saturday, const [], needs), [ShiftType.evening]);
       expect(planToggles(sunday, const [], needs), isEmpty);
       expect(planDayShown(sunday, const [], needs), isFalse);
+      expect(planDayShown(saturday, const [], needs), isTrue);
     });
     test("the week's own number wins over the default", () {
       final open = WeekNeeds([
@@ -156,7 +149,7 @@ void main() {
           needed: 2,
         ),
         TeamNeed(id: 'm', day: dayKey(day), shift: TeamShift.lunch, needed: 0),
-      ], defaults);
+      ], akai);
       expect(planToggles(sunday, const [], open), [ShiftType.evening]);
       expect(planToggles(day, const [], open), [ShiftType.evening]);
     });
@@ -174,6 +167,60 @@ void main() {
     test('shifts are picked by start day', () {
       final shifts = [ahead, testShift(day: sunday)];
       expect(shifts.on(day), [ahead]);
+    });
+  });
+
+  group('Open shifts', () {
+    test('the default is a typical week: closed on Monday', () {
+      const d = StaffNeeds.standard;
+      for (final shift in TeamShift.values) {
+        expect(d.isOpen(DateTime.monday, shift), isFalse);
+        expect(
+          d.needed(DateTime.tuesday, shift),
+          StaffNeeds.openDefault(shift),
+        );
+        expect(d.isOpen(DateTime.sunday, shift), isTrue);
+      }
+    });
+    test('a switch closes to 0 and opens to the default count', () {
+      final closed = StaffNeeds.standard.withOpen(
+        DateTime.friday,
+        TeamShift.lunch,
+        false,
+      );
+      expect(closed.needed(DateTime.friday, TeamShift.lunch), 0);
+      final opened = closed
+          .withOpen(DateTime.friday, TeamShift.lunch, true)
+          .withOpen(DateTime.monday, TeamShift.evening, true);
+      expect(opened.needed(DateTime.friday, TeamShift.lunch), 2);
+      expect(opened.needed(DateTime.monday, TeamShift.evening), 3);
+    });
+    test('switching an open shift on keeps its count', () {
+      final five = StaffNeeds.standard.withNeeded(
+        DateTime.friday,
+        TeamShift.evening,
+        5,
+      );
+      expect(five.withOpen(DateTime.friday, TeamShift.evening, true), five);
+    });
+    test('summary: a run of whole days, else the count', () {
+      expect(openShiftsSummary(StaffNeeds.standard), (
+        count: 12,
+        days: (DateTime.tuesday, DateTime.sunday),
+      ));
+      // AKAI: Saturday evening only.
+      final akai = StaffNeeds.parse('2,3;2,3;2,3;2,3;2,3;0,3;0,0')!;
+      expect(openShiftsSummary(akai), (count: 11, days: null));
+      // Whole days, but not in one run.
+      final gap = StaffNeeds.parse('2,3;0,0;2,3;2,3;2,3;2,3;2,3')!;
+      expect(openShiftsSummary(gap), (count: 12, days: null));
+      final one = StaffNeeds.parse('0,0;0,0;2,3;0,0;0,0;0,0;0,0')!;
+      expect(openShiftsSummary(one).days, (
+        DateTime.wednesday,
+        DateTime.wednesday,
+      ));
+      final none = StaffNeeds(List.filled(14, 0));
+      expect(openShiftsSummary(none), (count: 0, days: null));
     });
   });
 }

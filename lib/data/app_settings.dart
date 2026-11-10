@@ -35,29 +35,38 @@ class ShiftTimes {
   }
 }
 
-/// Team planner: staff needed per weekday and shift by default (F11).
-/// 0 means the shift is closed. See docs/02-design.md §3 and §4.9.
+/// The restaurant's open shifts, and for the team planner the staff needed
+/// per weekday and shift by default (F11). 0 means the shift is closed.
+/// See docs/02-design.md §3, §4.1 and §4.9.
 class StaffNeeds {
   /// [values]: 14 numbers, Monday lunch, Monday evening, … Sunday evening.
   const StaffNeeds(this.values);
 
-  /// 2 at lunch and 3 in the evening, closed on Sunday.
+  /// The week of a typical small restaurant: closed on Monday, open for
+  /// lunch and evening on the other days, with [openDefault] staff.
   static const standard = StaffNeeds([
-    2,
-    3,
-    2,
-    3,
-    2,
-    3,
-    2,
-    3,
-    2,
-    3,
-    2,
-    3,
     0,
     0,
+    2,
+    3,
+    2,
+    3,
+    2,
+    3,
+    2,
+    3,
+    2,
+    3,
+    2,
+    3,
   ]);
+
+  /// Staff needed when a shift is switched open: 2 at lunch, 3 in the
+  /// evening.
+  static int openDefault(TeamShift shift) => switch (shift) {
+    TeamShift.lunch => 2,
+    TeamShift.evening => 3,
+  };
 
   final List<int> values;
 
@@ -65,8 +74,17 @@ class StaffNeeds {
   int needed(int weekday, TeamShift shift) =>
       values[(weekday - 1) * 2 + shift.index];
 
+  bool isOpen(int weekday, TeamShift shift) => needed(weekday, shift) > 0;
+
   StaffNeeds withNeeded(int weekday, TeamShift shift, int needed) =>
       StaffNeeds([...values]..[(weekday - 1) * 2 + shift.index] = needed);
+
+  /// The switch view of the counts: closed is 0, open is [openDefault].
+  /// An open shift stays at its count.
+  StaffNeeds withOpen(int weekday, TeamShift shift, bool open) =>
+      open == isOpen(weekday, shift)
+      ? this
+      : withNeeded(weekday, shift, open ? openDefault(shift) : 0);
 
   /// Parses `2,3;2,3;…` (seven days of `lunch,evening`).
   static StaffNeeds? parse(String? text) {
