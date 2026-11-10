@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-06; the version is now 1.6.1. Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-10; the version is now 1.7.0. Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -215,7 +215,7 @@ The developer designed new app icons, to move away from the restaurant's sign ov
   - README: new screenshots `home.png`, `plan.png` and `home-month.png`, and a "Colours" section with `themes.png` (month card and week strip in the five themes, dark over light). Made like the seventh session's: a demo database built with `sqlite3` from a copy of the emulator's, loaded with `run-as`, the original restored afterwards. Trap: the emulator's clock is UTC, so store the demo times as UTC, not Berlin time. Remove `calendarId` from the demo settings, or the demo shifts go into the test calendar. The theme is switched through the `themeSeed` and `themeMode` settings rows, and the Home tab scrolled to its end, so all crops line up. Cropped with a scratch Dart script (`package:image`, outside the repo). `export.png`, `pay-month.png`, `team.png` and `team-share.png` are unchanged.
 - **Checked:** `flutter analyze` clean, 149 tests pass. On the emulator (debug build): the Home tab in light mode with AKAI red and bars (sage circles and bars, red today ring, grey planned days, legend, plain pay). Not yet looked at in the app: dark mode, the Plan tab, a missed shift, the icon style, the other themes and System color. Not checked on a phone.
 
-## Done on 2026-11-10: open shifts
+## Done on 2026-11-10: open shifts (released as 1.7.0)
 
 - **Plan hides closed shifts:** a Lunch or Evening shift that is closed has no toggle on the Plan tab, and a day with nothing open is hidden. A shift the user already has there keeps its toggle and its day, so it can be removed. While the team planner is on, the week's own staff counts from the board count too. `02-design.md` §4.1.
 - **"Open shifts"** in Settings › Shifts (and as "Staff needed" on the team planner's page): one sheet, `ui/settings/open_shifts.dart`. With the team planner off it shows a switch per shift, with it on the − / + counters. Both edit the one setting `teamStaffNeeded` (0 = closed; switching on writes 2 at lunch, 3 in the evening). The developer chose this over a second setting, so the two views can't disagree. Lunch and Evening are a header row now, which also fixed the weekday names breaking letter by letter on the emulator (about 411 dp wide).

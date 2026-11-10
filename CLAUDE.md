@@ -2,7 +2,7 @@
 
 Android app (Flutter) for a waiter at the restaurant AKAI ("the user"). The user plans lunch and evening shifts, the shifts appear in a shared Google calendar, the user records the working time from a notification, and sends the month's hours as text. The app was handed over (milestone M6) and has run on the user's Xiaomi since 2026-11-04. The developer tests new versions on a Pixel 7 Pro and on the emulator first. It may later be shared with the user's colleagues at AKAI.
 
-Status: version 1.6.1 is released (tag `v1.6.1`). **Read [docs/HANDOFF.md](docs/HANDOFF.md) first.** It has the current state, the open points and the code map.
+Status: version 1.7.0 is released (tag `v1.7.0`). **Read [docs/HANDOFF.md](docs/HANDOFF.md) first.** It has the current state, the open points and the code map.
 
 The app's UI is German first, English second. Docs, code comments and release notes are English only (see [docs/CLAUDE.md](docs/CLAUDE.md), "Writing style"). The developer writes in German or English; answer in English unless they switch.
 
