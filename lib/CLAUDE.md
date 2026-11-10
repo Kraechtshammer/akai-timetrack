@@ -65,7 +65,7 @@ Guidance for work on the Dart code. The root `CLAUDE.md` covers the dev containe
 - Money is integer cents. Show it with `formatEuros`; parse input with `parseEuroCents` (`domain/tips.dart`).
 
 ### Team planner (F11)
-- Its own tables (`team_members`, `team_answers`, `team_assignments`, `team_needs`) and no link to `shifts`, calendar sync or reminders. The only bridge is `PlanningService.addFromTeamPlan` ("Add my shifts to Plan").
+- Its own tables (`team_members`, `team_answers`, `team_assignments`, `team_needs`) and no link to `shifts`, calendar sync or reminders. Two bridges: `PlanningService.addFromTeamPlan` ("Add my shifts to Plan") writes shifts, and the Plan tab reads the staff counts (`WeekNeeds`, `planToggles`) to hide closed shifts while the team planner is on.
 - All rules are on `RosterWeek` in `domain/roster.dart` (availability, staff counts, sheet order, `fill()`); screens read it through `rosterWeekProvider(weekStart)`. Tests: `test/roster_test.dart`, `test/plan_image_test.dart`.
 - Answer marks are a bit mask: bit `(weekday - 1) * 2 + shift.index`. Use `withMark`/`isMarked`.
 - The shared PNG is `TeamPlanImage` (1600 × 900 logical, pixel ratio 1.2), always light, whatever the app theme.

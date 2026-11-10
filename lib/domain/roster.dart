@@ -93,6 +93,22 @@ class FillResult {
   final List<TeamSlot> withoutCore;
 }
 
+/// Staff needed in one week: the week's own number for a shift, else the
+/// default from the setting `teamStaffNeeded`. 0 means closed.
+class WeekNeeds {
+  WeekNeeds(List<TeamNeed> needs, this.defaults)
+    : _needs = {for (final n in needs) '${n.day} ${n.shift.index}': n.needed};
+
+  final StaffNeeds defaults;
+  final Map<String, int> _needs;
+
+  int needed(TeamSlot slot) =>
+      _needs['${slot.dayKey} ${slot.shift.index}'] ??
+      defaults.needed(slot.day.weekday, slot.shift);
+
+  bool isOpen(TeamSlot slot) => needed(slot) > 0;
+}
+
 /// Everything about one planned week, with the rules of §4.9.
 class RosterWeek {
   RosterWeek({
@@ -106,7 +122,7 @@ class RosterWeek {
        members = [...members]..sort(compareByName),
        assignments = List.unmodifiable(assignments),
        _answers = {for (final a in answers) a.memberId: a},
-       _needs = {for (final n in needs) '${n.day} ${n.shift.index}': n.needed};
+       _needs = WeekNeeds(needs, defaults);
 
   final DateTime weekStart;
 
@@ -116,7 +132,7 @@ class RosterWeek {
   final List<TeamAssignment> assignments;
   final StaffNeeds defaults;
   final Map<String, TeamAnswer> _answers;
-  final Map<String, int> _needs;
+  final WeekNeeds _needs;
 
   late final Map<String, TeamMember> _byId = {for (final m in members) m.id: m};
 
@@ -135,15 +151,13 @@ class RosterWeek {
   TeamMember? get me => members.where((m) => m.isMe).firstOrNull;
 
   /// Staff needed: the week's own number, else the default.
-  int needed(TeamSlot slot) =>
-      _needs['${slot.dayKey} ${slot.shift.index}'] ??
-      defaults.needed(slot.day.weekday, slot.shift);
+  int needed(TeamSlot slot) => _needs.needed(slot);
 
   /// The default number, for "back to default" when saving.
   int defaultNeeded(TeamSlot slot) =>
       defaults.needed(slot.day.weekday, slot.shift);
 
-  bool isOpen(TeamSlot slot) => needed(slot) > 0;
+  bool isOpen(TeamSlot slot) => _needs.isOpen(slot);
 
   List<TeamAssignment> assignmentsIn(TeamSlot slot) => assignments
       .where((a) => a.day == slot.dayKey && a.shift == slot.shift)

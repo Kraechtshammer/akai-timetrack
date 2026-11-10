@@ -1,5 +1,8 @@
 import 'package:akai_timetrack/core/time.dart';
+import 'package:akai_timetrack/data/app_settings.dart';
+import 'package:akai_timetrack/data/database.dart';
 import 'package:akai_timetrack/domain/display_rules.dart';
+import 'package:akai_timetrack/domain/roster.dart';
 import 'package:akai_timetrack/domain/rounding.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -118,6 +121,59 @@ void main() {
     test('future month shows expected only', () {
       final c = payColumns(month: future, now: now);
       expect((c.earned, c.expected), (false, true));
+    });
+  });
+
+  group('Plan toggles', () {
+    // Week 46 of 2026: Monday 9 Nov … Sunday 15 Nov.
+    final saturday = DateTime(2026, 11, 14);
+    final sunday = DateTime(2026, 11, 15);
+    // The defaults, but Saturday is open in the evening only.
+    final defaults = StaffNeeds.standard.withNeeded(
+      DateTime.saturday,
+      TeamShift.lunch,
+      0,
+    );
+    final needs = WeekNeeds(const [], defaults);
+    const both = [ShiftType.lunch, ShiftType.evening];
+
+    test('team planner off: both toggles every day', () {
+      expect(planToggles(sunday, const [], null), both);
+      expect(planDayShown(sunday, const [], null), isTrue);
+    });
+    test('closed shifts have no toggle, closed days are hidden', () {
+      expect(planToggles(day, const [], needs), both);
+      expect(planToggles(saturday, const [], needs), [ShiftType.evening]);
+      expect(planToggles(sunday, const [], needs), isEmpty);
+      expect(planDayShown(sunday, const [], needs), isFalse);
+    });
+    test("the week's own number wins over the default", () {
+      final open = WeekNeeds([
+        TeamNeed(
+          id: 'n',
+          day: dayKey(sunday),
+          shift: TeamShift.evening,
+          needed: 2,
+        ),
+        TeamNeed(id: 'm', day: dayKey(day), shift: TeamShift.lunch, needed: 0),
+      ], defaults);
+      expect(planToggles(sunday, const [], open), [ShiftType.evening]);
+      expect(planToggles(day, const [], open), [ShiftType.evening]);
+    });
+    test('a shift in a closed slot keeps its toggle and its day', () {
+      final lunch = testShift(
+        day: saturday,
+        type: ShiftType.lunch,
+        planned: '12:00-16:00',
+      );
+      expect(planToggles(saturday, [lunch], needs), both);
+      final custom = testShift(day: sunday, type: ShiftType.custom);
+      expect(planToggles(sunday, [custom], needs), isEmpty);
+      expect(planDayShown(sunday, [custom], needs), isTrue);
+    });
+    test('shifts are picked by start day', () {
+      final shifts = [ahead, testShift(day: sunday)];
+      expect(shifts.on(day), [ahead]);
     });
   });
 }

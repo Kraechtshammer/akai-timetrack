@@ -9,6 +9,7 @@ import '../../core/time.dart';
 import '../../data/database.dart';
 import '../../domain/display_rules.dart';
 import '../../domain/planning.dart';
+import '../../domain/roster.dart';
 import '../../domain/shift_info.dart';
 import '../../l10n/labels.dart';
 import '../common.dart';
@@ -35,6 +36,16 @@ class PlanScreen extends ConsumerWidget {
     final recorded = shifts.recordedMinutes;
     final total = shifts.expectedMinutes;
     final dates = DateFormat.MMMd(locale);
+    // With the team planner on, closed shifts ("Staff needed" 0) are hidden.
+    final settings = ref.settings;
+    final needs = settings.teamPlanner
+        ? WeekNeeds(
+            ref.watch(teamNeedsProvider(week)).value ?? const [],
+            settings.teamStaffNeeded,
+          )
+        : null;
+    final days = [for (var i = 0; i < 7; i++) addDays(week, i)]
+        .where((d) => planDayShown(d, shifts.on(d), needs));
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
@@ -82,12 +93,11 @@ class PlanScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              for (var i = 0; i < 7; i++)
+              for (final day in days)
                 _DayCard(
-                  day: addDays(week, i),
-                  shifts: shifts
-                      .where((s) => s.day == dayKey(addDays(week, i)))
-                      .toList(),
+                  day: day,
+                  shifts: shifts.on(day).toList(),
+                  toggles: planToggles(day, shifts.on(day), needs),
                   now: now,
                 ),
             ],
@@ -99,10 +109,18 @@ class PlanScreen extends ConsumerWidget {
 }
 
 class _DayCard extends ConsumerWidget {
-  const _DayCard({required this.day, required this.shifts, required this.now});
+  const _DayCard({
+    required this.day,
+    required this.shifts,
+    required this.toggles,
+    required this.now,
+  });
 
   final DateTime day;
   final List<Shift> shifts;
+
+  /// Lunch and/or Evening, see [planToggles].
+  final List<ShiftType> toggles;
   final DateTime now;
 
   @override
@@ -176,8 +194,8 @@ class _DayCard extends ConsumerWidget {
                   ],
                 ),
               ),
-              toggleButton(ShiftType.lunch, l10n.shiftLunch),
-              toggleButton(ShiftType.evening, l10n.shiftEvening),
+              for (final type in toggles)
+                toggleButton(type, shiftTypeLabel(type, l10n)),
               M3EIconButton(
                 variant: M3EIconButtonVariant.outlined,
                 tooltip: l10n.addCustomShift,

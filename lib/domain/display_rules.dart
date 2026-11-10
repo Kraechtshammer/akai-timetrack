@@ -1,10 +1,14 @@
 import '../core/time.dart';
 import '../data/database.dart';
+import 'roster.dart';
 import 'rounding.dart';
 import 'shift_info.dart';
 
 /// Sums over a list of shifts.
 extension ShiftSums on Iterable<Shift> {
+  /// The shifts starting on [day].
+  Iterable<Shift> on(DateTime day) => where((s) => s.day == dayKey(day));
+
   /// Worked minutes (after breaks) of the recorded shifts.
   int get recordedMinutes =>
       where((s) => s.isRecorded).fold(0, (sum, s) => sum + s.workedMinutes!);
@@ -113,3 +117,28 @@ SlotStatus slotStatus(Iterable<Shift> slot, DateTime now) {
             expectedCents != earnedCents),
   );
 }
+
+/// The Lunch and Evening toggles the Plan tab offers on [day]
+/// (docs/02-design.md §7). [needs] is null while the team planner is off:
+/// then both are offered. Otherwise a shift with "Staff needed" 0 that week
+/// is closed and has no toggle, unless the user already has that shift
+/// there, so it can still be removed.
+List<ShiftType> planToggles(
+  DateTime day,
+  Iterable<Shift> ofDay,
+  WeekNeeds? needs,
+) => [
+  for (final (type, team) in const [
+    (ShiftType.lunch, TeamShift.lunch),
+    (ShiftType.evening, TeamShift.evening),
+  ])
+    if (needs == null ||
+        needs.isOpen(TeamSlot(day, team)) ||
+        ofDay.any((s) => s.type == type))
+      type,
+];
+
+/// The Plan tab hides a day with no toggle and no shift, such as a day the
+/// restaurant is closed.
+bool planDayShown(DateTime day, Iterable<Shift> ofDay, WeekNeeds? needs) =>
+    ofDay.isNotEmpty || planToggles(day, ofDay, needs).isNotEmpty;

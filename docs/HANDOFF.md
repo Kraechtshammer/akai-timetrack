@@ -215,6 +215,11 @@ The developer designed new app icons, to move away from the restaurant's sign ov
   - README: new screenshots `home.png`, `plan.png` and `home-month.png`, and a "Colours" section with `themes.png` (month card and week strip in the five themes, dark over light). Made like the seventh session's: a demo database built with `sqlite3` from a copy of the emulator's, loaded with `run-as`, the original restored afterwards. Trap: the emulator's clock is UTC, so store the demo times as UTC, not Berlin time. Remove `calendarId` from the demo settings, or the demo shifts go into the test calendar. The theme is switched through the `themeSeed` and `themeMode` settings rows, and the Home tab scrolled to its end, so all crops line up. Cropped with a scratch Dart script (`package:image`, outside the repo). `export.png`, `pay-month.png`, `team.png` and `team-share.png` are unchanged.
 - **Checked:** `flutter analyze` clean, 149 tests pass. On the emulator (debug build): the Home tab in light mode with AKAI red and bars (sage circles and bars, red today ring, grey planned days, legend, plain pay). Not yet looked at in the app: dark mode, the Plan tab, a missed shift, the icon style, the other themes and System color. Not checked on a phone.
 
+## Done on 2026-11-10: closed shifts hidden on Plan
+
+- While the team planner is on, the Plan tab hides the Lunch or Evening toggle of a shift with "Staff needed" 0 that week, and hides days with nothing open (Sunday by default). A shift the user already has there keeps its toggle and its day, so it can be removed. `02-design.md` §4.1.
+- The week's staff counts (own number, else the default) moved from `RosterWeek` into `WeekNeeds` (`domain/roster.dart`), which the Plan tab uses too. Rules `planToggles` and `planDayShown` in `domain/display_rules.dart`, with tests.
+
 ## Open points (in rough priority)
 
 Done and removed on 2026-11-06, as the developer confirmed: the new icons and the release build checked on the Pixel and the Xiaomi; the Live Update and icon checks on the Pixel 7 Pro; the handover (M6) with the release key backed up, the GitHub secrets set, the old test install removed, and the app in daily use on the user's Xiaomi since 2026-11-04.
