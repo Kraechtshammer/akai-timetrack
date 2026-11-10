@@ -7,12 +7,11 @@ import '../material.dart';
 
 import '../../app/providers.dart';
 import '../../core/time.dart';
-import '../../data/database.dart';
+import '../../data/app_settings.dart';
 import '../common.dart';
 import '../settings/open_shifts.dart';
 import '../settings/settings_screen.dart';
 import 'people_screen.dart';
-import 'roster_common.dart';
 
 class TeamSettingsSection extends ConsumerWidget {
   const TeamSettingsSection({super.key});
@@ -24,20 +23,26 @@ class TeamSettingsSection extends ConsumerWidget {
     final people = ref.watch(teamMembersProvider).value ?? const [];
     final count = people.length;
 
+    String range(ShiftTimes t) =>
+        '${minutesToHhmm(t.start)}–${minutesToHhmm(t.end)}';
+
     return Column(
       children: [
         // The same sheet as Settings › Shifts › "Open shifts", with counters.
         OpenShiftsTile(icon: Icons.tune, title: l10n.teamStaffNeeded),
+        // The shift times of Settings › Shifts: the team's start times,
+        // and the end times its monthly hours are counted with.
         SettingsTile(
           icon: Icons.schedule,
-          title: l10n.teamStartTimes,
+          title: l10n.teamShiftTimes,
           value:
-              '${minutesToHhmm(s.teamStarts.lunch)} · '
-              '${minutesToHhmm(s.teamStarts.evening)}',
+              '${range(s.lunch)} · '
+              '${range(s.evening)}',
           onTap: () => showModalBottomSheet<void>(
             context: context,
             showDragHandle: true,
-            builder: (_) => const _StartTimesSheet(),
+            isScrollControlled: true,
+            builder: (_) => const _ShiftTimesSheet(),
           ),
         ),
         SettingsTile(
@@ -53,44 +58,35 @@ class TeamSettingsSection extends ConsumerWidget {
   }
 }
 
-/// Two rows: the start of lunch and of evening.
-class _StartTimesSheet extends ConsumerWidget {
-  const _StartTimesSheet();
+/// The three shift times, the same tiles as Settings › Shifts.
+class _ShiftTimesSheet extends StatelessWidget {
+  const _ShiftTimesSheet();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final starts = ref.settings.teamStarts;
     return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(l10n.teamStartTimes, style: context.text.titleLarge),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+              child: Text(l10n.teamShiftTimes, style: context.text.titleLarge),
             ),
-          ),
-          for (final shift in TeamShift.values)
-            ListTile(
-              leading: Icon(teamShiftIcon(shift)),
-              title: Text(teamShiftLabel(shift, l10n)),
-              trailing: Text(
-                minutesToHhmm(starts.of(shift)),
-                style: context.text.titleMedium,
+            const DefaultTimesTiles(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              child: Text(
+                l10n.teamShiftTimesNote,
+                style: context.text.bodySmall?.copyWith(
+                  color: context.colors.onSurfaceVariant,
+                ),
               ),
-              onTap: () async {
-                final picked = await pickTime(context, starts.of(shift));
-                if (picked == null) return;
-                await ref.services.settings.update(
-                  (s) => s.copyWith(
-                    teamStarts: s.teamStarts.withStart(shift, picked),
-                  ),
-                );
-              },
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

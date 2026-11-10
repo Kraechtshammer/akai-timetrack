@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/app_settings.dart';
 import '../data/database.dart';
 import '../data/settings_repository.dart';
+import '../core/time.dart';
 import '../domain/roster.dart';
+import '../domain/team_hours.dart';
 import '../platform/app_icon.dart';
 import 'services.dart';
 
@@ -71,6 +73,20 @@ final teamNeedsProvider = StreamProvider.family<List<TeamNeed>, DateTime>(
   (ref, week) => ref.watch(servicesProvider).roster.watchNeeds(week),
 );
 
+/// Team planner: who is in which shift from `from` to `to` (days
+/// included), for the monthly hours.
+final teamAssignmentsBetweenProvider =
+    StreamProvider.family<List<TeamAssignment>, ({DateTime from, DateTime to})>(
+      (ref, range) => ref
+          .watch(servicesProvider)
+          .roster
+          .watchAssignmentsBetween(range.from, range.to),
+    );
+
+/// The days of the months a week touches, for [teamAssignmentsBetweenProvider].
+({DateTime from, DateTime to}) monthsOfWeek(DateTime weekStart) =>
+    (from: monthStart(weekStart), to: lastDayOfMonth(addDays(weekStart, 6)));
+
 /// Team planner: the whole week with its rules (docs/02-design.md §4.9).
 /// null while loading.
 final rosterWeekProvider = Provider.family<RosterWeek?, DateTime>((ref, week) {
@@ -79,11 +95,15 @@ final rosterWeekProvider = Provider.family<RosterWeek?, DateTime>((ref, week) {
   final assignments = ref.watch(teamAssignmentsProvider(week)).value;
   final needs = ref.watch(teamNeedsProvider(week)).value;
   final settings = ref.watch(settingsProvider).value;
+  final months = ref
+      .watch(teamAssignmentsBetweenProvider(monthsOfWeek(week)))
+      .value;
   if (members == null ||
       answers == null ||
       assignments == null ||
       needs == null ||
-      settings == null) {
+      settings == null ||
+      months == null) {
     return null;
   }
   return RosterWeek(
@@ -93,7 +113,29 @@ final rosterWeekProvider = Provider.family<RosterWeek?, DateTime>((ref, week) {
     assignments: assignments,
     needs: needs,
     defaults: settings.teamStaffNeeded,
+    monthAssignments: months,
+    settings: settings,
   );
+});
+
+/// Team planner: everyone's planned hours in the month of `month` ("Hours
+/// per month"), sorted by name. null while loading.
+final teamMonthProvider = Provider.family<List<MemberMonth>?, DateTime>((
+  ref,
+  month,
+) {
+  final members = ref.watch(teamMembersProvider).value;
+  final settings = ref.watch(settingsProvider).value;
+  final rows = ref
+      .watch(
+        teamAssignmentsBetweenProvider((
+          from: monthStart(month),
+          to: lastDayOfMonth(month),
+        )),
+      )
+      .value;
+  if (members == null || settings == null || rows == null) return null;
+  return monthHours([...members]..sort(compareByName), rows, settings, month);
 });
 
 final runningShiftProvider = StreamProvider<Shift?>(

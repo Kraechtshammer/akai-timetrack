@@ -5,9 +5,11 @@ import 'package:intl/intl.dart';
 
 import '../material.dart';
 
+import '../../core/format.dart';
 import '../../core/time.dart';
 import '../../data/database.dart';
 import '../../domain/roster.dart';
+import '../../domain/team_hours.dart';
 import '../../l10n/app_localizations.dart';
 import '../common.dart';
 
@@ -98,5 +100,112 @@ class MemberName extends StatelessWidget {
       ),
       if (member.core) CoreStar(size: (style?.fontSize ?? 14) + 2),
     ],
+  );
+}
+
+/// Icon, colour and label of a monthly-hours warning; null when [state] is ok.
+({IconData icon, Color color, String label})? hoursStateStyle(
+  BuildContext context,
+  HoursState state,
+) => switch (state) {
+  HoursState.ok => null,
+  HoursState.aboveWeekShare => (
+    icon: Icons.info_outline,
+    color: context.colors.tertiary,
+    label: context.l10n.teamAboveWeekShare,
+  ),
+  HoursState.overLimit => (
+    icon: Icons.warning_amber,
+    color: context.colors.error,
+    label: context.l10n.teamOverLimit,
+  ),
+};
+
+/// "noch 12,5 h" or "2,0 h zu viel" for minutes left under a monthly limit.
+String hoursLeftText(BuildContext context, int minutesLeft) => minutesLeft < 0
+    ? context.l10n.teamHoursOver(formatHours(-minutesLeft, context.locale))
+    : context.l10n.teamHoursLeft(formatHours(minutesLeft, context.locale));
+
+/// Explains the warnings of [member] this week: their answer for [slot]
+/// (if given) and their monthly limit, with its numbers. [adding]: as if
+/// they were ticked into [slot] (the shift sheet, before the tap).
+Future<void> showMemberWarnings(
+  BuildContext context,
+  RosterWeek week,
+  TeamMember member, {
+  TeamSlot? slot,
+  bool adding = false,
+}) {
+  final l10n = context.l10n;
+  final colors = context.colors;
+  final locale = context.locale;
+  String h(int minutes) => formatHours(minutes, locale);
+
+  Widget line(IconData icon, Color color, String text) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    spacing: 12,
+    children: [
+      Icon(icon, size: 20, color: color),
+      Expanded(child: Text(text)),
+    ],
+  );
+
+  final availability = slot == null
+      ? Availability.available
+      : week.availability(member.id, slot);
+  final hours = week.weekHoursOf(member.id, adding: adding ? slot : null);
+  final style = hours == null ? null : hoursStateStyle(context, hours.state);
+  return showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: MemberName(member, style: context.text.headlineSmall),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 16,
+          children: [
+            if (availability == Availability.noAnswer)
+              line(Icons.warning_amber, colors.error, l10n.teamWarnNoAnswer),
+            if (availability == Availability.unavailable)
+              line(Icons.warning_amber, colors.error, l10n.teamWarnCantWork),
+            if (hours != null && style != null) ...[
+              if (adding)
+                Text(l10n.teamWarnIfAdded, style: context.text.titleSmall),
+              line(
+                style.icon,
+                style.color,
+                hours.state == HoursState.overLimit
+                    ? l10n.teamWarnOverLimit(
+                        DateFormat.MMMM(locale).format(hours.month),
+                        h(hours.monthMinutes),
+                        h(hours.limit),
+                        h(hours.monthMinutes - hours.limit),
+                      )
+                    : l10n.teamWarnAboveShare(
+                        h(hours.leftBefore < 0 ? 0 : hours.leftBefore),
+                        h(hours.share),
+                        h(hours.slack),
+                        h(hours.allowed),
+                        h(hours.weekMinutes),
+                      ),
+              ),
+              Text(
+                l10n.teamWarnFill,
+                style: context.text.bodySmall?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.ok),
+        ),
+      ],
+    ),
   );
 }

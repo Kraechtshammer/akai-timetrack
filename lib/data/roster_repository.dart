@@ -24,6 +24,7 @@ class RosterRepository {
     String name, {
     bool core = false,
     bool isMe = false,
+    int? maxMonthMinutes,
   }) async {
     final now = DateTime.now();
     final member = TeamMember(
@@ -31,6 +32,7 @@ class RosterRepository {
       name: name.trim(),
       core: core,
       isMe: isMe,
+      maxMonthMinutes: maxMonthMinutes,
       active: true,
       createdAt: now,
       updatedAt: now,
@@ -160,6 +162,14 @@ class RosterRepository {
             ),
           ))
           .watch();
+
+  /// Who is in which shift from [from] to [to], both days included.
+  Stream<List<TeamAssignment>> watchAssignmentsBetween(
+    DateTime from,
+    DateTime to,
+  ) => (_db.select(
+    _db.teamAssignments,
+  )..where((t) => t.day.isBetweenValues(dayKey(from), dayKey(to)))).watch();
 
   Future<List<TeamAssignment>> assignmentsOfWeek(DateTime weekStart) =>
       (_db.select(_db.teamAssignments)..where(

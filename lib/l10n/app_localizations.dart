@@ -2288,11 +2288,148 @@ abstract class AppLocalizations {
   /// **'Schichten fürs Team planen und den Plan als Bild teilen'**
   String get teamPlannerSubtitle;
 
-  /// No description provided for @teamStartTimes.
+  /// No description provided for @teamShiftTimes.
   ///
   /// In de, this message translates to:
-  /// **'Startzeiten'**
-  String get teamStartTimes;
+  /// **'Schichtzeiten'**
+  String get teamShiftTimes;
+
+  /// No description provided for @teamShiftTimesNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieselben Zeiten wie unter Einstellungen › Schichten. Sie gelten auch für deine eigenen Schichten, und mit ihnen werden die Stunden im Monat gezählt.'**
+  String get teamShiftTimesNote;
+
+  /// No description provided for @teamMaxHours.
+  ///
+  /// In de, this message translates to:
+  /// **'Max. Stunden im Monat'**
+  String get teamMaxHours;
+
+  /// No description provided for @teamMaxHoursHelp.
+  ///
+  /// In de, this message translates to:
+  /// **'Zum Beispiel bei einem Minijob. Leer lassen, wenn es keine Grenze gibt.'**
+  String get teamMaxHoursHelp;
+
+  /// No description provided for @teamMaxHoursInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte eine Zahl eingeben, z. B. 43 oder 43,5.'**
+  String get teamMaxHoursInvalid;
+
+  /// No description provided for @teamHoursTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Stunden im Monat'**
+  String get teamHoursTitle;
+
+  /// No description provided for @teamHoursSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Geplant im Dienstplan'**
+  String get teamHoursSubtitle;
+
+  /// No description provided for @teamHoursOf.
+  ///
+  /// In de, this message translates to:
+  /// **'{hours} von {max} h'**
+  String teamHoursOf(String hours, String max);
+
+  /// No description provided for @teamHoursOnly.
+  ///
+  /// In de, this message translates to:
+  /// **'{hours} h'**
+  String teamHoursOnly(String hours);
+
+  /// No description provided for @teamHoursLeft.
+  ///
+  /// In de, this message translates to:
+  /// **'noch {hours} h'**
+  String teamHoursLeft(String hours);
+
+  /// No description provided for @teamHoursOver.
+  ///
+  /// In de, this message translates to:
+  /// **'{hours} h zu viel'**
+  String teamHoursOver(String hours);
+
+  /// No description provided for @teamOverLimit.
+  ///
+  /// In de, this message translates to:
+  /// **'Über der Monatsgrenze'**
+  String get teamOverLimit;
+
+  /// No description provided for @teamAboveWeekShare.
+  ///
+  /// In de, this message translates to:
+  /// **'Über dem Wochenanteil'**
+  String get teamAboveWeekShare;
+
+  /// No description provided for @teamHoursNoLimit.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Grenze'**
+  String get teamHoursNoLimit;
+
+  /// No description provided for @teamHoursNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Gezählt werden die Schichten im Dienstplan, mit den Schichtzeiten aus den Einstellungen. Wochenanteil: was vor der Woche von der Monatsgrenze noch übrig ist, gleichmäßig auf die restlichen Tage des Monats verteilt.'**
+  String get teamHoursNote;
+
+  /// No description provided for @teamWarnWhy.
+  ///
+  /// In de, this message translates to:
+  /// **'Warum?'**
+  String get teamWarnWhy;
+
+  /// No description provided for @teamWarnNoAnswer.
+  ///
+  /// In de, this message translates to:
+  /// **'Für diese Woche gibt es noch keine Antwort.'**
+  String get teamWarnNoAnswer;
+
+  /// No description provided for @teamWarnCantWork.
+  ///
+  /// In de, this message translates to:
+  /// **'Laut Antwort ist diese Schicht nicht möglich.'**
+  String get teamWarnCantWork;
+
+  /// No description provided for @teamWarnIfAdded.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit dieser Schicht:'**
+  String get teamWarnIfAdded;
+
+  /// No description provided for @teamWarnOverLimit.
+  ///
+  /// In de, this message translates to:
+  /// **'Im {month} sind {planned} h geplant. Die Grenze ist {limit} h, also {over} h zu viel.'**
+  String teamWarnOverLimit(
+    String month,
+    String planned,
+    String limit,
+    String over,
+  );
+
+  /// No description provided for @teamWarnAboveShare.
+  ///
+  /// In de, this message translates to:
+  /// **'Vor dieser Woche sind von der Monatsgrenze noch {left} h übrig. Gleichmäßig auf den Rest des Monats verteilt, sind das etwa {share} h für diese Woche. Eine lange Schicht mehr ({slack} h) ist in Ordnung, also bis {allowed} h. Geplant sind {planned} h.'**
+  String teamWarnAboveShare(
+    String left,
+    String share,
+    String slack,
+    String allowed,
+    String planned,
+  );
+
+  /// No description provided for @teamWarnFill.
+  ///
+  /// In de, this message translates to:
+  /// **'„Auffüllen“ teilt niemanden darüber hinaus ein. Von Hand geht es trotzdem.'**
+  String get teamWarnFill;
 
   /// No description provided for @teamAway.
   ///

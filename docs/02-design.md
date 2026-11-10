@@ -173,7 +173,7 @@ The user's hourly wage. Each rate is valid from a day on, so a raise (for exampl
 - One row per start day at most. Saving a rate for a day that already has one updates it.
 - Zero is not a valid rate.
 
-### Team planner tables (F11, schema version 4)
+### Team planner tables (F11, schema version 4; `maxMonthMinutes` since 5)
 
 The team planner (§4.9) has its own tables and no link to `shifts`, calendar sync or reminders. Two things cross over: "Add my shifts to Plan" writes shifts, and the Plan tab reads the week's staff counts, while the planner is on, to hide closed shifts (§4.1). Research and decisions: `01-research.md` §10. Shift kinds are stored as `TeamShift` (`lunch` = 0, `evening` = 1), not as `ShiftType`, because the planner has no custom shifts.
 
@@ -184,6 +184,7 @@ The team planner (§4.9) has its own tables and no link to `shifts`, calendar sy
 | `core` | bool, default false | **core worker**: experienced; each shift should have one |
 | `isMe` | bool, default false | this person is the user. At most one row; setting it clears it on the others |
 | `active` | bool, default true | **unused** since 2026-11-05 (always true). The developer dropped "inactive" as confusing: people who leave are deleted and added again later. The column stays because migrations only add. |
+| `maxMonthMinutes` | int? | "Max. hours per month" in minutes, for a mini-job's limit; null = no limit. Since schema version 5 (1.8.0) |
 | `createdAt`, `updatedAt` | DateTime | |
 
 | Table `team_answers` | Type | Meaning |
@@ -225,9 +226,9 @@ The team planner (§4.9) has its own tables and no link to `shifts`, calendar sy
 |---|---|---|
 | `teamPlanner` | false | shows the fifth tab and the "Team planner" page in Settings |
 | `teamStaffNeeded` | `0,0;2,3;2,3;2,3;2,3;2,3;2,3` | "Open shifts", and for the team planner the staff needed, per weekday (Monday first), lunch then evening. 0 = closed. The default is a typical small restaurant (closed on Monday); until 2026-11-10 it was `2,3;…;2,3;0,0` (closed on Sunday), which existing installs keep because every settings save writes all keys |
-| `teamStarts` | `12:00,17:30` | the normal start of lunch and evening, shown on the board and in the image |
+| `teamStarts` | – | **ignored since 1.8.0.** Until then the team's normal start of lunch and evening (`12:00,17:30`). An old stored value stays in the table unused |
 
-The team start times are separate from the user's "Default shift times", because those are the user's own times (lunch may end at 15:30, the evening may start later), and changing them shouldn't change the team plan.
+Until 1.7.0 the team start times were separate from the user's "Default shift times", because those are the user's own times. Since 1.8.0 the monthly hours (§4.9) count planned team shifts up to the shift times' ends, so the team planner uses one set of times: the "Default shift times". Their starts are the team's normal starts on the board and in the image (`AppSettings.teamStarts` is a getter now), and Settings › Team planner shows them as "Shift times" (§16).
 
 ## 4. Domain logic
 
@@ -386,6 +387,14 @@ Closed shifts are never available. Switching the mode keeps the marks and flips 
 - **shifts**: the person's assignments in the week;
 - **possible**: the open shifts the person is available for.
 
+**Monthly hours** (`domain/team_hours.dart`, since 1.8.0). For people with a "Max. hours per month", usually mini-jobs:
+- A planned team shift counts from its start (the special start, else the shift time's start) to the end of the "Default shift times": Lunch, or "Lunch before an evening shift" when the same person also works that evening, and Evening. That matches what "Add my shifts to Plan" creates. A shift ending after midnight is handled.
+- **Over the limit** (`HoursState.overLimit`): a calendar month the week touches has more planned minutes than the limit, all weeks of that month counted.
+- **Above the week's share** (`HoursState.aboveWeekShare`): for each month the week touches, take what is left of the limit before the week, spread it evenly over the days from the week's first day in that month to the month's end, and multiply by the week's days in that month. The week is above its share when its planned minutes in that month are more than the share plus **one long shift** (the longer of Lunch and Evening with their normal times, 5.5 h by default; `longestShiftMinutes`). So a single shift is never above the share. Later weeks don't count for the share, because planning goes forward; they do count for the limit. Examples with 43 h: from 2 November (29 days left) the share is about 10.4 h, so up to about 15.9 h: two evenings (11 h) are fine, three (16.5 h) are above. With nothing planned before 16 November (15 days left) it is about 20 h, so up to about 25.6 h. The developer chose the long shift over a percentage (2026-11-10).
+- The limit is per calendar month. The real mini-job rule averages over the year and allows going over now and then; a monthly limit is the practical stand-in.
+- For a week across two months, the worse month counts, else the month of the week's Thursday. `weekHours` returns the numbers too (`WeekHours`: left before the week, share, slack, allowed, planned), for the explanation.
+- `RosterWeek` gets the other weeks' assignments of the touched months (`monthAssignments`) and offers `monthMinutes`, `minutesLeft`, `hoursState(memberId, adding: slot)` and `weekHoursOf`, the last two also "as if ticked" for the shift sheet.
+
 **Order in the shift sheet** (who to pick for shift S):
 1. **Available** people, sorted by fewest shifts this week, then by name (case-insensitive). If S has no core worker yet, the available core workers come first. Once S has one, the people who aren't core workers come first, because core workers cost more. Each part is sorted the same way.
 2. **No answer yet**, by name.
@@ -396,7 +405,8 @@ People already in S are listed in their group, ticked.
 **Fill** (`fillWeek`). Adds people to open places and never removes or moves anyone. Person P is **eligible** for shift S if:
 - P has an answer that makes P available for S;
 - P isn't in S yet;
-- P has fewer shifts than their "At most N" (if set).
+- P has fewer shifts than their "At most N" (if set);
+- adding S doesn't put P over their monthly limit or above the week's share of it (if set). By hand both are allowed, with a warning.
 
 It runs in two passes, each a loop that adds one person at a time:
 1. **Core pass:** over the open shifts with a free place and no core worker. Take the shift with the fewest eligible core workers (at least one); ties go to the earlier day, then lunch. Add the best eligible core worker.
@@ -618,20 +628,21 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
 The fifth tab, last in the bar, shown only while Settings › Features › "Team planner" is on. Turning the switch off hides the tab and keeps the data. The label is provisional: "Team" in English, "Dienstplan" in German, icon `groups`. The developer decides on the name once the screen is built. Last in the bar, so the other tabs keep their places when it is switched on or off. Rules: §4.9.
 
 **Board** (`ui/roster/team_screen.dart`). It opens on **next week** on each visit to the tab, like Pay opens on the current week.
-- **Header:** `PageHeader` and the `WeekSwitcher` (arrows, swipe, a button back to next week). A menu (⋮) has "People" and, if a person is marked "This is me" and has shifts this week, "Add my shifts to Plan".
+- **Header:** `PageHeader` and the `WeekSwitcher` (arrows, swipe, a button back to next week). An hourglass button opens "Hours per month" on the month of the week's Thursday (since 1.8.0). A menu (⋮) has "People" and, if a person is marked "This is me" and has shifts this week, "Add my shifts to Plan".
 - **Answers card:** "Answers: 5 of 7" and the button "Enter answers". It starts the walk-through at the first person without an answer, or at the first person if everyone has answered. Without any people, the card reads "Add the people you plan for" with an "Add people" button instead.
 - **Action row:** "Fill" (tonal), "Clear" (text) and "Share" (filled). "Clear" is disabled on an empty board. "Share" opens the preview.
 - **Day cards:** one per open day, in the style of the Plan tab's cards.
   - Each card has a row for Lunch and one for Evening: the shift name and normal start, the people as chips, and the count "2/3".
-  - A chip shows the name, a small star for a core worker, and a special start time ("18:30"). A person who can't work or hasn't answered gets a warning icon on the chip.
+  - A chip shows the name, a small star for a core worker, and a special start time ("18:30"). A person who can't work, hasn't answered or is over their monthly limit gets a warning icon on the chip (not for "Above the week's share", which would be too noisy there).
   - Under the chips, "No core worker" when it applies.
   - Tap a row → the shift sheet.
-- **"Shifts per person"** card: one row per person. Each row has the name with the core star and "3 shifts · 5 possible", "Away", or "No answer yet" in the error colour. Tap → that person's answer page alone.
+- **"Shifts per person"** card: one row per person. Each row has the name with the core star and "3 shifts · 5 possible", "Away", or "No answer yet" in the error colour. Below it, when it applies, "Over the monthly limit" (warning icon, error colour) or "Above the week's share" (info icon, tertiary colour); tapping that line opens the explanation (below). Tap elsewhere in the row → that person's answer page alone.
 
 **Shift sheet** (bottom sheet, `ui/roster/shift_sheet.dart`):
 - Title: "Fri, Nov 13 · Evening".
 - "Staff needed" with − and + buttons and the number; 0 shows "Closed". Changes are saved at once (`team_needs`).
-- The people in the order of §4.9, each as a row with a check box: name, core star, "2 shifts". Ticking adds the person at once, unticking removes them.
+- The people in the order of §4.9, each as a row with a check box: name, core star, "2 shifts". People with a monthly limit also get the hours left in the shift's month, "2 shifts · 32.0 h left" (or "2.0 h over"), and a second line "Over the monthly limit" or "Above the week's share" with its icon next to the name. For an unticked person this is the state if they were ticked, so the warning shows before the tap. The warning icon is a button ("Why?"); the rest of the row ticks.
+- **Explanation** (dialog, `showMemberWarnings` in `roster_common.dart`): the person's name, then each warning with its icon and a sentence with the numbers: "There is no answer for this week yet.", "According to the answer, this shift is not possible.", "17.5 h are planned in November. The limit is 15.0 h, so that is 2.5 h over.", or "Before this week, 21.0 h of the monthly limit are left. Spread evenly over the rest of the month, that is about 6.7 h for this week. One long shift more (5.5 h) is fine, so up to 12.2 h. Planned: 16.5 h." For an unticked person it starts with "With this shift:". The hours warnings end with "\"Fill\" doesn't plan anyone beyond this. By hand it is still possible." Ticking adds the person at once, unticking removes them.
 - A ticked row also shows a time button with the start ("17:30", or the special time in bold). It opens the 24 h time picker. Picking the normal start clears the special time.
 - "No answer yet" and "Can't work" are collapsed sections, closed by default. Their rows are dimmed but can be ticked.
 - No "Save" button; the sheet closes with a swipe or tap outside.
@@ -649,10 +660,16 @@ The fifth tab, last in the bar, shown only while Settings › Features › "Team
 
 **People** (pushed from the board's menu and from Settings, `ui/roster/people_screen.dart`):
 - Everyone by name.
-- Each row has the name, a core star and "This is me" as a subtitle.
+- Each row has the name, a core star and "This is me" and the monthly limit ("43.0 h") as a subtitle.
 - "Add person" opens the person sheet.
-- **Person sheet:** a name field (focused), switches "Core worker" and "This is me", then "Save" and, for an existing person, "Delete". Deleting someone with answers or shifts asks first ("Delete Anna?"), because their answers and shifts in all weeks go too; otherwise a week would count a person the board can't show.
+- **Person sheet:** a name field (focused), "Max. hours per month" (optional, decimal, "43" or "43,5"; empty = no limit; more than 0 and at most 744, else Save is disabled; helper text "For example for a mini-job. Leave empty if there is no limit."), switches "Core worker" and "This is me", then "Save" and, for an existing person, "Delete". Deleting someone with answers or shifts asks first ("Delete Anna?"), because their answers and shifts in all weeks go too; otherwise a week would count a person the board can't show.
 - Names must not be empty. Two people with the same name are allowed, but the sheet warns, because the image would show the name twice.
+
+**Hours per month** (pushed from the board's hourglass button, `ui/roster/hours_screen.dart`, since 1.8.0):
+- A month switcher ("November 2026", subtitle "Planned in the team plan").
+- One card with a row per person, by name: the planned hours of the month (§4.9), "28.5 of 43.0 h" with a limit, else "12.0 h". With a limit, a thin bar (error colour when over) and "14.5 h left" or "2.0 h over"; without, "No limit".
+- Tap a row → the person sheet, to set the limit right there.
+- A note below: how the hours are counted and what the week's share is.
 
 **Share preview** (pushed, `ui/roster/share_screen.dart`): the image (§4.9) scaled to the screen width inside a `FittedBox`. Below it "Share", which writes the PNG and opens the share sheet. A hint below the image: "Open places and warnings are not in the picture."
 
@@ -665,7 +682,7 @@ An overview with one row per category (icon, title, a short summary, a chevron).
 | Reminders | the lead time, "15 minutes before" | "Before a shift starts", "Ask if not stopped"; "Permissions" with every reliability check and its status |
 | Calendar | the calendar's name or "No calendar" | calendar, "Event title", **"Event color"**, "Sync now" |
 | Features | the features turned on, "Daily pool · Team planner", or "None turned on" | one switch per optional feature: "Daily pool" (`tipPool`, subtitle "Note everyone's tips for each workday. The app asks after the shift.") and "Team planner" (`teamPlanner`, subtitle "Plan the team's shifts and share the plan as a picture"). Turning one off hides it and keeps its data |
-| Team planner | the number of people, "7 people" | only on the overview while the feature is on. "Staff needed" (the "Open shifts" sheet, which shows the − / + counters while the team planner is on; 0 shows "Closed"), "Start times" (`teamStarts`) and "People" |
+| Team planner | the number of people, "7 people" | only on the overview while the feature is on. "Staff needed" (the "Open shifts" sheet, which shows the − / + counters while the team planner is on; 0 shows "Closed"), "Shift times" (the same "Default shift times" tiles as Settings › Shifts, in a sheet; since 1.8.0, before that "Start times") and "People" |
 | Appearance | colour and dark mode, "Red · Dark" | "Color", "Dark mode", "App icon" (only when more than one design is offered), "Icon shape", "Week overview" |
 | General | restaurant and language, "Not set · Same as the phone" | "Restaurant" (optional; the dialog has a clear button), "Language" |
 | App update | "Version 1.4.1", or "Update to version 1.5.0" with a dot | "Check for updates", "What's new", the found update, "Restart update", "Delete update file" (§12) |
@@ -877,3 +894,4 @@ Possible later extensions:
 - **Features page** (2026-11-06, §7): a Settings category "Features" with a switch per optional feature. The "Team planner" switch moved there from its own page, which now shows on the overview only while the feature is on. The "Daily pool" (§4.7) became optional, because few people at the restaurant track it: off on a fresh install, on for installs from 1.5.0 and earlier. The developer chose a new category over adding the switches to "General", and only these two switches for now.
 - **Closed shifts on Plan** (2026-11-10, §4.1): the developer asked that shifts the restaurant doesn't open (AKAI: Saturday lunch, Sunday) no longer show on the Plan tab. First built on the team planner's "Staff needed", then the same day made a setting of its own, "Open shifts" in Settings › Shifts and in the first-start setup: switches with the team planner off, the counters with it on, one value for both. The default became a typical small restaurant's week (closed on Monday; AKAI is closed on Sunday because it is on a shopping street); people set their own week in the setup.
 - **Extras in the setup** (2026-11-10, §7 Onboarding): a last setup step with the feature switches and the theme. The developer wanted the features mentioned so people know they exist; one step for both, to keep the setup short. The controls are shared with Settings (`ui/settings/look_and_features.dart`).
+- **Monthly hours limits** (2026-11-10, §3, §4.9, §7): the developer asked for a way to keep the mini-jobbers on the team under their monthly limit. People get an optional "Max. hours per month"; a page "Hours per month" (from the board's header) shows everyone's planned hours against it; the shift sheet and the board warn when someone goes over it or above the week's share of it, with an explanation on tap, and Fill goes beyond neither. The week's share allows one long shift on top (the developer's choice over a percentage). The developer chose hours over euros (no wages needed) and the shift times' end times over a separate "hours per shift" setting. Because of that, the team's separate start times were dropped: the team planner now uses the "Default shift times" for both start and end, shown in Settings › Team planner as "Shift times".

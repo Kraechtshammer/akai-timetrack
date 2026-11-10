@@ -11,8 +11,10 @@ import '../../core/format.dart';
 import '../../core/time.dart';
 import '../../data/database.dart';
 import '../../domain/roster.dart';
+import '../../domain/team_hours.dart';
 import '../common.dart';
 import 'answer_screen.dart';
+import 'hours_screen.dart';
 import 'people_screen.dart';
 import 'roster_common.dart';
 import 'share_screen.dart';
@@ -107,6 +109,14 @@ class _TeamScreenState extends ConsumerState<TeamScreen> {
           title: l10n.teamTitle,
           subtitle: l10n.teamSubtitle,
           actions: [
+            // The month of the week's Thursday, like ISO weeks.
+            M3EIconButton(
+              variant: M3EIconButtonVariant.standard,
+              tooltip: l10n.teamHoursTitle,
+              icon: const Icon(Icons.hourglass_bottom),
+              onPressed: () =>
+                  _push(TeamHoursScreen(month: monthStart(addDays(_week, 3)))),
+            ),
             PopupMenuButton<int>(
               icon: const Icon(Icons.more_vert),
               onSelected: (v) =>
@@ -358,7 +368,8 @@ class _SlotRow extends ConsumerWidget {
                       start: byMember[m.id]?.startMinutes,
                       warn:
                           week.availability(m.id, slot) !=
-                          Availability.available,
+                              Availability.available ||
+                          week.hoursState(m.id) == HoursState.overLimit,
                     ),
                 ],
               ),
@@ -432,7 +443,6 @@ class _PerPersonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final colors = context.colors;
     final people = week.members;
     if (people.isEmpty) return const SizedBox.shrink();
     return Panel(
@@ -463,26 +473,41 @@ class _PerPersonCard extends StatelessWidget {
                       ),
                     ),
                     Flexible(
-                      child: week.answerOf(m.id) == null
-                          ? Text(
-                              l10n.teamNoAnswer,
-                              style: context.text.bodySmall?.copyWith(
-                                color: colors.error,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _answerText(context, m),
+                          if (hoursStateStyle(context, week.hoursState(m.id))
+                              case final s?)
+                            // Its own tap target: the explanation.
+                            InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () => showMemberWarnings(context, week, m),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 6,
+                                  horizontal: 4,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  spacing: 4,
+                                  children: [
+                                    Icon(s.icon, size: 16, color: s.color),
+                                    Flexible(
+                                      child: Text(
+                                        s.label,
+                                        style: context.text.bodySmall?.copyWith(
+                                          color: s.color,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            )
-                          : week.isAway(m.id)
-                          ? Text(
-                              l10n.teamAwayShort,
-                              style: context.text.bodySmall?.copyWith(
-                                color: colors.outline,
-                              ),
-                            )
-                          : Text(
-                              '${l10n.teamShiftCount(week.shiftCount(m.id))}'
-                              ' · ${l10n.teamPossible(week.possibleCount(m.id))}',
-                              style: context.text.bodySmall,
-                              textAlign: TextAlign.right,
                             ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -491,5 +516,26 @@ class _PerPersonCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _answerText(BuildContext context, TeamMember m) {
+    final l10n = context.l10n;
+    final colors = context.colors;
+    return week.answerOf(m.id) == null
+        ? Text(
+            l10n.teamNoAnswer,
+            style: context.text.bodySmall?.copyWith(color: colors.error),
+          )
+        : week.isAway(m.id)
+        ? Text(
+            l10n.teamAwayShort,
+            style: context.text.bodySmall?.copyWith(color: colors.outline),
+          )
+        : Text(
+            '${l10n.teamShiftCount(week.shiftCount(m.id))}'
+            ' · ${l10n.teamPossible(week.possibleCount(m.id))}',
+            style: context.text.bodySmall,
+            textAlign: TextAlign.right,
+          );
   }
 }

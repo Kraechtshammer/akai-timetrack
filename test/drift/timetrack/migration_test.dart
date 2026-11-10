@@ -11,6 +11,7 @@ import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
+import 'generated/schema_v5.dart' as v5;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -360,6 +361,75 @@ void main() {
         expect(
           expectedNewWageRatesData,
           await newDb.select(newDb.wageRates).get(),
+        );
+      },
+    );
+  });
+  // v4 -> v5 adds the monthly hours limit to team members; people and their
+  // shifts must survive, without a limit.
+  test('migration from v4 to v5 keeps the team, without hour limits', () async {
+    final start = DateTime.utc(2026, 11, 2, 11).millisecondsSinceEpoch ~/ 1000;
+    final oldMembers = [
+      v4.TeamMembersData(
+        id: 'm1',
+        name: 'Anna',
+        core: 1,
+        isMe: 0,
+        active: 1,
+        createdAt: start,
+        updatedAt: start,
+      ),
+    ];
+    final expectedMembers = [
+      v5.TeamMembersData(
+        id: 'm1',
+        name: 'Anna',
+        core: 1,
+        isMe: 0,
+        active: 1,
+        maxMonthMinutes: null,
+        createdAt: start,
+        updatedAt: start,
+      ),
+    ];
+    final oldAssignments = [
+      v4.TeamAssignmentsData(
+        id: 'a1',
+        day: '2026-11-03',
+        shift: 1,
+        memberId: 'm1',
+        startMinutes: 1110,
+        createdAt: start,
+        updatedAt: start,
+      ),
+    ];
+    final expectedAssignments = [
+      v5.TeamAssignmentsData(
+        id: 'a1',
+        day: '2026-11-03',
+        shift: 1,
+        memberId: 'm1',
+        startMinutes: 1110,
+        createdAt: start,
+        updatedAt: start,
+      ),
+    ];
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 4,
+      newVersion: 5,
+      createOld: v4.DatabaseAtV4.new,
+      createNew: v5.DatabaseAtV5.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insertAll(oldDb.teamMembers, oldMembers);
+        batch.insertAll(oldDb.teamAssignments, oldAssignments);
+      },
+      validateItems: (newDb) async {
+        expect(expectedMembers, await newDb.select(newDb.teamMembers).get());
+        expect(
+          expectedAssignments,
+          await newDb.select(newDb.teamAssignments).get(),
         );
       },
     );

@@ -1,6 +1,6 @@
 # Architecture and code style
 
-How the code is built and written, as of version 1.6.1 (2026-11-06). The behaviour lives in [02-design.md](02-design.md). Step-by-step recipes for common changes ("add a setting", "change the database") live in [lib/CLAUDE.md](../lib/CLAUDE.md). This file explains the structure and the reasons behind it, and §10 lists the known weaknesses found in the review on 2026-11-06.
+How the code is built and written, as of version 1.7.0 plus the monthly hours limits (2026-11-10). The behaviour lives in [02-design.md](02-design.md). Step-by-step recipes for common changes ("add a setting", "change the database") live in [lib/CLAUDE.md](../lib/CLAUDE.md). This file explains the structure and the reasons behind it, and §10 lists the known weaknesses found in the review on 2026-11-06.
 
 **Diagrams:** the architecture canvas ([claude.ai artifact](https://claude.ai/artifact/Q7dPU5DCffUdpWGhiZHSDr), VS Code task *Docs: Show architecture*) has four boards: layers, the write-and-sync loop, isolates and native code, and the database. Their sources are in [architecture/](architecture/). §11 says how to keep them current.
 
@@ -95,7 +95,7 @@ Channel names still start with the first package name `de.garten.…`. They are 
 
 ## 4. Data
 
-- **drift on SQLite**, schema version 4. Migrations are generated step by step from snapshots in `drift_schemas/`. They only add tables or nullable columns.
+- **drift on SQLite**, schema version 5 (5 added `team_members.maxMonthMinutes`). Migrations are generated step by step from snapshots in `drift_schemas/`. They only add tables or nullable columns.
 - **Conventions:**
   - UUID ids, so a later backup can merge by id.
   - Days as text `yyyy-MM-dd`, so a shift belongs to its local day whatever the time zone.

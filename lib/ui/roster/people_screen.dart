@@ -1,11 +1,13 @@
 // The People screen and the person sheet of the team planner (F11).
 // See docs/02-design.md §7, "People".
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../material.dart';
 
 import '../../app/providers.dart';
 import '../../data/database.dart';
+import '../../core/format.dart';
 import '../../domain/roster.dart';
 import '../common.dart';
 import 'roster_common.dart';
@@ -20,18 +22,24 @@ class PeopleScreen extends ConsumerWidget {
     final sorted = [...people]..sort(compareByName);
 
     Widget row(TeamMember m) {
-      final notes = [if (m.core) l10n.teamCore, if (m.isMe) l10n.teamIsMe];
+      final limit = m.maxMonthMinutes;
+      final notes = [
+        if (m.core) l10n.teamCore,
+        if (m.isMe) l10n.teamIsMe,
+        if (limit != null)
+          l10n.teamHoursOnly(formatHours(limit, context.locale)),
+      ];
       return ListTile(
         title: MemberName(m, style: context.text.bodyLarge),
         subtitle: notes.isEmpty ? null : Text(notes.join(' · ')),
-        onTap: () => showPersonSheet(context, ref, member: m),
+        onTap: () => showPersonSheet(context, member: m),
       );
     }
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.teamPeople)),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showPersonSheet(context, ref),
+        onPressed: () => showPersonSheet(context),
         icon: const Icon(Icons.person_add_alt_1),
         label: Text(l10n.teamAddPerson),
       ),
@@ -47,16 +55,13 @@ class PeopleScreen extends ConsumerWidget {
 }
 
 /// Adds a person, or edits [member].
-Future<void> showPersonSheet(
-  BuildContext context,
-  WidgetRef ref, {
-  TeamMember? member,
-}) => showModalBottomSheet<void>(
-  context: context,
-  isScrollControlled: true,
-  showDragHandle: true,
-  builder: (_) => _PersonSheet(member: member),
-);
+Future<void> showPersonSheet(BuildContext context, {TeamMember? member}) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _PersonSheet(member: member),
+    );
 
 class _PersonSheet extends ConsumerStatefulWidget {
   const _PersonSheet({this.member});
@@ -69,12 +74,18 @@ class _PersonSheet extends ConsumerStatefulWidget {
 
 class _PersonSheetState extends ConsumerState<_PersonSheet> {
   late final _name = TextEditingController(text: widget.member?.name);
+  late final _max = TextEditingController(
+    text: widget.member?.maxMonthMinutes == null
+        ? ''
+        : formatHours(widget.member!.maxMonthMinutes!, context.locale),
+  );
   late var _core = widget.member?.core ?? false;
   late var _isMe = widget.member?.isMe ?? false;
 
   @override
   void dispose() {
     _name.dispose();
+    _max.dispose();
     super.dispose();
   }
 
@@ -89,14 +100,36 @@ class _PersonSheetState extends ConsumerState<_PersonSheet> {
     );
   }
 
+  /// The limit in minutes; null when the field is empty or invalid.
+  int? get _maxMinutes {
+    final hours = double.tryParse(_max.text.trim().replaceAll(',', '.'));
+    return hours == null ? null : (hours * 60).round();
+  }
+
+  bool get _maxInvalid {
+    if (_max.text.trim().isEmpty) return false;
+    final hours = double.tryParse(_max.text.trim().replaceAll(',', '.'));
+    return hours == null || hours <= 0 || hours > 744;
+  }
+
   Future<void> _save() async {
     final roster = ref.services.roster;
     final member = widget.member;
     if (member == null) {
-      await roster.addMember(_trimmed, core: _core, isMe: _isMe);
+      await roster.addMember(
+        _trimmed,
+        core: _core,
+        isMe: _isMe,
+        maxMonthMinutes: _maxMinutes,
+      );
     } else {
       await roster.saveMember(
-        member.copyWith(name: _trimmed, core: _core, isMe: _isMe),
+        member.copyWith(
+          name: _trimmed,
+          core: _core,
+          isMe: _isMe,
+          maxMonthMinutes: Value(_maxMinutes),
+        ),
       );
     }
     if (mounted) Navigator.of(context).pop();
@@ -160,6 +193,19 @@ class _PersonSheetState extends ConsumerState<_PersonSheet> {
             ),
             onChanged: (_) => setState(() {}),
           ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _max,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: l10n.teamMaxHours,
+              helperText: l10n.teamMaxHoursHelp,
+              helperMaxLines: 2,
+              suffixText: 'h',
+              errorText: _maxInvalid ? l10n.teamMaxHoursInvalid : null,
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
           SwitchListTile(
             title: Text(l10n.teamCore),
             subtitle: Text(l10n.teamCoreHint),
@@ -183,7 +229,7 @@ class _PersonSheetState extends ConsumerState<_PersonSheet> {
                   label: Text(l10n.delete),
                 ),
               M3EButton(
-                onPressed: _trimmed.isEmpty ? null : _save,
+                onPressed: _trimmed.isEmpty || _maxInvalid ? null : _save,
                 label: Text(l10n.save),
               ),
             ],

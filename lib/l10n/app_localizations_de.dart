@@ -1343,7 +1343,99 @@ class AppLocalizationsDe extends AppLocalizations {
       'Schichten fürs Team planen und den Plan als Bild teilen';
 
   @override
-  String get teamStartTimes => 'Startzeiten';
+  String get teamShiftTimes => 'Schichtzeiten';
+
+  @override
+  String get teamShiftTimesNote =>
+      'Dieselben Zeiten wie unter Einstellungen › Schichten. Sie gelten auch für deine eigenen Schichten, und mit ihnen werden die Stunden im Monat gezählt.';
+
+  @override
+  String get teamMaxHours => 'Max. Stunden im Monat';
+
+  @override
+  String get teamMaxHoursHelp =>
+      'Zum Beispiel bei einem Minijob. Leer lassen, wenn es keine Grenze gibt.';
+
+  @override
+  String get teamMaxHoursInvalid =>
+      'Bitte eine Zahl eingeben, z. B. 43 oder 43,5.';
+
+  @override
+  String get teamHoursTitle => 'Stunden im Monat';
+
+  @override
+  String get teamHoursSubtitle => 'Geplant im Dienstplan';
+
+  @override
+  String teamHoursOf(String hours, String max) {
+    return '$hours von $max h';
+  }
+
+  @override
+  String teamHoursOnly(String hours) {
+    return '$hours h';
+  }
+
+  @override
+  String teamHoursLeft(String hours) {
+    return 'noch $hours h';
+  }
+
+  @override
+  String teamHoursOver(String hours) {
+    return '$hours h zu viel';
+  }
+
+  @override
+  String get teamOverLimit => 'Über der Monatsgrenze';
+
+  @override
+  String get teamAboveWeekShare => 'Über dem Wochenanteil';
+
+  @override
+  String get teamHoursNoLimit => 'Keine Grenze';
+
+  @override
+  String get teamHoursNote =>
+      'Gezählt werden die Schichten im Dienstplan, mit den Schichtzeiten aus den Einstellungen. Wochenanteil: was vor der Woche von der Monatsgrenze noch übrig ist, gleichmäßig auf die restlichen Tage des Monats verteilt.';
+
+  @override
+  String get teamWarnWhy => 'Warum?';
+
+  @override
+  String get teamWarnNoAnswer => 'Für diese Woche gibt es noch keine Antwort.';
+
+  @override
+  String get teamWarnCantWork =>
+      'Laut Antwort ist diese Schicht nicht möglich.';
+
+  @override
+  String get teamWarnIfAdded => 'Mit dieser Schicht:';
+
+  @override
+  String teamWarnOverLimit(
+    String month,
+    String planned,
+    String limit,
+    String over,
+  ) {
+    return 'Im $month sind $planned h geplant. Die Grenze ist $limit h, also $over h zu viel.';
+  }
+
+  @override
+  String teamWarnAboveShare(
+    String left,
+    String share,
+    String slack,
+    String allowed,
+    String planned,
+  ) {
+    return 'Vor dieser Woche sind von der Monatsgrenze noch $left h übrig. Gleichmäßig auf den Rest des Monats verteilt, sind das etwa $share h für diese Woche. Eine lange Schicht mehr ($slack h) ist in Ordnung, also bis $allowed h. Geplant sind $planned h.';
+  }
+
+  @override
+  String get teamWarnFill =>
+      '„Auffüllen“ teilt niemanden darüber hinaus ein. Von Hand geht es trotzdem.';
 
   @override
   String get teamAway => 'Diese Woche nicht da';

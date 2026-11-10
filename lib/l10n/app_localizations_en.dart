@@ -1340,7 +1340,98 @@ class AppLocalizationsEn extends AppLocalizations {
       'Plan the team\'s shifts and share the plan as a picture';
 
   @override
-  String get teamStartTimes => 'Start times';
+  String get teamShiftTimes => 'Shift times';
+
+  @override
+  String get teamShiftTimesNote =>
+      'The same times as in Settings › Shifts. They are also your own shift times, and the hours per month are counted with them.';
+
+  @override
+  String get teamMaxHours => 'Max. hours per month';
+
+  @override
+  String get teamMaxHoursHelp =>
+      'For example for a mini-job. Leave empty if there is no limit.';
+
+  @override
+  String get teamMaxHoursInvalid => 'Enter a number, for example 43 or 43.5.';
+
+  @override
+  String get teamHoursTitle => 'Hours per month';
+
+  @override
+  String get teamHoursSubtitle => 'Planned in the team plan';
+
+  @override
+  String teamHoursOf(String hours, String max) {
+    return '$hours of $max h';
+  }
+
+  @override
+  String teamHoursOnly(String hours) {
+    return '$hours h';
+  }
+
+  @override
+  String teamHoursLeft(String hours) {
+    return '$hours h left';
+  }
+
+  @override
+  String teamHoursOver(String hours) {
+    return '$hours h over';
+  }
+
+  @override
+  String get teamOverLimit => 'Over the monthly limit';
+
+  @override
+  String get teamAboveWeekShare => 'Above the week\'s share';
+
+  @override
+  String get teamHoursNoLimit => 'No limit';
+
+  @override
+  String get teamHoursNote =>
+      'Counted are the shifts in the team plan, with the shift times from Settings. A week\'s share is what is left of the monthly limit before that week, spread evenly over the rest of the month.';
+
+  @override
+  String get teamWarnWhy => 'Why?';
+
+  @override
+  String get teamWarnNoAnswer => 'There is no answer for this week yet.';
+
+  @override
+  String get teamWarnCantWork =>
+      'According to the answer, this shift is not possible.';
+
+  @override
+  String get teamWarnIfAdded => 'With this shift:';
+
+  @override
+  String teamWarnOverLimit(
+    String month,
+    String planned,
+    String limit,
+    String over,
+  ) {
+    return '$planned h are planned in $month. The limit is $limit h, so that is $over h over.';
+  }
+
+  @override
+  String teamWarnAboveShare(
+    String left,
+    String share,
+    String slack,
+    String allowed,
+    String planned,
+  ) {
+    return 'Before this week, $left h of the monthly limit are left. Spread evenly over the rest of the month, that is about $share h for this week. One long shift more ($slack h) is fine, so up to $allowed h. Planned: $planned h.';
+  }
+
+  @override
+  String get teamWarnFill =>
+      '\"Fill\" doesn\'t plan anyone beyond this. By hand it is still possible.';
 
   @override
   String get teamAway => 'Away this week';

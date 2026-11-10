@@ -4,6 +4,7 @@
 import '../core/time.dart';
 import '../data/app_settings.dart';
 import '../data/database.dart';
+import 'team_hours.dart';
 
 /// One shift of the team plan: a day and lunch or evening.
 class TeamSlot {
@@ -118,11 +119,26 @@ class RosterWeek {
     required List<TeamAssignment> assignments,
     required List<TeamNeed> needs,
     required this.defaults,
+    List<TeamAssignment> monthAssignments = const [],
+    this.settings = const AppSettings(),
   }) : weekStart = dateOnly(weekStart),
        members = [...members]..sort(compareByName),
        assignments = List.unmodifiable(assignments),
        _answers = {for (final a in answers) a.memberId: a},
-       _needs = WeekNeeds(needs, defaults);
+       _needs = WeekNeeds(needs, defaults),
+       _otherWeeks = _outside(monthAssignments, dateOnly(weekStart));
+
+  /// The rows of [all] that are not in the week starting [weekStart].
+  static List<TeamAssignment> _outside(
+    List<TeamAssignment> all,
+    DateTime weekStart,
+  ) {
+    final first = dayKey(weekStart), last = dayKey(addDays(weekStart, 6));
+    return [
+      for (final a in all)
+        if (a.day.compareTo(first) < 0 || a.day.compareTo(last) > 0) a,
+    ];
+  }
 
   final DateTime weekStart;
 
@@ -131,8 +147,15 @@ class RosterWeek {
   final List<TeamMember> members;
   final List<TeamAssignment> assignments;
   final StaffNeeds defaults;
+
+  /// For the shift times the planned hours are counted with.
+  final AppSettings settings;
   final Map<String, TeamAnswer> _answers;
   final WeekNeeds _needs;
+
+  /// Shifts in the other weeks of the months this week touches, for the
+  /// monthly limits.
+  final List<TeamAssignment> _otherWeeks;
 
   late final Map<String, TeamMember> _byId = {for (final m in members) m.id: m};
 
@@ -195,6 +218,57 @@ class RosterWeek {
   int possibleCount(String memberId) => slots
       .where((s) => availability(memberId, s) == Availability.available)
       .length;
+
+  /// Planned minutes of the person in the month of [month], this week
+  /// included.
+  int monthMinutes(String memberId, DateTime month) => TeamHours([
+    ..._otherWeeks,
+    ...assignments,
+  ], settings).inMonth(memberId, month);
+
+  /// Minutes left under the person's monthly limit in the month of
+  /// [month] (negative when over), null without a limit.
+  int? minutesLeft(String memberId, DateTime month) {
+    final limit = _byId[memberId]?.maxMonthMinutes;
+    return limit == null ? null : limit - monthMinutes(memberId, month);
+  }
+
+  /// The person against their monthly limit, as planned, or with [adding]
+  /// as well (for the shift sheet, before ticking them).
+  HoursState hoursState(String memberId, {TeamSlot? adding}) =>
+      weekHoursOf(memberId, adding: adding)?.state ?? HoursState.ok;
+
+  /// [hoursState] with its numbers, for the explanation. null without a
+  /// limit.
+  WeekHours? weekHoursOf(String memberId, {TeamSlot? adding}) =>
+      _weekHours(memberId, [
+        ...assignments.where((a) => a.memberId == memberId),
+        if (adding != null &&
+            !assignmentsIn(adding).any((a) => a.memberId == memberId))
+          _planned(memberId, adding),
+      ]);
+
+  WeekHours? _weekHours(String memberId, List<TeamAssignment> weekRows) {
+    final limit = _byId[memberId]?.maxMonthMinutes;
+    if (limit == null) return null;
+    final hours = TeamHours([
+      ..._otherWeeks.where((a) => a.memberId == memberId),
+      ...weekRows,
+    ], settings);
+    return weekHours(hours, memberId, limit, weekStart);
+  }
+
+  /// A not yet saved row, for counting hours.
+  static TeamAssignment _planned(String memberId, TeamSlot slot) =>
+      TeamAssignment(
+        id: '',
+        day: slot.dayKey,
+        shift: slot.shift,
+        memberId: memberId,
+        startMinutes: null,
+        createdAt: slot.day,
+        updatedAt: slot.day,
+      );
 
   bool hasCore(TeamSlot slot) =>
       assignmentsIn(slot).any((a) => _byId[a.memberId]?.core ?? false);
@@ -284,6 +358,8 @@ class RosterWeek {
 
   /// Fills free places (§4.9): first one core worker per shift without
   /// one, then the rest, preferring people who aren't core workers.
+  /// Nobody goes over their monthly limit or above the week's share of it
+  /// (§4.9); by hand, both are allowed with a warning.
   /// Never removes or moves anyone. Deterministic.
   FillResult fill() {
     final order = slots;
@@ -291,7 +367,15 @@ class RosterWeek {
       for (final s in order) s: {for (final a in assignmentsIn(s)) a.memberId},
     };
     final counts = {for (final m in members) m.id: shiftCount(m.id)};
+    final rows = {
+      for (final m in members)
+        m.id: [...assignments.where((a) => a.memberId == m.id)],
+    };
     final added = <FillPick>[];
+
+    HoursState hoursWith(TeamMember m, TeamSlot s) =>
+        _weekHours(m.id, [...rows[m.id]!, _planned(m.id, s)])?.state ??
+        HoursState.ok;
 
     int free(TeamSlot s) => _free(needed(s), inSlot[s]!.length);
     bool coreIn(TeamSlot s) => inSlot[s]!.any((id) => _byId[id]?.core ?? false);
@@ -300,7 +384,8 @@ class RosterWeek {
       if (inSlot[s]!.contains(m.id)) return false;
       if (availability(m.id, s) != Availability.available) return false;
       final max = _answers[m.id]?.maxShifts;
-      return max == null || counts[m.id]! < max;
+      if (max != null && counts[m.id]! >= max) return false;
+      return hoursWith(m, s) == HoursState.ok;
     }
 
     bool worksOtherShift(TeamMember m, TeamSlot s) => inSlot.entries.any(
@@ -355,6 +440,7 @@ class RosterWeek {
         final pick = best(hardestPeople, hardest, othersFirst: othersFirst);
         inSlot[hardest]!.add(pick.id);
         counts[pick.id] = counts[pick.id]! + 1;
+        rows[pick.id]!.add(_planned(pick.id, hardest));
         added.add(FillPick(pick.id, hardest));
       }
     }

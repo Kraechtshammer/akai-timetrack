@@ -92,6 +92,8 @@ dart run drift_dev make-migrations      # new snapshot in drift_schemas/, steps,
 
 Then raise `schemaVersion`, write the step in `AppDatabase.migration` (`from1To2`, …), and run `flutter test test/drift`. Run `make-migrations` once before the change too, if the current version has no snapshot yet. Migrations only add tables or nullable columns.
 
+Run `make-migrations` **before** writing the new `fromXToY` step. The schema export compiles `database.dart`, which fails while it names a step that `database.steps.dart` doesn't have yet. drift then falls back to static analysis: the snapshot loses its default values and `fixed_sql`, and the generated steps don't compile (`Undefined name 'SyncState'`). If that happens, restore `database.steps.dart` and `test/drift/.../schema.dart` with git, delete the new snapshot and `schema_vN.dart`, take the step out, run it again, then put the step back (2026-11-10, schema version 5).
+
 **App icon variants.** The launcher entry is one of three activity aliases (Round, Squircle, Small squircle), chosen in the app's Settings. `flutter run` / F5 still works: `MainActivity` keeps a MAIN/LAUNCHER intent filter in the source manifest, and the build removes it from the installed app (`tools:node="remove"`). To start the app by hand:
 
 ```

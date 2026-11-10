@@ -10,6 +10,7 @@ import '../../app/providers.dart';
 import '../../core/time.dart';
 import '../../data/database.dart';
 import '../../domain/roster.dart';
+import '../../domain/team_hours.dart';
 import '../common.dart';
 import 'roster_common.dart';
 
@@ -95,6 +96,13 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
       final ticked = assignment != null;
       final special = assignment?.startMinutes;
       final start = special ?? normalStart;
+      final left = data.minutesLeft(m.id, slot.day);
+      final hours = ticked
+          ? data.hoursState(m.id)
+          : data.hoursState(m.id, adding: slot);
+      final hoursStyle = hoursStateStyle(context, hours);
+      final unavailable =
+          ticked && data.availability(m.id, slot) != Availability.available;
       return Opacity(
         opacity: dimmed && !ticked ? 0.6 : 1,
         child: CheckboxListTile(
@@ -107,12 +115,45 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
             spacing: 6,
             children: [
               Flexible(child: MemberName(m)),
-              if (ticked &&
-                  data.availability(m.id, slot) != Availability.available)
-                Icon(Icons.warning_amber, size: 18, color: colors.error),
+              // Tap the icon for the explanation; the rest of the row
+              // ticks.
+              if (unavailable || hoursStyle != null)
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  tooltip: l10n.teamWarnWhy,
+                  onPressed: () => showMemberWarnings(
+                    context,
+                    data,
+                    m,
+                    slot: slot,
+                    adding: !ticked,
+                  ),
+                  icon: unavailable || hours == HoursState.overLimit
+                      ? Icon(Icons.warning_amber, size: 20, color: colors.error)
+                      : Icon(
+                          hoursStyle!.icon,
+                          size: 20,
+                          color: hoursStyle.color,
+                        ),
+                ),
             ],
           ),
-          subtitle: Text(l10n.teamShiftCount(data.shiftCount(m.id))),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.teamShiftCount(data.shiftCount(m.id)) +
+                    (left == null ? '' : ' · ${hoursLeftText(context, left)}'),
+              ),
+              if (hoursStyle != null)
+                Text(
+                  hoursStyle.label,
+                  style: context.text.bodySmall?.copyWith(
+                    color: hoursStyle.color,
+                  ),
+                ),
+            ],
+          ),
           secondary: ticked
               ? M3EButton(
                   style: M3EButtonStyle.text,

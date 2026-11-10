@@ -95,7 +95,8 @@ void main() {
           TeamShift.evening,
           5,
         ),
-        teamStarts: const TeamStarts(11 * 60 + 30, 18 * 60),
+        lunch: const ShiftTimes(11 * 60 + 30, 15 * 60),
+        evening: const ShiftTimes(18 * 60, 23 * 60),
       );
       final stored = {
         for (final e in s.toMap().entries)
@@ -108,6 +109,7 @@ void main() {
         5,
       );
       expect(read.teamStaffNeeded.needed(DateTime.monday, TeamShift.lunch), 0);
+      // The team's start times are the shift times' starts.
       expect(read.teamStarts.lunch, 11 * 60 + 30);
       expect(read.teamStarts.of(TeamShift.evening), 18 * 60);
     });
@@ -115,7 +117,7 @@ void main() {
     test('broken values fall back to the defaults', () {
       final read = AppSettings.fromMap(const {
         'teamStaffNeeded': '2,3;2',
-        'teamStarts': 'noon',
+        'lunch': 'noon',
       });
       expect(read.teamStaffNeeded, StaffNeeds.standard);
       expect(read.teamStarts.lunch, 12 * 60);

@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-10; the version is now 1.7.0. Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-10; the version is 1.7.0, with the monthly hours limits on `main` (not released yet). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -225,6 +225,17 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - **New default:** closed on Monday, open for lunch and evening on the other days (a typical small restaurant). Existing installs keep their saved week, since every settings save writes all keys. AKAI is Monday to Saturday with Saturday evening only.
 - Code: `WeekNeeds` (`domain/roster.dart`) holds a week's staff counts for the board and the Plan tab; `planToggles`, `planDayShown` and `openShiftsSummary` are in `domain/display_rules.dart`; `StaffNeeds.withOpen` and `openDefault` in `data/app_settings.dart`. The roster tests pin the old Monday-to-Saturday week (`monToSat`), which they were written for.
 
+## Done on 2026-11-10: monthly hours limits in the team planner (not released)
+
+- **Why:** many of the service staff are mini-jobbers with a monthly limit. The developer asked to see each person's planned hours against a limit and to keep it in mind while planning.
+- **People:** optional "Max. hours per month" in the person sheet (`team_members.maxMonthMinutes`, schema version 5, a migration that only adds the column, tested from v4).
+- **"Hours per month"** (hourglass in the Team tab's header, `ui/roster/hours_screen.dart`): everyone's planned hours of a month, with a bar against the limit; tap a row to set the limit.
+- **While planning:** the shift sheet shows the hours left in the month and warns "Over the monthly limit" (error colour) or "Above the week's share" (tertiary colour), for unticked people as if they were ticked. The board's "Shifts per person" card shows the same, chips only "over". Tapping a warning (the icon in the shift sheet, the line in "Shifts per person") explains it with the numbers, also "No answer yet" and "Can't work". Fill goes neither over a limit nor above the week's share; by hand both are allowed. Rules in `02-design.md` §4.9 (`domain/team_hours.dart`).
+- **Developer decisions:** the limit is in hours (no wages needed); planned team shifts are counted with the end times of the "Default shift times"; the week's share is what is left of the limit, spread evenly over the rest of the month, plus one long shift (5.5 h by default), first built as +25 % and changed the same day at the developer's request. From "make it make sense" for the shift times: the team planner's own "Start times" were dropped, and Settings › Team planner shows the "Default shift times" as "Shift times". Until 1.7.0 the two were kept apart on purpose (`02-design.md` §3); an old `teamStarts` value is ignored. **Confirm this with the developer**: a user whose own times differ from the restaurant's would now see them on the board.
+- Built with two Sonnet subagents (people sheet and hours page; shift sheet and board), on top of the data, rules, providers and strings written first; reviewed afterwards (the hours page's month switcher got month tooltips and its subtitle).
+- Trap: drift's schema export fell back to static analysis and wrote a broken steps file when the new migration step was written before `make-migrations` (`03-dev-setup.md`).
+- **Checked:** `flutter analyze` clean, 201 tests pass (16 new in `test/team_hours_test.dart`, one new migration test). Debug build installed on the emulator over 1.7.0 data. Not yet checked in the app by the developer; not on a phone.
+
 ## Open points (in rough priority)
 
 Done and removed on 2026-11-06, as the developer confirmed: the new icons and the release build checked on the Pixel and the Xiaomi; the Live Update and icon checks on the Pixel 7 Pro; the handover (M6) with the release key backed up, the GitHub secrets set, the old test install removed, and the app in daily use on the user's Xiaomi since 2026-11-04.
@@ -263,12 +274,13 @@ lib/
           tips.dart (money parsing, tip weeks and months, Home prompt),
           salary.dart (rate of a day, month pay),
           roster.dart (team planner: availability, sheet order, Fill),
+          team_hours.dart (team planner: hours of planned shifts, monthly limits),
           app_icons.dart (launcher icon designs and shapes, secret designs, isAkaiRestaurant)   (pure logic, tested)
   platform/ notification_service.dart, calendar_sync.dart, device_setup.dart, app_icon.dart, app_update.dart
   l10n/ app_de.arb (source), app_en.arb, labels.dart (+ generated app_localizations*.dart)
   ui/   material.dart (the one UI import), home_shell, common (header, Panel, Figure, WavyProgress, WeekSwitcher, pickers),
         today/ (Home tab), plan/, shift_sheet.dart, pay/ (Pay tab, money sheet, wage sheet), export/, settings/ (overview, category pages, update tiles, reliability checks), onboarding/,
-        roster/ (Team tab: board, shift sheet, answers, people, plan image, share preview, Settings tiles)
+        roster/ (Team tab: board, shift sheet, answers, people, hours per month, plan image, share preview, Settings tiles)
 packages/calendar_bridge/   Kotlin CalendarContract plugin (calendars incl. sync flag, event colours, events, enableSync, requestSync)
 packages/running_progress/  Kotlin plugin: moves the running notification's progress bar (Live Update on Android 16)
 test/                       unit tests (helpers.dart builds test shifts); test/drift/ generated migration tests

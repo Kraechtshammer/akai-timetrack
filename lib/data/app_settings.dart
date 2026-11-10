@@ -112,7 +112,9 @@ class StaffNeeds {
   int get hashCode => toString().hashCode;
 }
 
-/// Team planner: the normal start of lunch and evening (F11).
+/// Team planner: the normal start of lunch and evening (F11). Since
+/// version 1.8.0 the starts of the shift times in Settings › Shifts
+/// ([AppSettings.teamStarts]); the old `teamStarts` key is ignored.
 class TeamStarts {
   const TeamStarts(this.lunch, this.evening);
 
@@ -123,20 +125,6 @@ class TeamStarts {
     TeamShift.lunch => lunch,
     TeamShift.evening => evening,
   };
-
-  TeamStarts withStart(TeamShift shift, Minutes start) => switch (shift) {
-    TeamShift.lunch => TeamStarts(start, evening),
-    TeamShift.evening => TeamStarts(lunch, start),
-  };
-
-  /// Parses `HH:mm,HH:mm`.
-  static TeamStarts? parse(String? text) {
-    final parts = text?.split(',');
-    if (parts == null || parts.length != 2) return null;
-    final lunch = ShiftTimes._parseHm(parts[0]);
-    final evening = ShiftTimes._parseHm(parts[1]);
-    return lunch == null || evening == null ? null : TeamStarts(lunch, evening);
-  }
 
   @override
   String toString() => '${minutesToHhmm(lunch)},${minutesToHhmm(evening)}';
@@ -166,7 +154,6 @@ class AppSettings {
     this.teamPlanner = false,
     this.tipPool = false,
     this.teamStaffNeeded = StaffNeeds.standard,
-    this.teamStarts = const TeamStarts(12 * 60, 17 * 60 + 30),
     this.restaurant = '',
   });
 
@@ -213,8 +200,9 @@ class AppSettings {
   /// Team planner: staff needed per weekday and shift by default.
   final StaffNeeds teamStaffNeeded;
 
-  /// Team planner: the normal start of lunch and evening.
-  final TeamStarts teamStarts;
+  /// Team planner: the normal start of lunch and evening, the same as the
+  /// user's own shift times.
+  TeamStarts get teamStarts => TeamStarts(lunch.start, evening.start);
 
   /// Where the user works, '' if not set. Shown in the calendar events,
   /// the export and the team plan picture; "AKAI" also offers the AKAI
@@ -255,7 +243,6 @@ class AppSettings {
       tipPool: (m['tipPool'] ?? m['onboardingDone']) == 'true',
       teamStaffNeeded:
           StaffNeeds.parse(m['teamStaffNeeded']) ?? d.teamStaffNeeded,
-      teamStarts: TeamStarts.parse(m['teamStarts']) ?? d.teamStarts,
       // Installs from before the setting (1.4.1 and earlier) were all at
       // AKAI; a fresh install asks in the setup.
       restaurant:
@@ -287,7 +274,6 @@ class AppSettings {
     'teamPlanner': '$teamPlanner',
     'tipPool': '$tipPool',
     'teamStaffNeeded': '$teamStaffNeeded',
-    'teamStarts': '$teamStarts',
     'restaurant': restaurant,
   };
 
@@ -315,7 +301,6 @@ class AppSettings {
     bool? teamPlanner,
     bool? tipPool,
     StaffNeeds? teamStaffNeeded,
-    TeamStarts? teamStarts,
     String? restaurant,
   }) => AppSettings(
     lunch: lunch ?? this.lunch,
@@ -339,7 +324,6 @@ class AppSettings {
     teamPlanner: teamPlanner ?? this.teamPlanner,
     tipPool: tipPool ?? this.tipPool,
     teamStaffNeeded: teamStaffNeeded ?? this.teamStaffNeeded,
-    teamStarts: teamStarts ?? this.teamStarts,
     restaurant: restaurant ?? this.restaurant,
   );
 }

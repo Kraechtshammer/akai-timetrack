@@ -2375,6 +2375,17 @@ class $TeamMembersTable extends TeamMembers
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _maxMonthMinutesMeta = const VerificationMeta(
+    'maxMonthMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> maxMonthMinutes = GeneratedColumn<int>(
+    'max_month_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -2404,6 +2415,7 @@ class $TeamMembersTable extends TeamMembers
     core,
     isMe,
     active,
+    maxMonthMinutes,
     createdAt,
     updatedAt,
   ];
@@ -2448,6 +2460,15 @@ class $TeamMembersTable extends TeamMembers
       context.handle(
         _activeMeta,
         active.isAcceptableOrUnknown(data['active']!, _activeMeta),
+      );
+    }
+    if (data.containsKey('max_month_minutes')) {
+      context.handle(
+        _maxMonthMinutesMeta,
+        maxMonthMinutes.isAcceptableOrUnknown(
+          data['max_month_minutes']!,
+          _maxMonthMinutesMeta,
+        ),
       );
     }
     if (data.containsKey('created_at')) {
@@ -2495,6 +2516,10 @@ class $TeamMembersTable extends TeamMembers
         DriftSqlType.bool,
         data['${effectivePrefix}active'],
       )!,
+      maxMonthMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}max_month_minutes'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2525,6 +2550,10 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
 
   /// Inactive people are left out of new weeks but stay in old plans.
   final bool active;
+
+  /// Most planned work per calendar month, in minutes (a mini-job's
+  /// limit). null = no limit. Since schema version 5.
+  final int? maxMonthMinutes;
   final DateTime createdAt;
   final DateTime updatedAt;
   const TeamMember({
@@ -2533,6 +2562,7 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
     required this.core,
     required this.isMe,
     required this.active,
+    this.maxMonthMinutes,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -2544,6 +2574,9 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
     map['core'] = Variable<bool>(core);
     map['is_me'] = Variable<bool>(isMe);
     map['active'] = Variable<bool>(active);
+    if (!nullToAbsent || maxMonthMinutes != null) {
+      map['max_month_minutes'] = Variable<int>(maxMonthMinutes);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -2556,6 +2589,9 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
       core: Value(core),
       isMe: Value(isMe),
       active: Value(active),
+      maxMonthMinutes: maxMonthMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maxMonthMinutes),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -2572,6 +2608,7 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
       core: serializer.fromJson<bool>(json['core']),
       isMe: serializer.fromJson<bool>(json['isMe']),
       active: serializer.fromJson<bool>(json['active']),
+      maxMonthMinutes: serializer.fromJson<int?>(json['maxMonthMinutes']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2585,6 +2622,7 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
       'core': serializer.toJson<bool>(core),
       'isMe': serializer.toJson<bool>(isMe),
       'active': serializer.toJson<bool>(active),
+      'maxMonthMinutes': serializer.toJson<int?>(maxMonthMinutes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2596,6 +2634,7 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
     bool? core,
     bool? isMe,
     bool? active,
+    Value<int?> maxMonthMinutes = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => TeamMember(
@@ -2604,6 +2643,9 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
     core: core ?? this.core,
     isMe: isMe ?? this.isMe,
     active: active ?? this.active,
+    maxMonthMinutes: maxMonthMinutes.present
+        ? maxMonthMinutes.value
+        : this.maxMonthMinutes,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -2614,6 +2656,9 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
       core: data.core.present ? data.core.value : this.core,
       isMe: data.isMe.present ? data.isMe.value : this.isMe,
       active: data.active.present ? data.active.value : this.active,
+      maxMonthMinutes: data.maxMonthMinutes.present
+          ? data.maxMonthMinutes.value
+          : this.maxMonthMinutes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2627,6 +2672,7 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
           ..write('core: $core, ')
           ..write('isMe: $isMe, ')
           ..write('active: $active, ')
+          ..write('maxMonthMinutes: $maxMonthMinutes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2634,8 +2680,16 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, core, isMe, active, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    core,
+    isMe,
+    active,
+    maxMonthMinutes,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2645,6 +2699,7 @@ class TeamMember extends DataClass implements Insertable<TeamMember> {
           other.core == this.core &&
           other.isMe == this.isMe &&
           other.active == this.active &&
+          other.maxMonthMinutes == this.maxMonthMinutes &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -2655,6 +2710,7 @@ class TeamMembersCompanion extends UpdateCompanion<TeamMember> {
   final Value<bool> core;
   final Value<bool> isMe;
   final Value<bool> active;
+  final Value<int?> maxMonthMinutes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -2664,6 +2720,7 @@ class TeamMembersCompanion extends UpdateCompanion<TeamMember> {
     this.core = const Value.absent(),
     this.isMe = const Value.absent(),
     this.active = const Value.absent(),
+    this.maxMonthMinutes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2674,6 +2731,7 @@ class TeamMembersCompanion extends UpdateCompanion<TeamMember> {
     this.core = const Value.absent(),
     this.isMe = const Value.absent(),
     this.active = const Value.absent(),
+    this.maxMonthMinutes = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -2687,6 +2745,7 @@ class TeamMembersCompanion extends UpdateCompanion<TeamMember> {
     Expression<bool>? core,
     Expression<bool>? isMe,
     Expression<bool>? active,
+    Expression<int>? maxMonthMinutes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -2697,6 +2756,7 @@ class TeamMembersCompanion extends UpdateCompanion<TeamMember> {
       if (core != null) 'core': core,
       if (isMe != null) 'is_me': isMe,
       if (active != null) 'active': active,
+      if (maxMonthMinutes != null) 'max_month_minutes': maxMonthMinutes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -2709,6 +2769,7 @@ class TeamMembersCompanion extends UpdateCompanion<TeamMember> {
     Value<bool>? core,
     Value<bool>? isMe,
     Value<bool>? active,
+    Value<int?>? maxMonthMinutes,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -2719,6 +2780,7 @@ class TeamMembersCompanion extends UpdateCompanion<TeamMember> {
       core: core ?? this.core,
       isMe: isMe ?? this.isMe,
       active: active ?? this.active,
+      maxMonthMinutes: maxMonthMinutes ?? this.maxMonthMinutes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -2743,6 +2805,9 @@ class TeamMembersCompanion extends UpdateCompanion<TeamMember> {
     if (active.present) {
       map['active'] = Variable<bool>(active.value);
     }
+    if (maxMonthMinutes.present) {
+      map['max_month_minutes'] = Variable<int>(maxMonthMinutes.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2763,6 +2828,7 @@ class TeamMembersCompanion extends UpdateCompanion<TeamMember> {
           ..write('core: $core, ')
           ..write('isMe: $isMe, ')
           ..write('active: $active, ')
+          ..write('maxMonthMinutes: $maxMonthMinutes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -5313,6 +5379,7 @@ typedef $$TeamMembersTableCreateCompanionBuilder =
       Value<bool> core,
       Value<bool> isMe,
       Value<bool> active,
+      Value<int?> maxMonthMinutes,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -5324,6 +5391,7 @@ typedef $$TeamMembersTableUpdateCompanionBuilder =
       Value<bool> core,
       Value<bool> isMe,
       Value<bool> active,
+      Value<int?> maxMonthMinutes,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -5360,6 +5428,11 @@ class $$TeamMembersTableFilterComposer
 
   ColumnFilters<bool> get active => $composableBuilder(
     column: $table.active,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get maxMonthMinutes => $composableBuilder(
+    column: $table.maxMonthMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5408,6 +5481,11 @@ class $$TeamMembersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get maxMonthMinutes => $composableBuilder(
+    column: $table.maxMonthMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -5442,6 +5520,11 @@ class $$TeamMembersTableAnnotationComposer
 
   GeneratedColumn<bool> get active =>
       $composableBuilder(column: $table.active, builder: (column) => column);
+
+  GeneratedColumn<int> get maxMonthMinutes => $composableBuilder(
+    column: $table.maxMonthMinutes,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5486,6 +5569,7 @@ class $$TeamMembersTableTableManager
                 Value<bool> core = const Value.absent(),
                 Value<bool> isMe = const Value.absent(),
                 Value<bool> active = const Value.absent(),
+                Value<int?> maxMonthMinutes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -5495,6 +5579,7 @@ class $$TeamMembersTableTableManager
                 core: core,
                 isMe: isMe,
                 active: active,
+                maxMonthMinutes: maxMonthMinutes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -5506,6 +5591,7 @@ class $$TeamMembersTableTableManager
                 Value<bool> core = const Value.absent(),
                 Value<bool> isMe = const Value.absent(),
                 Value<bool> active = const Value.absent(),
+                Value<int?> maxMonthMinutes = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
@@ -5515,6 +5601,7 @@ class $$TeamMembersTableTableManager
                 core: core,
                 isMe: isMe,
                 active: active,
+                maxMonthMinutes: maxMonthMinutes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
