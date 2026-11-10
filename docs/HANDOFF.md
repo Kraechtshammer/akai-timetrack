@@ -253,6 +253,12 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 
 - The app looks for a new release on start and on resume at most every 30 minutes instead of every 6 hours (`updateCheckInterval` in `domain/app_update.dart`), so a release shows up soon after the app is next opened. Checked: analyze and tests; not checked with the fake release server or on a phone.
 
+## README refreshed on 2026-11-10 (after 1.8.1)
+
+- All screenshots retaken with 1.8.1 on the emulator: `home.png`, `plan.png`, `export.png`, `team.png` (full screens), `home-month.png`, `pay-month.png`, `themes.png`, and `team-share.png`, which is now the PNG the app shares (copied from `cache/team-plan-<week>.png` with `run-as`), not a screenshot of the preview. New: `team-hours.png` ("Hours per month").
+- README text: "Open shifts" on Plan, "Staff needed" and the first-start setup for the team planner, and the 30-minute update check. Everything else still matched the app.
+- Made like the seventh and twelfth sessions' (demo database through `run-as`, original restored afterwards). Demo "today" is Tue 2026-11-10 with an evening shift being recorded; the team answers are for next week (2026-11-16), the Team tab's home week, and the board was filled with "Fill". Set `restaurant` to '' in the demo data, or "AKAI" shows in the Export text and the picture's title (the README doesn't name it). Add a pool for yesterday, or Home shows "Add the tips" instead of the month card. The seed and crop scripts were again kept outside the repo.
+
 ## Open points (in rough priority)
 
 Done and removed on 2026-11-06, as the developer confirmed: the new icons and the release build checked on the Pixel and the Xiaomi; the Live Update and icon checks on the Pixel 7 Pro; the handover (M6) with the release key backed up, the GitHub secrets set, the old test install removed, and the app in daily use on the user's Xiaomi since 2026-11-04.

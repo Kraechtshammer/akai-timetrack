@@ -34,6 +34,7 @@ The screenshots show the English UI in dark mode with demo data.
 ### Plan shifts
 
 - Tap "Lunch" or "Evening" on a day to plan a shift with the default times: 12:00–16:00 and 17:30–23:00. Lunch ends at 15:30 when an evening shift follows. "+" adds a shift with other times.
+- "Open shifts" in Settings › Shifts says when the restaurant is open. Closed shifts don't show on Plan. The first-start setup asks for them too.
 - Planned shifts appear in a Google calendar the user picks, in a chosen colour. Anyone who shares that calendar sees them. The app writes through Android's own calendar, so it needs no Google login or API key.
 - A reminder comes 15 minutes before each shift, with a "Start recording" button. The lead time is a setting.
 
@@ -66,9 +67,9 @@ The screenshots show the English UI in dark mode with demo data.
 
 ### Team planner (optional)
 
-Off by default; turn it on in Settings › Features › "Team planner". It is for weeks when the user plans the shifts of the whole service team.
+Off by default; turn it on in Settings › Features › "Team planner" or in the first-start setup. It is for weeks when the user plans the shifts of the whole service team.
 
-1. Add the people. Mark experienced staff as "Core worker".
+1. Add the people. Mark experienced staff as "Core worker". How many people each shift needs is set in Settings › Shifts › "Staff needed" (0 means closed).
 2. Enter each person's answer for the week: "Can work" or "Can't work", per day or per shift, or "Away this week".
 3. "Fill" puts people into the shifts. Each shift gets one core worker first. The other places go to people who aren't core workers first, and to those with the fewest shifts.
 4. Change anything by hand, then "Share" sends the week as a picture to the team chat.
@@ -77,6 +78,10 @@ Off by default; turn it on in Settings › Features › "Team planner". It is fo
 
 <p align="center">
   <img src="docs/screenshots/team-share.png" width="640" alt="The shared shift plan picture for one week">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/team-hours.png" width="380" alt="Hours per month: each person's planned hours, with a bar for those with a monthly limit">
 </p>
 
 ### Colours
@@ -93,7 +98,7 @@ Off by default; turn it on in Settings › Features › "Team planner". It is fo
 
 - The restaurant's name is set in the setup. It goes into the calendar events' location, the export and the team plan picture.
 - Launcher icons in a few designs (a serving cloche by default, and some secret ones), each in three shapes, because launchers use different icon shapes: round, squircle and small squircle.
-- The app checks GitHub for a new release, shows what changed, downloads the APK and hands it to Android's installer. After the update it shows what's new once more; Settings › App update › "What's new" shows it again.
+- The app checks GitHub for a new release when it is opened (at most every 30 minutes), shows what changed, downloads the APK and hands it to Android's installer. After the update it shows what's new once more; Settings › App update › "What's new" shows it again.
 
 ## Install
 
