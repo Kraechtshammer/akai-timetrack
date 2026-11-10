@@ -54,6 +54,16 @@ class RosterRepository {
         );
   });
 
+  /// The person marked "This is me", if any.
+  Future<TeamMember?> me() => (_db.select(
+    _db.teamMembers,
+  )..where((t) => t.isMe.equals(true))).getSingleOrNull();
+
+  /// Fires when people or assignments change ("Sync my shifts with Plan").
+  Stream<void> watchChanges() => _db.tableUpdates(
+    TableUpdateQuery.onAllTables([_db.teamMembers, _db.teamAssignments]),
+  );
+
   Future<void> _clearMe() =>
       (_db.update(_db.teamMembers)..where((t) => t.isMe.equals(true))).write(
         const TeamMembersCompanion(isMe: Value(false)),
@@ -179,6 +189,35 @@ class RosterRepository {
             ),
           ))
           .get();
+
+  /// The person's shifts from [from] on.
+  Future<List<TeamAssignment>> assignmentsOf(String memberId, DateTime from) =>
+      (_db.select(_db.teamAssignments)..where(
+            (t) =>
+                t.memberId.equals(memberId) &
+                t.day.isBiggerOrEqualValue(dayKey(from)),
+          ))
+          .get();
+
+  /// Puts the person into the shift with a special start (null = the
+  /// normal one); nothing happens if they are already there.
+  Future<void> assignAt(TeamSlot slot, String memberId, int? startMinutes) {
+    final now = DateTime.now();
+    return _db
+        .into(_db.teamAssignments)
+        .insert(
+          TeamAssignment(
+            id: _uuid.v4(),
+            day: slot.dayKey,
+            shift: slot.shift,
+            memberId: memberId,
+            startMinutes: startMinutes,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+  }
 
   /// Puts the person into the shift (nothing happens if already there).
   Future<void> assign(TeamSlot slot, String memberId) =>

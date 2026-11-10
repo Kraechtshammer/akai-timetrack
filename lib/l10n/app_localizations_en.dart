@@ -1434,6 +1434,23 @@ class AppLocalizationsEn extends AppLocalizations {
       '\"Fill\" doesn\'t plan anyone beyond this. By hand it is still possible.';
 
   @override
+  String get teamSyncPlan => 'Sync my shifts with Plan';
+
+  @override
+  String get teamSyncPlanSubtitle =>
+      'Your shifts in the team plan go onto Plan by themselves, with calendar and reminders, and leave again when you are taken out. Shifts with recorded times stay.';
+
+  @override
+  String get teamSyncPlanNoMe =>
+      'For this, mark yourself in \"People\" with \"This is me\".';
+
+  @override
+  String get planLeftTeamShift => 'Also taken out of the team plan';
+
+  @override
+  String get planFromTeam => 'From the team plan';
+
+  @override
   String get teamAway => 'Away this week';
 
   @override

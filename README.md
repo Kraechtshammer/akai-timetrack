@@ -72,7 +72,7 @@ Off by default; turn it on in Settings › Features › "Team planner". It is fo
 2. Enter each person's answer for the week: "Can work" or "Can't work", per day or per shift, or "Away this week".
 3. "Fill" puts people into the shifts. Each shift gets one core worker first. The other places go to people who aren't core workers first, and to those with the fewest shifts.
 4. Change anything by hand, then "Share" sends the week as a picture to the team chat.
-5. "Add my shifts to Plan" copies the user's own shifts into the Plan tab.
+5. "Add my shifts to Plan" copies the user's own shifts into the Plan tab. Or turn on "Sync my shifts with Plan" in Settings › Team planner: the shifts then come and go by themselves (recorded ones stay), and taking one off Plan takes the user out of the team shift too.
 6. For mini-jobs, a person can have "Max. hours per month". "Hours per month" (the hourglass on the board) shows everyone's planned hours against it. The shift sheet and the board warn when someone would go over it, or take more than this week's share of what is left plus one long shift; tap the warning for the numbers. Fill never plans anyone beyond either. Planned shifts are counted with the shift times from Settings › Shifts.
 
 <p align="center">

@@ -1,9 +1,14 @@
+import 'package:drift/drift.dart' show Value;
+
 import '../core/time.dart';
 import '../data/app_settings.dart';
 import '../data/database.dart';
+import '../data/roster_repository.dart';
 import '../data/settings_repository.dart';
 import '../data/shift_repository.dart';
+import 'roster.dart';
 import 'shift_info.dart';
+import 'team_sync.dart';
 
 /// Default times for a new shift. Lunch ends earlier when there is an
 /// evening shift on the same day.
@@ -18,14 +23,29 @@ ShiftTimes defaultTimes(
   ShiftType.custom => const ShiftTimes(18 * 60, 22 * 60),
 };
 
-enum ToggleResult { added, removed, keptRecorded }
+enum ToggleResult {
+  added,
+  removed,
+
+  /// Removed, and the user was taken out of the team shift too.
+  removedFromTeam,
+  keptRecorded,
+}
 
 /// Planning on the Plan tab: add, change and remove shifts.
 class PlanningService {
-  PlanningService(this._shifts, this._settings, this._onChanged);
+  PlanningService(
+    this._shifts,
+    this._settings,
+    this._onChanged, {
+    this._roster,
+  });
 
   final ShiftRepository _shifts;
   final SettingsRepository _settings;
+
+  /// For "Sync my shifts with Plan"; null in tests that don't need it.
+  final RosterRepository? _roster;
 
   /// Runs calendar sync and notification updates after a change.
   final Future<void> Function() _onChanged;
@@ -53,7 +73,9 @@ class PlanningService {
       return ToggleResult.keptRecorded;
     } else {
       await _shifts.delete(existing);
-      result = ToggleResult.removed;
+      result = await _leaveTeamShift(existing)
+          ? ToggleResult.removedFromTeam
+          : ToggleResult.removed;
     }
 
     await _adjustLunch(day);
@@ -103,16 +125,122 @@ class PlanningService {
     await _onChanged();
   }
 
-  Future<void> delete(Shift shift) async {
+  /// Returns true if the user was taken out of the team shift too.
+  Future<bool> delete(Shift shift) async {
     await _shifts.delete(shift);
+    final left = await _leaveTeamShift(shift);
+    await _adjustLunch(shift.dayDate);
+    await _onChanged();
+    return left;
+  }
+
+  /// Undo of [delete]: a copied team shift also goes back into the team
+  /// plan, with its special start.
+  Future<void> restore(Shift shift) async {
+    await _shifts.restore(shift);
+    final me = await _syncedMe();
+    final team = teamShiftOf(shift.type);
+    final linked = shift.teamStart;
+    if (me != null && team != null && linked != null) {
+      final normal = (await _settings.load()).teamStarts.of(team);
+      await _roster!.assignAt(
+        TeamSlot(shift.dayDate, team),
+        me.id,
+        linked == normal ? null : linked,
+      );
+    }
     await _adjustLunch(shift.dayDate);
     await _onChanged();
   }
 
-  Future<void> restore(Shift shift) async {
-    await _shifts.restore(shift);
-    await _adjustLunch(shift.dayDate);
-    await _onChanged();
+  /// "Sync my shifts with Plan" on, with a person marked "This is me".
+  Future<TeamMember?> _syncedMe() async {
+    final roster = _roster;
+    if (roster == null) return null;
+    final settings = await _settings.load();
+    if (!settings.teamPlanner || !settings.teamSyncPlan) return null;
+    return roster.me();
+  }
+
+  /// A copied team shift was removed on Plan: take the user out of the
+  /// team shift too, so both agree. Returns whether that happened.
+  Future<bool> _leaveTeamShift(Shift shift) async {
+    final team = teamShiftOf(shift.type);
+    if (shift.teamStart == null || team == null) return false;
+    final me = await _syncedMe();
+    if (me == null) return false;
+    await _roster!.unassign(TeamSlot(shift.dayDate, team), me.id);
+    return true;
+  }
+
+  /// "Sync my shifts with Plan" (docs/02-design.md §4.9): makes the Plan
+  /// tab match the team shifts of the person marked "This is me", from
+  /// [today] on (see [teamSyncActions]). Does nothing while the setting
+  /// is off or nobody is marked. Returns the number of changes.
+  Future<int> syncTeamShifts(DateTime today) async {
+    final me = await _syncedMe();
+    if (me == null) return 0;
+    final settings = await _settings.load();
+    final from = dateOnly(today);
+    final actions = teamSyncActions(
+      mine: await _roster!.assignmentsOf(me.id, from),
+      shifts: await _shifts.getDays(from, addDays(from, 400)),
+      today: from,
+      settings: settings,
+    );
+    // Evenings first, so a lunch on the same day gets the shorter default.
+    int order(TeamSyncAction a) =>
+        a is AddTeamShift && a.type == ShiftType.evening ? 0 : 1;
+    for (final action in [...actions]..sort((a, b) => order(a) - order(b))) {
+      final DateTime day;
+      switch (action) {
+        case AddTeamShift(:final type, :final start):
+          day = action.day;
+          final shifts = await _shiftsOn(day);
+          if (shifts.any((s) => s.type == type)) continue;
+          final times = defaultTimes(
+            type,
+            settings,
+            eveningSameDay: shifts.any((s) => s.type == ShiftType.evening),
+          );
+          final (plannedStart, plannedEnd) = timesOn(
+            day,
+            start ?? times.start,
+            times.end,
+          );
+          await _shifts.create(
+            day: day,
+            type: type,
+            plannedStart: plannedStart,
+            plannedEnd: plannedEnd,
+            plannedCustomized: start != null && start != times.start,
+            teamStart: start ?? times.start,
+          );
+        case MoveTeamShift(:final shift, :final start):
+          day = shift.dayDate;
+          final normal = defaultTimes(
+            shift.type,
+            settings,
+            eveningSameDay:
+                shift.type == ShiftType.lunch &&
+                (await _shiftsOn(day)).any((s) => s.type == ShiftType.evening),
+          ).start;
+          final (plannedStart, _) = timesOn(day, start, start);
+          await _shifts.save(
+            shift.copyWith(
+              plannedStart: plannedStart,
+              plannedCustomized: start != normal,
+              teamStart: Value(start),
+            ),
+          );
+        case RemoveTeamShift(:final shift):
+          day = shift.dayDate;
+          await _shifts.delete(shift);
+      }
+      await _adjustLunch(day);
+    }
+    if (actions.isNotEmpty) await _onChanged();
+    return actions.length;
   }
 
   /// "Add my shifts to Plan" on the team board (docs/02-design.md §4.9).

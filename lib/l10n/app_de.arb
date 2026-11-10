@@ -477,6 +477,11 @@
   "teamWarnAboveShare": "Vor dieser Woche sind von der Monatsgrenze noch {left} h übrig. Gleichmäßig auf den Rest des Monats verteilt, sind das etwa {share} h für diese Woche. Eine lange Schicht mehr ({slack} h) ist in Ordnung, also bis {allowed} h. Geplant sind {planned} h.",
   "@teamWarnAboveShare": {"placeholders":{"left":{"type":"String"},"share":{"type":"String"},"slack":{"type":"String"},"allowed":{"type":"String"},"planned":{"type":"String"}}},
   "teamWarnFill": "„Auffüllen“ teilt niemanden darüber hinaus ein. Von Hand geht es trotzdem.",
+  "teamSyncPlan": "Meine Schichten automatisch in den Plan",
+  "teamSyncPlanSubtitle": "Deine Schichten im Dienstplan kommen von selbst in den Plan, mit Kalender und Erinnerungen, und gehen wieder, wenn du herausgenommen wirst. Schichten mit erfassten Zeiten bleiben.",
+  "teamSyncPlanNoMe": "Markiere dich dazu unter „Leute“ mit „Das bin ich“.",
+  "planLeftTeamShift": "Auch aus dem Dienstplan genommen",
+  "planFromTeam": "Aus dem Dienstplan",
 
   "teamAway": "Diese Woche nicht da",
   "teamAwayShort": "Nicht da",

@@ -132,14 +132,20 @@ class _DayCard extends ConsumerWidget {
 
     Future<void> toggle(ShiftType type) async {
       final result = await ref.services.planning.toggle(day, type);
-      if (result == ToggleResult.keptRecorded && context.mounted) {
+      if (!context.mounted) return;
+      if (result == ToggleResult.keptRecorded) {
         context.showSnack(l10n.recordedNotRemovable);
+      } else if (result == ToggleResult.removedFromTeam) {
+        context.showSnack(l10n.planLeftTeamShift);
       }
     }
 
     final shiftColors = context.shiftColors;
     Widget toggleButton(ShiftType type, String label) {
-      final on = shifts.any((s) => s.type == type);
+      final shift = shifts.where((s) => s.type == type).firstOrNull;
+      final on = shift != null;
+      // A copy from the team plan wears the team icon instead of the check.
+      final fromTeam = shift?.teamStart != null;
       // Planned toggles wear the shift type's colour.
       final (background, foreground) = type == ShiftType.lunch
           ? (shiftColors.lunch, shiftColors.onLunch)
@@ -151,7 +157,7 @@ class _DayCard extends ConsumerWidget {
                 foregroundColor: foreground,
               ),
               onPressed: () => toggle(type),
-              icon: const Icon(Icons.check, size: 18),
+              icon: Icon(fromTeam ? Icons.groups : Icons.check, size: 18),
               label: Text(label),
             )
           : M3EButton(
@@ -287,6 +293,16 @@ class _ShiftRow extends ConsumerWidget {
                 ),
               ),
             ),
+            // Copied from the team plan ("Sync my shifts with Plan").
+            if (shift.teamStart != null)
+              Tooltip(
+                message: l10n.planFromTeam,
+                child: Icon(
+                  Icons.groups_outlined,
+                  size: 16,
+                  color: colors.outline,
+                ),
+              ),
             Text(
               statusText,
               style: context.text.bodySmall?.copyWith(
@@ -341,12 +357,16 @@ Future<bool> deleteWithUndo(
   }
   final planning = ref.services.planning;
   final messenger = ScaffoldMessenger.of(context);
-  await planning.delete(shift);
+  final leftTeam = await planning.delete(shift);
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        content: Text(l10n.shiftDeleted),
+        content: Text(
+          leftTeam
+              ? '${l10n.shiftDeleted}\n${l10n.planLeftTeamShift}'
+              : l10n.shiftDeleted,
+        ),
         // A snack bar with an action stays until dismissed unless told not to.
         persist: false,
         action: SnackBarAction(

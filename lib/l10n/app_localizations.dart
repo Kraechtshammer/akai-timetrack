@@ -2431,6 +2431,36 @@ abstract class AppLocalizations {
   /// **'„Auffüllen“ teilt niemanden darüber hinaus ein. Von Hand geht es trotzdem.'**
   String get teamWarnFill;
 
+  /// No description provided for @teamSyncPlan.
+  ///
+  /// In de, this message translates to:
+  /// **'Meine Schichten automatisch in den Plan'**
+  String get teamSyncPlan;
+
+  /// No description provided for @teamSyncPlanSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Schichten im Dienstplan kommen von selbst in den Plan, mit Kalender und Erinnerungen, und gehen wieder, wenn du herausgenommen wirst. Schichten mit erfassten Zeiten bleiben.'**
+  String get teamSyncPlanSubtitle;
+
+  /// No description provided for @teamSyncPlanNoMe.
+  ///
+  /// In de, this message translates to:
+  /// **'Markiere dich dazu unter „Leute“ mit „Das bin ich“.'**
+  String get teamSyncPlanNoMe;
+
+  /// No description provided for @planLeftTeamShift.
+  ///
+  /// In de, this message translates to:
+  /// **'Auch aus dem Dienstplan genommen'**
+  String get planLeftTeamShift;
+
+  /// No description provided for @planFromTeam.
+  ///
+  /// In de, this message translates to:
+  /// **'Aus dem Dienstplan'**
+  String get planFromTeam;
+
   /// No description provided for @teamAway.
   ///
   /// In de, this message translates to:

@@ -45,7 +45,8 @@ Imports that go against this order today:
 1. `AppServices.create()` sets the time zone (Europe/Berlin if the device's can't be read), opens the database and builds the repositories and services.
 2. It sets up notifications inside a try/catch, so the app opens even without them.
 3. It chooses the default launcher icon once and starts a first `syncAll()` (both unawaited).
-4. It calls `runApp` with a `ProviderScope` that overrides `servicesProvider` with these services.
+4. It starts `AppServices.startTeamSync()`: listeners on the team tables and the settings that run "Sync my shifts with Plan" (`PlanningService.syncTeamShifts`), one run at a time, in the UI isolate only. Its shift writes go through `PlanningService`, so they end in `syncAll()` like any other change.
+5. It calls `runApp` with a `ProviderScope` that overrides `servicesProvider` with these services.
 
 `TimeTrackApp` shows an empty `Scaffold` until the settings stream has its first value, then shows onboarding or `HomeShell`.
 
@@ -95,7 +96,7 @@ Channel names still start with the first package name `de.garten.…`. They are 
 
 ## 4. Data
 
-- **drift on SQLite**, schema version 5 (5 added `team_members.maxMonthMinutes`). Migrations are generated step by step from snapshots in `drift_schemas/`. They only add tables or nullable columns.
+- **drift on SQLite**, schema version 6 (5 added `team_members.maxMonthMinutes`, 6 `shifts.teamStart`). Migrations are generated step by step from snapshots in `drift_schemas/`. They only add tables or nullable columns.
 - **Conventions:**
   - UUID ids, so a later backup can merge by id.
   - Days as text `yyyy-MM-dd`, so a shift belongs to its local day whatever the time zone.

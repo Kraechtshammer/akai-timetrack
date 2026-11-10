@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -33,7 +34,7 @@ class AppServices {
     required this.notifications,
     required this.calendar,
   }) {
-    planning = PlanningService(shifts, settings, syncAll);
+    planning = PlanningService(shifts, settings, syncAll, roster: roster);
     recording = RecordingService(shifts, settings, syncAll);
   }
 
@@ -81,6 +82,26 @@ class AppServices {
   }
 
   Future<void> _lastSync = Future.value();
+  Future<void> _lastTeamSync = Future.value();
+  final _teamSyncWatchers = <StreamSubscription<Object?>>[];
+
+  /// "Sync my shifts with Plan": copies the team shifts of "This is me" to
+  /// the Plan tab whenever the team plan or the settings change, and once
+  /// now. UI isolate only (called from main); one sync at a time.
+  void startTeamSync() {
+    if (_teamSyncWatchers.isNotEmpty) return;
+    void run() => _lastTeamSync = _lastTeamSync.then((_) async {
+      try {
+        await planning.syncTeamShifts(DateTime.now());
+      } catch (e, stack) {
+        debugPrint('Team plan sync failed: $e\n$stack');
+      }
+    });
+    _teamSyncWatchers
+      ..add(roster.watchChanges().listen((_) => run()))
+      // Emits once on listen, so this also runs at start.
+      ..add(settings.watch().listen((_) => run()));
+  }
 
   /// How the last calendar sync in this isolate ended.
   CalendarSyncResult? lastCalendarResult;

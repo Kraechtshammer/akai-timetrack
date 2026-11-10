@@ -81,6 +81,7 @@ Principles:
 | `type` | enum `lunch` / `evening` / `custom` | |
 | `plannedStart`, `plannedEnd` | DateTime (stored as UTC epoch ms) | |
 | `plannedCustomized` | bool | True once the user edits the planned times by hand. Stops automatic default-time adjustments (§4.1). |
+| `teamStart` | int? | Copied from the team plan by "Sync my shifts with Plan" (§4.9): the start (minutes after midnight) last taken from it. null = added by the user. A planned start that differs from it was edited by hand. Since schema version 6 |
 | `rawStart`, `rawEnd` | DateTime? | Exact recorded timestamps. `rawStart != null && rawEnd == null` means **recording is running**. |
 | `actualStart`, `actualEnd` | DateTime? | Rounded times (after Stop) or times entered by hand. These are what counts. |
 | `breakMinutes` | int, default 0 | |
@@ -175,7 +176,7 @@ The user's hourly wage. Each rate is valid from a day on, so a raise (for exampl
 
 ### Team planner tables (F11, schema version 4; `maxMonthMinutes` since 5)
 
-The team planner (§4.9) has its own tables and no link to `shifts`, calendar sync or reminders. Two things cross over: "Add my shifts to Plan" writes shifts, and the Plan tab reads the week's staff counts, while the planner is on, to hide closed shifts (§4.1). Research and decisions: `01-research.md` §10. Shift kinds are stored as `TeamShift` (`lunch` = 0, `evening` = 1), not as `ShiftType`, because the planner has no custom shifts.
+The team planner (§4.9) has its own tables and no link to `shifts`, calendar sync or reminders. Two things cross over: "Add my shifts to Plan" or "Sync my shifts with Plan" write shifts (the latter keeps them linked through `shifts.teamStart`), and the Plan tab reads the week's staff counts, while the planner is on, to hide closed shifts (§4.1). Research and decisions: `01-research.md` §10. Shift kinds are stored as `TeamShift` (`lunch` = 0, `evening` = 1), not as `ShiftType`, because the planner has no custom shifts.
 
 | Table `team_members` | Type | Meaning |
 |---|---|---|
@@ -225,6 +226,7 @@ The team planner (§4.9) has its own tables and no link to `shifts`, calendar sy
 | Key | Default | Meaning |
 |---|---|---|
 | `teamPlanner` | false | shows the fifth tab and the "Team planner" page in Settings |
+| `teamSyncPlan` | false | "Sync my shifts with Plan" (§4.9), only while `teamPlanner` is on. Since 1.8.0 |
 | `teamStaffNeeded` | `0,0;2,3;2,3;2,3;2,3;2,3;2,3` | "Open shifts", and for the team planner the staff needed, per weekday (Monday first), lunch then evening. 0 = closed. The default is a typical small restaurant (closed on Monday); until 2026-11-10 it was `2,3;…;2,3;0,0` (closed on Sunday), which existing installs keep because every settings save writes all keys |
 | `teamStarts` | – | **ignored since 1.8.0.** Until then the team's normal start of lunch and evening (`12:00,17:30`). An old stored value stays in the table unused |
 
@@ -434,7 +436,16 @@ The rules are deterministic: the same input gives the same plan. Fill returns th
 - otherwise create it through `PlanningService` with the user's default times, so the lunch-before-evening rule applies (§4.1);
 - with a special start time, the planned start is moved to it, the end stays, and the shift counts as edited by hand (`plannedCustomized`).
 
-The new shifts sync to the calendar as usual. Snack bar: "Added 3 shifts to Plan" or "Already on Plan". Nothing on the Plan tab is ever removed by the planner.
+The new shifts sync to the calendar as usual. Snack bar: "Added 3 shifts to Plan" or "Already on Plan". This way, nothing on the Plan tab is ever removed by the planner. The menu item is hidden while "Sync my shifts with Plan" is on.
+
+**Sync my shifts with Plan** (`domain/team_sync.dart`, since 1.8.0; the developer's request on 2026-11-10). A switch in Settings › Team planner, off by default. While it and the team planner are on, and a person is marked "This is me", the Plan tab follows that person's team shifts, **from today on** (the past is never changed):
+- A team shift with no Lunch or Evening shift of its kind on Plan that day is added, like "Add my shifts to Plan", and linked: `shifts.teamStart` keeps the start taken from the team plan.
+- A linked shift whose team shift is gone is removed, unless it is recorded or running.
+- A linked shift follows a changed special start (or its removal), unless its start was edited by hand (the planned start differs from `teamStart`) or it is recorded or running. The end stays; lunch ends adjust as in §4.1.
+- A shift the user added by hand is never changed or removed, even if a team shift of its kind is on the same day.
+- **From Plan back to the team:** turning a linked shift off on Plan, or deleting it, also takes the user out of the team shift (snack bar "Also taken out of the team plan"), so both agree and the board shows the gap. "Undo" after a delete puts the user back into the team shift, with the special start.
+- **When:** `AppServices.startTeamSync()` (UI isolate only, from `main`) runs `PlanningService.syncTeamShifts` once at start and whenever people, assignments or settings change, one run at a time. Nobody marked "This is me", or the switch off: nothing happens, and existing shifts stay.
+- The developer chose the link over matching by day and kind, so a shift added by hand is never removed, and weeks the boss plans (no team plan) stay as they are.
 
 **Image** (`ui/roster/plan_image.dart`). A widget at a fixed 1600 × 900 logical pixels, rendered with `RepaintBoundary.toImage(pixelRatio: 1.2)` to a 1920 × 1080 PNG.
 - **Colours:** always light (white background, dark text, AKAI red `#C62828` for the headers), whatever the app's theme.
@@ -581,6 +592,7 @@ The first tab, "Home" (it was "Today" until 2026-11-05). Icon: `home`. It was re
 - **Header chips:** recorded and total hours for the week.
 - **Shift rows:**
   - Icon shows the status (clock = planned, filled check = recorded, warning = missed), in the status colours (§8). The type label is in the lunch or evening colour (custom shifts by start time, as in the week strip).
+  - A shift copied from the team plan (§4.9, "Sync my shifts with Plan") has a small `groups` icon before the status, tooltip "From the team plan". Its toggle shows the `groups` icon instead of the check (the developer found the row icon alone too easy to miss).
 - **Toggles:** a planned "Lunch" or "Evening" toggle is filled in the lunch or evening colour (§8). Closed shifts have no toggle and closed days no card (§4.1). Today's card has a border in the today colour.
   - Tap opens the edit sheet.
   - Long-press offers "Delete" with an undo snackbar.
@@ -628,7 +640,7 @@ The third tab, between Plan and Export: Home, Plan, Pay, Export. Icon: `payments
 The fifth tab, last in the bar, shown only while Settings › Features › "Team planner" is on. Turning the switch off hides the tab and keeps the data. The label is provisional: "Team" in English, "Dienstplan" in German, icon `groups`. The developer decides on the name once the screen is built. Last in the bar, so the other tabs keep their places when it is switched on or off. Rules: §4.9.
 
 **Board** (`ui/roster/team_screen.dart`). It opens on **next week** on each visit to the tab, like Pay opens on the current week.
-- **Header:** `PageHeader` and the `WeekSwitcher` (arrows, swipe, a button back to next week). An hourglass button opens "Hours per month" on the month of the week's Thursday (since 1.8.0). A menu (⋮) has "People" and, if a person is marked "This is me" and has shifts this week, "Add my shifts to Plan".
+- **Header:** `PageHeader` and the `WeekSwitcher` (arrows, swipe, a button back to next week). An hourglass button opens "Hours per month" on the month of the week's Thursday (since 1.8.0). A menu (⋮) has "People" and, if a person is marked "This is me", has shifts this week and "Sync my shifts with Plan" is off, "Add my shifts to Plan".
 - **Answers card:** "Answers: 5 of 7" and the button "Enter answers". It starts the walk-through at the first person without an answer, or at the first person if everyone has answered. Without any people, the card reads "Add the people you plan for" with an "Add people" button instead.
 - **Action row:** "Fill" (tonal), "Clear" (text) and "Share" (filled). "Clear" is disabled on an empty board. "Share" opens the preview.
 - **Day cards:** one per open day, in the style of the Plan tab's cards.
@@ -682,7 +694,7 @@ An overview with one row per category (icon, title, a short summary, a chevron).
 | Reminders | the lead time, "15 minutes before" | "Before a shift starts", "Ask if not stopped"; "Permissions" with every reliability check and its status |
 | Calendar | the calendar's name or "No calendar" | calendar, "Event title", **"Event color"**, "Sync now" |
 | Features | the features turned on, "Daily pool · Team planner", or "None turned on" | one switch per optional feature: "Daily pool" (`tipPool`, subtitle "Note everyone's tips for each workday. The app asks after the shift.") and "Team planner" (`teamPlanner`, subtitle "Plan the team's shifts and share the plan as a picture"). Turning one off hides it and keeps its data |
-| Team planner | the number of people, "7 people" | only on the overview while the feature is on. "Staff needed" (the "Open shifts" sheet, which shows the − / + counters while the team planner is on; 0 shows "Closed"), "Shift times" (the same "Default shift times" tiles as Settings › Shifts, in a sheet; since 1.8.0, before that "Start times") and "People" |
+| Team planner | the number of people, "7 people" | only on the overview while the feature is on. "Staff needed" (the "Open shifts" sheet, which shows the − / + counters while the team planner is on; 0 shows "Closed"), "Shift times" (the same "Default shift times" tiles as Settings › Shifts, in a sheet; since 1.8.0, before that "Start times"), "People" and the switch "Sync my shifts with Plan" (its subtitle asks to mark "This is me" while nobody is) |
 | Appearance | colour and dark mode, "Red · Dark" | "Color", "Dark mode", "App icon" (only when more than one design is offered), "Icon shape", "Week overview" |
 | General | restaurant and language, "Not set · Same as the phone" | "Restaurant" (optional; the dialog has a clear button), "Language" |
 | App update | "Version 1.4.1", or "Update to version 1.5.0" with a dot | "Check for updates", "What's new", the found update, "Restart update", "Delete update file" (§12) |
@@ -895,3 +907,4 @@ Possible later extensions:
 - **Closed shifts on Plan** (2026-11-10, §4.1): the developer asked that shifts the restaurant doesn't open (AKAI: Saturday lunch, Sunday) no longer show on the Plan tab. First built on the team planner's "Staff needed", then the same day made a setting of its own, "Open shifts" in Settings › Shifts and in the first-start setup: switches with the team planner off, the counters with it on, one value for both. The default became a typical small restaurant's week (closed on Monday; AKAI is closed on Sunday because it is on a shopping street); people set their own week in the setup.
 - **Extras in the setup** (2026-11-10, §7 Onboarding): a last setup step with the feature switches and the theme. The developer wanted the features mentioned so people know they exist; one step for both, to keep the setup short. The controls are shared with Settings (`ui/settings/look_and_features.dart`).
 - **Monthly hours limits** (2026-11-10, §3, §4.9, §7): the developer asked for a way to keep the mini-jobbers on the team under their monthly limit. People get an optional "Max. hours per month"; a page "Hours per month" (from the board's header) shows everyone's planned hours against it; the shift sheet and the board warn when someone goes over it or above the week's share of it, with an explanation on tap, and Fill goes beyond neither. The week's share allows one long shift on top (the developer's choice over a percentage). The developer chose hours over euros (no wages needed) and the shift times' end times over a separate "hours per shift" setting. Because of that, the team's separate start times were dropped: the team planner now uses the "Default shift times" for both start and end, shown in Settings › Team planner as "Shift times".
+- **Sync my shifts with Plan** (2026-11-10, §3, §4.9, §7): the developer asked that the user's team shifts go onto Plan by themselves and leave again unless recorded, behind a setting. Copies are linked through the new `shifts.teamStart` (schema version 6) rather than matched by day, so shifts added by hand are never touched. Removing a copy on Plan also takes the user out of the team shift, with a message; copies carry a small team icon on Plan.

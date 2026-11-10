@@ -1438,6 +1438,23 @@ class AppLocalizationsDe extends AppLocalizations {
       '„Auffüllen“ teilt niemanden darüber hinaus ein. Von Hand geht es trotzdem.';
 
   @override
+  String get teamSyncPlan => 'Meine Schichten automatisch in den Plan';
+
+  @override
+  String get teamSyncPlanSubtitle =>
+      'Deine Schichten im Dienstplan kommen von selbst in den Plan, mit Kalender und Erinnerungen, und gehen wieder, wenn du herausgenommen wirst. Schichten mit erfassten Zeiten bleiben.';
+
+  @override
+  String get teamSyncPlanNoMe =>
+      'Markiere dich dazu unter „Leute“ mit „Das bin ich“.';
+
+  @override
+  String get planLeftTeamShift => 'Auch aus dem Dienstplan genommen';
+
+  @override
+  String get planFromTeam => 'Aus dem Dienstplan';
+
+  @override
   String get teamAway => 'Diese Woche nicht da';
 
   @override

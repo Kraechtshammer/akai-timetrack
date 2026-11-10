@@ -152,6 +152,7 @@ class AppSettings {
     this.autostartConfirmed = false,
     this.appIconChosen = false,
     this.teamPlanner = false,
+    this.teamSyncPlan = false,
     this.tipPool = false,
     this.teamStaffNeeded = StaffNeeds.standard,
     this.restaurant = '',
@@ -191,6 +192,11 @@ class AppSettings {
 
   /// Team planner (F11): shows the fifth tab.
   final bool teamPlanner;
+
+  /// "Sync my shifts with Plan": the team shifts of the person marked
+  /// "This is me" are copied to the Plan tab and removed again
+  /// (domain/team_sync.dart). Only while [teamPlanner] is on.
+  final bool teamSyncPlan;
 
   /// "Daily pool": the pool card on the Pay tab and the "Add the tips"
   /// prompt on Home. Off on a fresh install, on for installs from 1.5.0
@@ -238,6 +244,7 @@ class AppSettings {
       autostartConfirmed: m['autostartConfirmed'] == 'true',
       appIconChosen: m['appIconChosen'] == 'true',
       teamPlanner: m['teamPlanner'] == 'true',
+      teamSyncPlan: m['teamSyncPlan'] == 'true',
       // Installs from before the switch (1.5.0 and earlier) had the pool;
       // a fresh install starts without it.
       tipPool: (m['tipPool'] ?? m['onboardingDone']) == 'true',
@@ -272,6 +279,7 @@ class AppSettings {
     'autostartConfirmed': '$autostartConfirmed',
     'appIconChosen': '$appIconChosen',
     'teamPlanner': '$teamPlanner',
+    'teamSyncPlan': '$teamSyncPlan',
     'tipPool': '$tipPool',
     'teamStaffNeeded': '$teamStaffNeeded',
     'restaurant': restaurant,
@@ -299,6 +307,7 @@ class AppSettings {
     bool? autostartConfirmed,
     bool? appIconChosen,
     bool? teamPlanner,
+    bool? teamSyncPlan,
     bool? tipPool,
     StaffNeeds? teamStaffNeeded,
     String? restaurant,
@@ -322,6 +331,7 @@ class AppSettings {
     autostartConfirmed: autostartConfirmed ?? this.autostartConfirmed,
     appIconChosen: appIconChosen ?? this.appIconChosen,
     teamPlanner: teamPlanner ?? this.teamPlanner,
+    teamSyncPlan: teamSyncPlan ?? this.teamSyncPlan,
     tipPool: tipPool ?? this.tipPool,
     teamStaffNeeded: teamStaffNeeded ?? this.teamStaffNeeded,
     restaurant: restaurant ?? this.restaurant,

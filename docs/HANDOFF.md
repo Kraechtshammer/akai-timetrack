@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-10; the version is 1.7.0, with the monthly hours limits on `main` (not released yet). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-10; the version is 1.7.0, with the monthly hours limits and "Sync my shifts with Plan" on `main` (not released yet). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -236,6 +236,13 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - Trap: drift's schema export fell back to static analysis and wrote a broken steps file when the new migration step was written before `make-migrations` (`03-dev-setup.md`).
 - **Checked:** `flutter analyze` clean, 201 tests pass (16 new in `test/team_hours_test.dart`, one new migration test). Debug build installed on the emulator over 1.7.0 data. Not yet checked in the app by the developer; not on a phone.
 
+## Done on 2026-11-10: "Sync my shifts with Plan" (not released)
+
+- **What:** a switch in Settings › Team planner (`teamSyncPlan`, off by default). While on, the team shifts of "This is me" go onto Plan by themselves from today on, follow special start changes, and leave again when the user is taken out, unless recorded or running. Shifts added by hand are never touched. Turning a copy off or deleting it on Plan takes the user out of the team shift too ("Also taken out of the team plan"); "Undo" after a delete puts them back. Copies have a small team icon on Plan. "Add my shifts to Plan" is hidden while the switch is on. Rules: `02-design.md` §4.9.
+- **Developer decisions:** link copies (new column `shifts.teamStart`, schema version 6) rather than match by day; removing on Plan also leaves the team shift, with a message and an icon on copies; starts follow the board unless edited by hand; behind a setting.
+- **Code:** `domain/team_sync.dart` (`teamSyncActions`, pure), `PlanningService.syncTeamShifts` applies it; `AppServices.startTeamSync()` listens to the team tables (`RosterRepository.watchChanges`) and the settings, UI isolate only (started in `main`).
+- **Checked:** `flutter analyze` clean, 218 tests pass (11 in `test/team_sync_test.dart`, a migration test v5 → v6, the setting's round trip). The developer tried it on the emulator (copies on Plan, the explanation dialog); after that the toggles of copies got the team icon (not looked at again). Not on a phone.
+
 ## Open points (in rough priority)
 
 Done and removed on 2026-11-06, as the developer confirmed: the new icons and the release build checked on the Pixel and the Xiaomi; the Live Update and icon checks on the Pixel 7 Pro; the handover (M6) with the release key backed up, the GitHub secrets set, the old test install removed, and the app in daily use on the user's Xiaomi since 2026-11-04.
@@ -275,6 +282,7 @@ lib/
           salary.dart (rate of a day, month pay),
           roster.dart (team planner: availability, sheet order, Fill),
           team_hours.dart (team planner: hours of planned shifts, monthly limits),
+          team_sync.dart ("Sync my shifts with Plan": team shifts of "me" onto Plan),
           app_icons.dart (launcher icon designs and shapes, secret designs, isAkaiRestaurant)   (pure logic, tested)
   platform/ notification_service.dart, calendar_sync.dart, device_setup.dart, app_icon.dart, app_update.dart
   l10n/ app_de.arb (source), app_en.arb, labels.dart (+ generated app_localizations*.dart)

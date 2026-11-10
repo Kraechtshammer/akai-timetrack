@@ -27,6 +27,8 @@ Future<void> main() async {
   unawaited(AppIcons.chooseDefaultOnce(services.settings));
   // Catch up on reminders and the calendar (e.g. after a reboot).
   unawaited(services.syncAll());
+  // The team plan's shifts of "This is me" onto Plan, if turned on.
+  services.startTeamSync();
 
   runApp(
     ProviderScope(

@@ -22,6 +22,7 @@ class TeamSettingsSection extends ConsumerWidget {
     final s = ref.settings;
     final people = ref.watch(teamMembersProvider).value ?? const [];
     final count = people.length;
+    final hasMe = people.any((m) => m.isMe);
 
     String range(ShiftTimes t) =>
         '${minutesToHhmm(t.start)}–${minutesToHhmm(t.end)}';
@@ -52,6 +53,18 @@ class TeamSettingsSection extends ConsumerWidget {
           onTap: () => Navigator.of(
             context,
           ).push(MaterialPageRoute<void>(builder: (_) => const PeopleScreen())),
+        ),
+        SwitchListTile(
+          secondary: const SettingsTileIcon(Icons.sync),
+          title: Text(l10n.teamSyncPlan),
+          subtitle: Text(
+            hasMe
+                ? l10n.teamSyncPlanSubtitle
+                : '${l10n.teamSyncPlanSubtitle} ${l10n.teamSyncPlanNoMe}',
+          ),
+          value: s.teamSyncPlan,
+          onChanged: (on) =>
+              ref.services.settings.update((s) => s.copyWith(teamSyncPlan: on)),
         ),
       ],
     );

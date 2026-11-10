@@ -84,6 +84,17 @@ class $ShiftsTable extends Shifts with TableInfo<$ShiftsTable, Shift> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _teamStartMeta = const VerificationMeta(
+    'teamStart',
+  );
+  @override
+  late final GeneratedColumn<int> teamStart = GeneratedColumn<int>(
+    'team_start',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _rawStartMeta = const VerificationMeta(
     'rawStart',
   );
@@ -201,6 +212,7 @@ class $ShiftsTable extends Shifts with TableInfo<$ShiftsTable, Shift> {
     plannedStart,
     plannedEnd,
     plannedCustomized,
+    teamStart,
     rawStart,
     rawEnd,
     actualStart,
@@ -271,6 +283,12 @@ class $ShiftsTable extends Shifts with TableInfo<$ShiftsTable, Shift> {
           data['planned_customized']!,
           _plannedCustomizedMeta,
         ),
+      );
+    }
+    if (data.containsKey('team_start')) {
+      context.handle(
+        _teamStartMeta,
+        teamStart.isAcceptableOrUnknown(data['team_start']!, _teamStartMeta),
       );
     }
     if (data.containsKey('raw_start')) {
@@ -379,6 +397,10 @@ class $ShiftsTable extends Shifts with TableInfo<$ShiftsTable, Shift> {
         DriftSqlType.bool,
         data['${effectivePrefix}planned_customized'],
       )!,
+      teamStart: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}team_start'],
+      ),
       rawStart: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}raw_start'],
@@ -451,6 +473,12 @@ class Shift extends DataClass implements Insertable<Shift> {
   /// Set once planned times were edited by hand: no more automatic changes.
   final bool plannedCustomized;
 
+  /// Copied from the team plan ("Sync my shifts with Plan"): the start
+  /// (minutes after midnight) last taken from it. null = added by the
+  /// user. A planned start that differs was edited by hand. Since schema
+  /// version 6.
+  final int? teamStart;
+
   /// Exact Start/Stop taps. Started but not stopped = recording is running.
   final DateTime? rawStart;
   final DateTime? rawEnd;
@@ -474,6 +502,7 @@ class Shift extends DataClass implements Insertable<Shift> {
     required this.plannedStart,
     required this.plannedEnd,
     required this.plannedCustomized,
+    this.teamStart,
     this.rawStart,
     this.rawEnd,
     this.actualStart,
@@ -497,6 +526,9 @@ class Shift extends DataClass implements Insertable<Shift> {
     map['planned_start'] = Variable<DateTime>(plannedStart);
     map['planned_end'] = Variable<DateTime>(plannedEnd);
     map['planned_customized'] = Variable<bool>(plannedCustomized);
+    if (!nullToAbsent || teamStart != null) {
+      map['team_start'] = Variable<int>(teamStart);
+    }
     if (!nullToAbsent || rawStart != null) {
       map['raw_start'] = Variable<DateTime>(rawStart);
     }
@@ -535,6 +567,9 @@ class Shift extends DataClass implements Insertable<Shift> {
       plannedStart: Value(plannedStart),
       plannedEnd: Value(plannedEnd),
       plannedCustomized: Value(plannedCustomized),
+      teamStart: teamStart == null && nullToAbsent
+          ? const Value.absent()
+          : Value(teamStart),
       rawStart: rawStart == null && nullToAbsent
           ? const Value.absent()
           : Value(rawStart),
@@ -575,6 +610,7 @@ class Shift extends DataClass implements Insertable<Shift> {
       plannedStart: serializer.fromJson<DateTime>(json['plannedStart']),
       plannedEnd: serializer.fromJson<DateTime>(json['plannedEnd']),
       plannedCustomized: serializer.fromJson<bool>(json['plannedCustomized']),
+      teamStart: serializer.fromJson<int?>(json['teamStart']),
       rawStart: serializer.fromJson<DateTime?>(json['rawStart']),
       rawEnd: serializer.fromJson<DateTime?>(json['rawEnd']),
       actualStart: serializer.fromJson<DateTime?>(json['actualStart']),
@@ -600,6 +636,7 @@ class Shift extends DataClass implements Insertable<Shift> {
       'plannedStart': serializer.toJson<DateTime>(plannedStart),
       'plannedEnd': serializer.toJson<DateTime>(plannedEnd),
       'plannedCustomized': serializer.toJson<bool>(plannedCustomized),
+      'teamStart': serializer.toJson<int?>(teamStart),
       'rawStart': serializer.toJson<DateTime?>(rawStart),
       'rawEnd': serializer.toJson<DateTime?>(rawEnd),
       'actualStart': serializer.toJson<DateTime?>(actualStart),
@@ -623,6 +660,7 @@ class Shift extends DataClass implements Insertable<Shift> {
     DateTime? plannedStart,
     DateTime? plannedEnd,
     bool? plannedCustomized,
+    Value<int?> teamStart = const Value.absent(),
     Value<DateTime?> rawStart = const Value.absent(),
     Value<DateTime?> rawEnd = const Value.absent(),
     Value<DateTime?> actualStart = const Value.absent(),
@@ -641,6 +679,7 @@ class Shift extends DataClass implements Insertable<Shift> {
     plannedStart: plannedStart ?? this.plannedStart,
     plannedEnd: plannedEnd ?? this.plannedEnd,
     plannedCustomized: plannedCustomized ?? this.plannedCustomized,
+    teamStart: teamStart.present ? teamStart.value : this.teamStart,
     rawStart: rawStart.present ? rawStart.value : this.rawStart,
     rawEnd: rawEnd.present ? rawEnd.value : this.rawEnd,
     actualStart: actualStart.present ? actualStart.value : this.actualStart,
@@ -669,6 +708,7 @@ class Shift extends DataClass implements Insertable<Shift> {
       plannedCustomized: data.plannedCustomized.present
           ? data.plannedCustomized.value
           : this.plannedCustomized,
+      teamStart: data.teamStart.present ? data.teamStart.value : this.teamStart,
       rawStart: data.rawStart.present ? data.rawStart.value : this.rawStart,
       rawEnd: data.rawEnd.present ? data.rawEnd.value : this.rawEnd,
       actualStart: data.actualStart.present
@@ -700,6 +740,7 @@ class Shift extends DataClass implements Insertable<Shift> {
           ..write('plannedStart: $plannedStart, ')
           ..write('plannedEnd: $plannedEnd, ')
           ..write('plannedCustomized: $plannedCustomized, ')
+          ..write('teamStart: $teamStart, ')
           ..write('rawStart: $rawStart, ')
           ..write('rawEnd: $rawEnd, ')
           ..write('actualStart: $actualStart, ')
@@ -723,6 +764,7 @@ class Shift extends DataClass implements Insertable<Shift> {
     plannedStart,
     plannedEnd,
     plannedCustomized,
+    teamStart,
     rawStart,
     rawEnd,
     actualStart,
@@ -745,6 +787,7 @@ class Shift extends DataClass implements Insertable<Shift> {
           other.plannedStart == this.plannedStart &&
           other.plannedEnd == this.plannedEnd &&
           other.plannedCustomized == this.plannedCustomized &&
+          other.teamStart == this.teamStart &&
           other.rawStart == this.rawStart &&
           other.rawEnd == this.rawEnd &&
           other.actualStart == this.actualStart &&
@@ -765,6 +808,7 @@ class ShiftsCompanion extends UpdateCompanion<Shift> {
   final Value<DateTime> plannedStart;
   final Value<DateTime> plannedEnd;
   final Value<bool> plannedCustomized;
+  final Value<int?> teamStart;
   final Value<DateTime?> rawStart;
   final Value<DateTime?> rawEnd;
   final Value<DateTime?> actualStart;
@@ -784,6 +828,7 @@ class ShiftsCompanion extends UpdateCompanion<Shift> {
     this.plannedStart = const Value.absent(),
     this.plannedEnd = const Value.absent(),
     this.plannedCustomized = const Value.absent(),
+    this.teamStart = const Value.absent(),
     this.rawStart = const Value.absent(),
     this.rawEnd = const Value.absent(),
     this.actualStart = const Value.absent(),
@@ -804,6 +849,7 @@ class ShiftsCompanion extends UpdateCompanion<Shift> {
     required DateTime plannedStart,
     required DateTime plannedEnd,
     this.plannedCustomized = const Value.absent(),
+    this.teamStart = const Value.absent(),
     this.rawStart = const Value.absent(),
     this.rawEnd = const Value.absent(),
     this.actualStart = const Value.absent(),
@@ -831,6 +877,7 @@ class ShiftsCompanion extends UpdateCompanion<Shift> {
     Expression<DateTime>? plannedStart,
     Expression<DateTime>? plannedEnd,
     Expression<bool>? plannedCustomized,
+    Expression<int>? teamStart,
     Expression<DateTime>? rawStart,
     Expression<DateTime>? rawEnd,
     Expression<DateTime>? actualStart,
@@ -851,6 +898,7 @@ class ShiftsCompanion extends UpdateCompanion<Shift> {
       if (plannedStart != null) 'planned_start': plannedStart,
       if (plannedEnd != null) 'planned_end': plannedEnd,
       if (plannedCustomized != null) 'planned_customized': plannedCustomized,
+      if (teamStart != null) 'team_start': teamStart,
       if (rawStart != null) 'raw_start': rawStart,
       if (rawEnd != null) 'raw_end': rawEnd,
       if (actualStart != null) 'actual_start': actualStart,
@@ -873,6 +921,7 @@ class ShiftsCompanion extends UpdateCompanion<Shift> {
     Value<DateTime>? plannedStart,
     Value<DateTime>? plannedEnd,
     Value<bool>? plannedCustomized,
+    Value<int?>? teamStart,
     Value<DateTime?>? rawStart,
     Value<DateTime?>? rawEnd,
     Value<DateTime?>? actualStart,
@@ -893,6 +942,7 @@ class ShiftsCompanion extends UpdateCompanion<Shift> {
       plannedStart: plannedStart ?? this.plannedStart,
       plannedEnd: plannedEnd ?? this.plannedEnd,
       plannedCustomized: plannedCustomized ?? this.plannedCustomized,
+      teamStart: teamStart ?? this.teamStart,
       rawStart: rawStart ?? this.rawStart,
       rawEnd: rawEnd ?? this.rawEnd,
       actualStart: actualStart ?? this.actualStart,
@@ -932,6 +982,9 @@ class ShiftsCompanion extends UpdateCompanion<Shift> {
     }
     if (plannedCustomized.present) {
       map['planned_customized'] = Variable<bool>(plannedCustomized.value);
+    }
+    if (teamStart.present) {
+      map['team_start'] = Variable<int>(teamStart.value);
     }
     if (rawStart.present) {
       map['raw_start'] = Variable<DateTime>(rawStart.value);
@@ -981,6 +1034,7 @@ class ShiftsCompanion extends UpdateCompanion<Shift> {
           ..write('plannedStart: $plannedStart, ')
           ..write('plannedEnd: $plannedEnd, ')
           ..write('plannedCustomized: $plannedCustomized, ')
+          ..write('teamStart: $teamStart, ')
           ..write('rawStart: $rawStart, ')
           ..write('rawEnd: $rawEnd, ')
           ..write('actualStart: $actualStart, ')
@@ -4185,6 +4239,7 @@ typedef $$ShiftsTableCreateCompanionBuilder = ShiftsCompanion Function({
   required DateTime plannedStart,
   required DateTime plannedEnd,
   Value<bool> plannedCustomized,
+  Value<int?> teamStart,
   Value<DateTime?> rawStart,
   Value<DateTime?> rawEnd,
   Value<DateTime?> actualStart,
@@ -4205,6 +4260,7 @@ typedef $$ShiftsTableUpdateCompanionBuilder = ShiftsCompanion Function({
   Value<DateTime> plannedStart,
   Value<DateTime> plannedEnd,
   Value<bool> plannedCustomized,
+  Value<int?> teamStart,
   Value<DateTime?> rawStart,
   Value<DateTime?> rawEnd,
   Value<DateTime?> actualStart,
@@ -4260,6 +4316,11 @@ class $$ShiftsTableFilterComposer
 
   ColumnFilters<bool> get plannedCustomized => $composableBuilder(
     column: $table.plannedCustomized,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get teamStart => $composableBuilder(
+    column: $table.teamStart,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4359,6 +4420,11 @@ class $$ShiftsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get teamStart => $composableBuilder(
+    column: $table.teamStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get rawStart => $composableBuilder(
     column: $table.rawStart,
     builder: (column) => ColumnOrderings(column),
@@ -4446,6 +4512,9 @@ class $$ShiftsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get teamStart =>
+      $composableBuilder(column: $table.teamStart, builder: (column) => column);
+
   GeneratedColumn<DateTime> get rawStart =>
       $composableBuilder(column: $table.rawStart, builder: (column) => column);
 
@@ -4520,6 +4589,7 @@ class $$ShiftsTableTableManager
                 Value<DateTime> plannedStart = const Value.absent(),
                 Value<DateTime> plannedEnd = const Value.absent(),
                 Value<bool> plannedCustomized = const Value.absent(),
+                Value<int?> teamStart = const Value.absent(),
                 Value<DateTime?> rawStart = const Value.absent(),
                 Value<DateTime?> rawEnd = const Value.absent(),
                 Value<DateTime?> actualStart = const Value.absent(),
@@ -4539,6 +4609,7 @@ class $$ShiftsTableTableManager
                 plannedStart: plannedStart,
                 plannedEnd: plannedEnd,
                 plannedCustomized: plannedCustomized,
+                teamStart: teamStart,
                 rawStart: rawStart,
                 rawEnd: rawEnd,
                 actualStart: actualStart,
@@ -4560,6 +4631,7 @@ class $$ShiftsTableTableManager
                 required DateTime plannedStart,
                 required DateTime plannedEnd,
                 Value<bool> plannedCustomized = const Value.absent(),
+                Value<int?> teamStart = const Value.absent(),
                 Value<DateTime?> rawStart = const Value.absent(),
                 Value<DateTime?> rawEnd = const Value.absent(),
                 Value<DateTime?> actualStart = const Value.absent(),
@@ -4579,6 +4651,7 @@ class $$ShiftsTableTableManager
                 plannedStart: plannedStart,
                 plannedEnd: plannedEnd,
                 plannedCustomized: plannedCustomized,
+                teamStart: teamStart,
                 rawStart: rawStart,
                 rawEnd: rawEnd,
                 actualStart: actualStart,

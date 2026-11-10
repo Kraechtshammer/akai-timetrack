@@ -8,6 +8,7 @@ void main() {
       const settings = AppSettings(
         themeSeed: ThemeSeed.terracotta,
         weekMarks: WeekMarkStyle.bars,
+        teamSyncPlan: true,
       );
       final stored = {
         for (final MapEntry(:key, :value) in settings.toMap().entries)
@@ -16,6 +17,8 @@ void main() {
       final read = AppSettings.fromMap(stored);
       expect(read.themeSeed, ThemeSeed.terracotta);
       expect(read.weekMarks, WeekMarkStyle.bars);
+      expect(read.teamSyncPlan, isTrue);
+      expect(const AppSettings().teamSyncPlan, isFalse);
     });
 
     test('restaurant: round trip, empty on a fresh install, AKAI on older '

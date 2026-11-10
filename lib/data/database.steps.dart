@@ -977,11 +977,221 @@ i1.GeneratedColumn<int> _column_37(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NULL',
     );
+
+final class Schema6 extends i0.VersionedSchema {
+  Schema6({required super.database}) : super(version: 6);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    shifts,
+    settings,
+    tipDays,
+    tipPayouts,
+    wageRates,
+    teamMembers,
+    teamAnswers,
+    teamAssignments,
+    teamNeeds,
+  ];
+  late final Shape10 shifts = Shape10(
+    source: i0.VersionedTable(
+      entityName: 'shifts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_38,
+        _column_7,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_15,
+        _column_16,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape1 settings = Shape1(
+    source: i0.VersionedTable(
+      entityName: 'settings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY("key")'],
+      columns: [_column_17, _column_18],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 tipDays = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'tip_days',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [_column_0, _column_19, _column_20, _column_15, _column_16],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape3 tipPayouts = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'tip_payouts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [_column_0, _column_21, _column_22, _column_15, _column_16],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape4 wageRates = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'wage_rates',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [_column_0, _column_23, _column_24, _column_15, _column_16],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape9 teamMembers = Shape9(
+    source: i0.VersionedTable(
+      entityName: 'team_members',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_25,
+        _column_26,
+        _column_27,
+        _column_28,
+        _column_37,
+        _column_15,
+        _column_16,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape6 teamAnswers = Shape6(
+    source: i0.VersionedTable(
+      entityName: 'team_answers',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(week_start, member_id)'],
+      columns: [
+        _column_0,
+        _column_29,
+        _column_30,
+        _column_31,
+        _column_32,
+        _column_33,
+        _column_15,
+        _column_16,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape7 teamAssignments = Shape7(
+    source: i0.VersionedTable(
+      entityName: 'team_assignments',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(day, shift, member_id)'],
+      columns: [
+        _column_0,
+        _column_2,
+        _column_34,
+        _column_30,
+        _column_35,
+        _column_15,
+        _column_16,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape8 teamNeeds = Shape8(
+    source: i0.VersionedTable(
+      entityName: 'team_needs',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(day, shift)'],
+      columns: [_column_0, _column_2, _column_34, _column_36],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape10 extends i0.VersionedTable {
+  Shape10({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get notifId =>
+      columnsByName['notif_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get day =>
+      columnsByName['day']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get type =>
+      columnsByName['type']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get plannedStart =>
+      columnsByName['planned_start']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get plannedEnd =>
+      columnsByName['planned_end']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get plannedCustomized =>
+      columnsByName['planned_customized']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get teamStart =>
+      columnsByName['team_start']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get rawStart =>
+      columnsByName['raw_start']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get rawEnd =>
+      columnsByName['raw_end']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get actualStart =>
+      columnsByName['actual_start']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get actualEnd =>
+      columnsByName['actual_end']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get breakMinutes =>
+      columnsByName['break_minutes']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get calendarEventId =>
+      columnsByName['calendar_event_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get calendarId =>
+      columnsByName['calendar_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get syncState =>
+      columnsByName['sync_state']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<int> _column_38(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'team_start',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
   required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
   required Future<void> Function(i1.Migrator m, Schema5 schema) from4To5,
+  required Future<void> Function(i1.Migrator m, Schema6 schema) from5To6,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -1005,6 +1215,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from4To5(migrator, schema);
         return 5;
+      case 5:
+        final schema = Schema6(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from5To6(migrator, schema);
+        return 6;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -1016,11 +1231,13 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
   required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
   required Future<void> Function(i1.Migrator m, Schema5 schema) from4To5,
+  required Future<void> Function(i1.Migrator m, Schema6 schema) from5To6,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
     from2To3: from2To3,
     from3To4: from3To4,
     from4To5: from4To5,
+    from5To6: from5To6,
   ),
 );

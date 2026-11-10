@@ -100,7 +100,9 @@ class _TeamScreenState extends ConsumerState<TeamScreen> {
     final l10n = context.l10n;
     final week = ref.watch(rosterWeekProvider(_week));
     final me = week?.me;
-    final canAddMine = me != null && week!.shiftCount(me.id) > 0;
+    // While "Sync my shifts with Plan" is on, that happens by itself.
+    final canAddMine =
+        me != null && week!.shiftCount(me.id) > 0 && !ref.settings.teamSyncPlan;
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),

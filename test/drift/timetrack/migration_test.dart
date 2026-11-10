@@ -12,6 +12,7 @@ import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
 import 'generated/schema_v5.dart' as v5;
+import 'generated/schema_v6.dart' as v6;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -432,6 +433,53 @@ void main() {
           await newDb.select(newDb.teamAssignments).get(),
         );
       },
+    );
+  });
+  // v5 -> v6 adds the team plan link to shifts; existing shifts keep their
+  // data and count as added by the user.
+  test('migration from v5 to v6 keeps shifts, not linked', () async {
+    final start = DateTime.utc(2026, 11, 2, 11).millisecondsSinceEpoch ~/ 1000;
+    final end = DateTime.utc(2026, 11, 2, 15).millisecondsSinceEpoch ~/ 1000;
+    final old = [
+      v5.ShiftsData(
+        id: 'a1b2',
+        notifId: 7,
+        day: '2026-11-02',
+        type: 0,
+        plannedStart: start,
+        plannedEnd: end,
+        plannedCustomized: 0,
+        breakMinutes: 0,
+        syncState: 1,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    final expected = [
+      v6.ShiftsData(
+        id: 'a1b2',
+        notifId: 7,
+        day: '2026-11-02',
+        type: 0,
+        plannedStart: start,
+        plannedEnd: end,
+        plannedCustomized: 0,
+        teamStart: null,
+        breakMinutes: 0,
+        syncState: 1,
+        createdAt: start,
+        updatedAt: end,
+      ),
+    ];
+    await verifier.testWithDataIntegrity(
+      oldVersion: 5,
+      newVersion: 6,
+      createOld: v5.DatabaseAtV5.new,
+      createNew: v6.DatabaseAtV6.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch.insertAll(oldDb.shifts, old),
+      validateItems: (newDb) async =>
+          expect(expected, await newDb.select(newDb.shifts).get()),
     );
   });
 }
