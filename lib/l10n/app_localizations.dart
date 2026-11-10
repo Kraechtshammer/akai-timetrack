@@ -2396,12 +2396,6 @@ abstract class AppLocalizations {
   /// **'Laut Antwort ist diese Schicht nicht möglich.'**
   String get teamWarnCantWork;
 
-  /// No description provided for @teamWarnIfAdded.
-  ///
-  /// In de, this message translates to:
-  /// **'Mit dieser Schicht:'**
-  String get teamWarnIfAdded;
-
   /// No description provided for @teamWarnOverLimit.
   ///
   /// In de, this message translates to:

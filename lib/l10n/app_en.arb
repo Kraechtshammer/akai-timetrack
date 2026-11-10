@@ -403,7 +403,6 @@
   "teamWarnWhy": "Why?",
   "teamWarnNoAnswer": "There is no answer for this week yet.",
   "teamWarnCantWork": "According to the answer, this shift is not possible.",
-  "teamWarnIfAdded": "With this shift:",
   "teamWarnOverLimit": "{planned} h are planned in {month}. The limit is {limit} h, so that is {over} h over.",
   "@teamWarnOverLimit": {"placeholders":{"month":{"type":"String"},"planned":{"type":"String"},"limit":{"type":"String"},"over":{"type":"String"}}},
   "teamWarnAboveShare": "Before this week, {left} h of the monthly limit are left. Spread evenly over the rest of the month, that is about {share} h for this week. {planned} h are planned, clearly more.",

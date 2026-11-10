@@ -1410,9 +1410,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Laut Antwort ist diese Schicht nicht möglich.';
 
   @override
-  String get teamWarnIfAdded => 'Mit dieser Schicht:';
-
-  @override
   String teamWarnOverLimit(
     String month,
     String planned,

@@ -1406,9 +1406,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'According to the answer, this shift is not possible.';
 
   @override
-  String get teamWarnIfAdded => 'With this shift:';
-
-  @override
   String teamWarnOverLimit(
     String month,
     String planned,

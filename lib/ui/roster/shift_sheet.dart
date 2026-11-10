@@ -97,9 +97,9 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
       final special = assignment?.startMinutes;
       final start = special ?? normalStart;
       final left = data.minutesLeft(m.id, slot.day);
-      final hours = ticked
-          ? data.hoursState(m.id)
-          : data.hoursState(m.id, adding: slot);
+      // Only for people in the shift: a warning before the tap read as if
+      // the person were in it already (the developer found it confusing).
+      final hours = ticked ? data.hoursState(m.id) : HoursState.ok;
       final hoursStyle = hoursStateStyle(context, hours);
       final unavailable =
           ticked && data.availability(m.id, slot) != Availability.available;
@@ -121,13 +121,8 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
                 IconButton(
                   visualDensity: VisualDensity.compact,
                   tooltip: l10n.teamWarnWhy,
-                  onPressed: () => showMemberWarnings(
-                    context,
-                    data,
-                    m,
-                    slot: slot,
-                    adding: !ticked,
-                  ),
+                  onPressed: () =>
+                      showMemberWarnings(context, data, m, slot: slot),
                   icon: unavailable || hours == HoursState.overLimit
                       ? Icon(Icons.warning_amber, size: 20, color: colors.error)
                       : Icon(

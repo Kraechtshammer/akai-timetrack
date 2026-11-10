@@ -127,14 +127,12 @@ String hoursLeftText(BuildContext context, int minutesLeft) => minutesLeft < 0
     : context.l10n.teamHoursLeft(formatHours(minutesLeft, context.locale));
 
 /// Explains the warnings of [member] this week: their answer for [slot]
-/// (if given) and their monthly limit, with its numbers. [adding]: as if
-/// they were ticked into [slot] (the shift sheet, before the tap).
+/// (if given) and their monthly limit, with its numbers.
 Future<void> showMemberWarnings(
   BuildContext context,
   RosterWeek week,
   TeamMember member, {
   TeamSlot? slot,
-  bool adding = false,
 }) {
   final l10n = context.l10n;
   final colors = context.colors;
@@ -153,7 +151,7 @@ Future<void> showMemberWarnings(
   final availability = slot == null
       ? Availability.available
       : week.availability(member.id, slot);
-  final hours = week.weekHoursOf(member.id, adding: adding ? slot : null);
+  final hours = week.weekHoursOf(member.id);
   final style = hours == null ? null : hoursStateStyle(context, hours.state);
   return showDialog<void>(
     context: context,
@@ -170,8 +168,6 @@ Future<void> showMemberWarnings(
             if (availability == Availability.unavailable)
               line(Icons.warning_amber, colors.error, l10n.teamWarnCantWork),
             if (hours != null && style != null) ...[
-              if (adding)
-                Text(l10n.teamWarnIfAdded, style: context.text.titleSmall),
               line(
                 style.icon,
                 style.color,
