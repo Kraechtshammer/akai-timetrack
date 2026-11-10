@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-10; the version is 1.7.0, with the monthly hours limits and "Sync my shifts with Plan" on `main` (not released yet). Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-10; the version is now 1.8.0. Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -225,7 +225,7 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - **New default:** closed on Monday, open for lunch and evening on the other days (a typical small restaurant). Existing installs keep their saved week, since every settings save writes all keys. AKAI is Monday to Saturday with Saturday evening only.
 - Code: `WeekNeeds` (`domain/roster.dart`) holds a week's staff counts for the board and the Plan tab; `planToggles`, `planDayShown` and `openShiftsSummary` are in `domain/display_rules.dart`; `StaffNeeds.withOpen` and `openDefault` in `data/app_settings.dart`. The roster tests pin the old Monday-to-Saturday week (`monToSat`), which they were written for.
 
-## Done on 2026-11-10: monthly hours limits in the team planner (not released)
+## Done on 2026-11-10: monthly hours limits in the team planner (released as 1.8.0)
 
 - **Why:** many of the service staff are mini-jobbers with a monthly limit. The developer asked to see each person's planned hours against a limit and to keep it in mind while planning.
 - **People:** optional "Max. hours per month" in the person sheet (`team_members.maxMonthMinutes`, schema version 5, a migration that only adds the column, tested from v4).
@@ -236,18 +236,18 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - Trap: drift's schema export fell back to static analysis and wrote a broken steps file when the new migration step was written before `make-migrations` (`03-dev-setup.md`).
 - **Checked:** `flutter analyze` clean, 201 tests pass (16 new in `test/team_hours_test.dart`, one new migration test). Debug build installed on the emulator over 1.7.0 data. Not yet checked in the app by the developer; not on a phone.
 
-## Done on 2026-11-10: "Sync my shifts with Plan" (not released)
+## Done on 2026-11-10: "Sync my shifts with Plan" (released as 1.8.0)
 
 - **What:** a switch in Settings › Team planner (`teamSyncPlan`, off by default). While on, the team shifts of "This is me" go onto Plan by themselves from today on, follow special start changes, and leave again when the user is taken out, unless recorded or running. Shifts added by hand are never touched. Turning a copy off or deleting it on Plan takes the user out of the team shift too ("Also taken out of the team plan"); "Undo" after a delete puts them back. Copies have a small team icon on Plan. "Add my shifts to Plan" is hidden while the switch is on. Rules: `02-design.md` §4.9.
 - **Developer decisions:** link copies (new column `shifts.teamStart`, schema version 6) rather than match by day; removing on Plan also leaves the team shift, with a message and an icon on copies; starts follow the board unless edited by hand; behind a setting.
 - **Code:** `domain/team_sync.dart` (`teamSyncActions`, pure), `PlanningService.syncTeamShifts` applies it; `AppServices.startTeamSync()` listens to the team tables (`RosterRepository.watchChanges`) and the settings, UI isolate only (started in `main`).
 - **Checked:** `flutter analyze` clean, 218 tests pass (11 in `test/team_sync_test.dart`, a migration test v5 → v6, the setting's round trip). The developer tried it on the emulator (copies on Plan, the explanation dialog); after that the toggles of copies got the team icon (not looked at again). Not on a phone.
 
-## Small improvements on 2026-11-10 (not released)
+## Small improvements on 2026-11-10 (released as 1.8.0)
 
 - The "Above the week's share" explanation no longer states the exact extra that is fine; the share is in whole hours (developer's wish).
 - The shift sheet shows the hours warnings only for people in the shift (developer's wish).
-- **Week switcher jumps back:** on any week other than the home one (this week on Plan and Pay, next week on Team, this month on Export), a small tonal double-arrow button sits next to the centred week, on the side the home week lies. Replaces the calendar icon in the Plan and Pay headers and the Team tab's "Next week" text button. A label under the dates was tried first and dropped. `WeekSwitcher.onHome` / `homeIsBefore` in `ui/common.dart`. Checked: analyze clean, tests pass, installed on the emulator; the look not yet confirmed by the developer.
+- **Week switcher jumps back:** on any week other than the home one (this week on Plan and Pay, next week on Team, this month on Export), a small tonal double-arrow button sits next to the centred week, on the side the home week lies. Replaces the calendar icon in the Plan and Pay headers and the Team tab's "Next week" text button. A label under the dates was tried first and dropped. `WeekSwitcher.onHome` / `homeIsBefore` in `ui/common.dart`. Checked: analyze clean, tests pass, installed on the emulator; the developer checked it on the emulator.
 
 ## Open points (in rough priority)
 
