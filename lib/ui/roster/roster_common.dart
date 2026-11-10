@@ -182,11 +182,11 @@ Future<void> showMemberWarnings(
                         h(hours.limit),
                         h(hours.monthMinutes - hours.limit),
                       )
+                    // Vague on purpose: the share in whole hours, and no
+                    // word on how much more is fine (the developer's wish).
                     : l10n.teamWarnAboveShare(
                         h(hours.leftBefore < 0 ? 0 : hours.leftBefore),
-                        h(hours.share),
-                        h(hours.slack),
-                        h(hours.allowed),
+                        '${(hours.share / 60).round()}',
                         h(hours.weekMinutes),
                       ),
               ),

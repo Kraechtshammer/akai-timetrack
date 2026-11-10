@@ -1419,14 +1419,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String teamWarnAboveShare(
-    String left,
-    String share,
-    String slack,
-    String allowed,
-    String planned,
-  ) {
-    return 'Before this week, $left h of the monthly limit are left. Spread evenly over the rest of the month, that is about $share h for this week. One long shift more ($slack h) is fine, so up to $allowed h. Planned: $planned h.';
+  String teamWarnAboveShare(String left, String share, String planned) {
+    return 'Before this week, $left h of the monthly limit are left. Spread evenly over the rest of the month, that is about $share h for this week. $planned h are planned, clearly more.';
   }
 
   @override
