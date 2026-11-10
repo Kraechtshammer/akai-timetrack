@@ -102,7 +102,7 @@ final updateProvider = NotifierProvider<UpdateController, UpdateState>(
   UpdateController.new,
 );
 
-/// Looks for updates (on start and on resume, at most every 6 hours, or by
+/// Looks for updates (on start and on resume, at most every 30 minutes, or by
 /// hand), downloads the APK and starts Android's installer. The APK stays
 /// until the new version runs (then [checkIfDue] deletes it) or the user
 /// deletes it, so "restart update" needn't download it again.

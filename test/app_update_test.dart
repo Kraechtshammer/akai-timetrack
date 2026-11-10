@@ -134,11 +134,17 @@ All commits: [v1.0.0...v1.0.1](https://github.com/x/y/compare/v1.0.0...v1.0.1)
     ]);
   });
 
-  test('updateCheckDue: first time, after 6 hours, or a clock set back', () {
+  test('updateCheckDue: first time, after 30 minutes, or a clock set back', () {
     final now = DateTime(2026, 11, 5, 12);
     expect(updateCheckDue(null, now), isTrue);
-    expect(updateCheckDue(now.subtract(const Duration(hours: 5)), now), false);
-    expect(updateCheckDue(now.subtract(const Duration(hours: 6)), now), true);
+    expect(
+      updateCheckDue(now.subtract(const Duration(minutes: 29)), now),
+      false,
+    );
+    expect(
+      updateCheckDue(now.subtract(const Duration(minutes: 30)), now),
+      true,
+    );
     expect(updateCheckDue(now.add(const Duration(hours: 1)), now), isTrue);
   });
 

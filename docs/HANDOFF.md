@@ -58,11 +58,11 @@ Automated checks:
 
 ## Done in the third session (2026-11-05): in-app update
 
-- The app looks for a newer GitHub release on start and on resume (at most every 6 hours), shows a popup once per version with the "New / Fixed / Improved" notes, downloads the APK and starts Android's installer (PackageInstaller session). Settings › App update: check now, the found update, "Restart update", "Delete update file". The APK is deleted on the first start of the new version. Design: `02-design.md` §12.
+- The app looks for a newer GitHub release on start and on resume (at most every 30 minutes; 6 hours until 1.8.0), shows a popup once per version with the "New / Fixed / Improved" notes, downloads the APK and starts Android's installer (PackageInstaller session). Settings › App update: check now, the found update, "Restart update", "Delete update file". The APK is deleted on the first start of the new version. Design: `02-design.md` §12.
 - Code: `domain/app_update.dart` (versions, release JSON, notes, clean-up rules; tested), `platform/app_update.dart` (HTTP, files, channel), `app/update_controller.dart` (Riverpod state), `ui/settings/update_tiles.dart` (tiles and popup), `MainActivity.kt` (channel `de.garten.akaitimetrack/updater`). The manifest now has `INTERNET` and `REQUEST_INSTALL_PACKAGES`.
 - Testing on the emulator with a fake release: `scripts/update_test_server.dart`, see `03-dev-setup.md` §9.
 - Checked by the developer on the emulator (debug builds 1.0.0 → 1.0.1 from the fake server): popup with notes, "install unknown apps" switch and automatic continue, download progress, cancelling Android's prompt ("Update cancelled.") and retrying without a second download, the update itself, the APK deleted on the next start, deleting the file by hand.
-- Developer decisions: session installer (not the system installer intent), popup once per version, check on start/resume every 6 h (no background job), only the sections of the notes that matter to the user.
+- Developer decisions: session installer (not the system installer intent), popup once per version, check on start/resume every 6 h (no background job; 30 minutes since 1.8.1, see below), only the sections of the notes that matter to the user.
 
 ## Done in the fourth session (2026-11-05): tips (F10)
 
@@ -248,6 +248,10 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 - The "Above the week's share" explanation no longer states the exact extra that is fine; the share is in whole hours (developer's wish).
 - The shift sheet shows the hours warnings only for people in the shift (developer's wish).
 - **Week switcher jumps back:** on any week other than the home one (this week on Plan and Pay, next week on Team, this month on Export), a small tonal double-arrow button sits next to the centred week, on the side the home week lies. Replaces the calendar icon in the Plan and Pay headers and the Team tab's "Next week" text button. A label under the dates was tried first and dropped. `WeekSwitcher.onHome` / `homeIsBefore` in `ui/common.dart`. Checked: analyze clean, tests pass, installed on the emulator; the developer checked it on the emulator.
+
+## Small improvements on 2026-11-10 (released as 1.8.1)
+
+- The app looks for a new release on start and on resume at most every 30 minutes instead of every 6 hours (`updateCheckInterval` in `domain/app_update.dart`), so a release shows up soon after the app is next opened. Checked: analyze and tests; not checked with the fake release server or on a phone.
 
 ## Open points (in rough priority)
 

@@ -190,7 +190,7 @@ Releases are built by GitHub Actions when a version tag is pushed. The repo is p
    git push origin v1.0.1
    ```
 4. The release workflow (`.github/workflows/release.yml`) checks that the tag matches the pubspec version, runs analyze and tests, builds the signed APK and creates the release "TimeTrack 1.0.1" with `timetrack-1.0.1.apk` attached and the release notes as its text. It can also be started by hand in the Actions tab.
-5. On the phone the app finds the release by itself (on start or when opened again, at most every 6 hours; or Settings › App update › "Check for updates") and shows the popup with the notes. The APK can also still be downloaded from the release page and installed by hand.
+5. On the phone the app finds the release by itself (on start or when opened again, at most every 30 minutes; or Settings › App update › "Check for updates") and shows the popup with the notes. The APK can also still be downloaded from the release page and installed by hand.
 
 **Release notes.** Since 2026-11-05 every commit subject starts with a type prefix. `scripts/release-notes.sh <tag>` collects the subjects since the tag before and sorts them into sections; the release workflow uses its output as the release text.
 

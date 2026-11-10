@@ -167,7 +167,7 @@ AppVersion? _apkVersion(String name) {
 
 /// How often the app looks for an update on its own (on start and when it
 /// comes back to the foreground).
-const updateCheckInterval = Duration(hours: 6);
+const updateCheckInterval = Duration(minutes: 30);
 
 bool updateCheckDue(DateTime? lastCheck, DateTime now) =>
     lastCheck == null ||

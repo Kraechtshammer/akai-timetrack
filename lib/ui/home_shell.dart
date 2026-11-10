@@ -49,7 +49,7 @@ class _HomeShellState extends ConsumerState<HomeShell>
   }
 
   /// Shows "What's new" once after an update, then looks for an update (at
-  /// most every 6 hours) and shows the popup once per new version. [resumed]: also continues an update that waited for
+  /// most every 30 minutes) and shows the popup once per new version. [resumed]: also continues an update that waited for
   /// the "install unknown apps" permission.
   Future<void> _lookForUpdate({bool resumed = false}) async {
     final update = ref.read(updateProvider.notifier);
