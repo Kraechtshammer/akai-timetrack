@@ -394,5 +394,8 @@
   "staffNeededHint": "How many people each shift needs. 0 means closed, and the shift doesn't show on Plan.",
   "openShiftsCount": "{count} of 14 shifts",
   "openShiftsTitle": "When is your restaurant open?",
-  "openShiftsBody": "Switch off the shifts when it's closed. They won't show on Plan. You can change this any time in Settings."
+  "openShiftsBody": "Switch off the shifts when it's closed. They won't show on Plan. You can change this any time in Settings.",
+  "extrasTitle": "What else the app can do",
+  "extrasBody": "You can change all of this later in Settings.",
+  "themeMode": "Mode"
 }

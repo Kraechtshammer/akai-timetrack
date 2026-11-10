@@ -11,12 +11,13 @@ import '../../l10n/labels.dart';
 import '../../platform/device_setup.dart';
 import '../common.dart';
 import '../settings/calendar_pickers.dart';
+import '../settings/look_and_features.dart';
 import '../settings/open_shifts.dart';
 import '../settings/reliability.dart';
 import '../settings/settings_screen.dart';
 
 /// First start: language, reminders, calendar, Xiaomi settings, times,
-/// open shifts.
+/// open shifts, and the optional features and theme.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -24,7 +25,7 @@ class OnboardingScreen extends ConsumerStatefulWidget {
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-enum _Step { welcome, reminders, calendar, xiaomi, times, openShifts }
+enum _Step { welcome, reminders, calendar, xiaomi, times, openShifts, extras }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   var _steps = [..._Step.values]..remove(_Step.xiaomi);
@@ -89,6 +90,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       _Step.xiaomi => const _Xiaomi(),
                       _Step.times => const _Times(),
                       _Step.openShifts => const _OpenShifts(),
+                      _Step.extras => const _Extras(),
                     },
                   ),
                 ),
@@ -398,6 +400,40 @@ class _OpenShifts extends StatelessWidget {
       const OpenShiftsGrid(counts: false),
     ],
   );
+}
+
+/// The optional features, so people know they exist, and the theme.
+class _Extras extends StatelessWidget {
+  const _Extras();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final label = context.text.titleSmall;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _StepTitle(
+          icon: Icons.auto_awesome,
+          title: l10n.extrasTitle,
+          body: l10n.extrasBody,
+        ),
+        // Lined up with the step's text, not indented like in Settings.
+        const ListTileTheme(
+          data: ListTileThemeData(contentPadding: EdgeInsets.zero),
+          child: FeatureSwitches(),
+        ),
+        const SizedBox(height: 16),
+        Text(l10n.color, style: label),
+        const SizedBox(height: 8),
+        const ThemeSeedSwatches(),
+        const SizedBox(height: 16),
+        Text(l10n.themeMode, style: label),
+        const SizedBox(height: 8),
+        const ThemeModeButtons(),
+      ],
+    );
+  }
 }
 
 class _StepDots extends StatelessWidget {

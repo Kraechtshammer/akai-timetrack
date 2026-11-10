@@ -464,5 +464,8 @@
   "openShiftsCount": "{count} von 14 Schichten",
   "@openShiftsCount": {"placeholders":{"count":{"type":"int"}}},
   "openShiftsTitle": "Wann hat dein Restaurant geöffnet?",
-  "openShiftsBody": "Schalte die Schichten aus, in denen geschlossen ist. Sie erscheinen dann nicht im Plan. Du kannst das jederzeit in den Einstellungen ändern."
+  "openShiftsBody": "Schalte die Schichten aus, in denen geschlossen ist. Sie erscheinen dann nicht im Plan. Du kannst das jederzeit in den Einstellungen ändern.",
+  "extrasTitle": "Was die App noch kann",
+  "extrasBody": "Du kannst das alles später in den Einstellungen ändern.",
+  "themeMode": "Modus"
 }

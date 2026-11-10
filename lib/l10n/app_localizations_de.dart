@@ -1389,4 +1389,14 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get openShiftsBody =>
       'Schalte die Schichten aus, in denen geschlossen ist. Sie erscheinen dann nicht im Plan. Du kannst das jederzeit in den Einstellungen ändern.';
+
+  @override
+  String get extrasTitle => 'Was die App noch kann';
+
+  @override
+  String get extrasBody =>
+      'Du kannst das alles später in den Einstellungen ändern.';
+
+  @override
+  String get themeMode => 'Modus';
 }

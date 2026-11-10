@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import '../material.dart';
 
 import '../../app/providers.dart';
-import '../../app/theme.dart';
 import '../../core/time.dart';
 import '../../data/app_settings.dart';
 import '../../domain/rounding.dart';
@@ -17,6 +16,7 @@ import '../../l10n/labels.dart';
 import '../common.dart';
 import '../roster/team_settings.dart';
 import 'calendar_pickers.dart';
+import 'look_and_features.dart';
 import 'open_shifts.dart';
 import 'reliability.dart';
 import 'settings_screen.dart';
@@ -364,19 +364,7 @@ class _AppearancePage extends ConsumerWidget {
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(72, 0, 16, 12),
-        child: Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            for (final seed in ThemeSeed.values)
-              _SeedSwatch(
-                seed: seed,
-                restaurant: s.restaurant,
-                selected: s.themeSeed == seed,
-                onTap: () => _update(ref, (s) => s.copyWith(themeSeed: seed)),
-              ),
-          ],
-        ),
+        child: const ThemeSeedSwatches(),
       ),
       ListTile(
         leading: const SettingsTileIcon(Icons.contrast),
@@ -384,23 +372,7 @@ class _AppearancePage extends ConsumerWidget {
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(72, 0, 16, 12),
-        child: SegmentedButton<AppThemeMode>(
-          showSelectedIcon: false,
-          segments: [
-            for (final mode in [
-              AppThemeMode.light,
-              AppThemeMode.dark,
-              AppThemeMode.system,
-            ])
-              ButtonSegment(
-                value: mode,
-                label: Text(themeModeLabel(mode, l10n)),
-              ),
-          ],
-          selected: {s.themeMode},
-          onSelectionChanged: (modes) =>
-              _update(ref, (s) => s.copyWith(themeMode: modes.single)),
-        ),
+        child: const ThemeModeButtons(),
       ),
       // Only when there is a design to choose; usually the cloche is the
       // only one, and then only the shape can change.
@@ -473,30 +445,12 @@ class _AppearancePage extends ConsumerWidget {
 
 /// Switches for the parts of the app not everyone uses. Turning one off
 /// only hides it; its data stays.
-class _FeaturesPage extends ConsumerWidget {
+class _FeaturesPage extends StatelessWidget {
   const _FeaturesPage();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final s = ref.settings;
-    return SettingsSection(null, [
-      SwitchListTile(
-        secondary: const SettingsTileIcon(Icons.savings_outlined),
-        title: Text(l10n.tipPool),
-        subtitle: Text(l10n.tipPoolSwitchSubtitle),
-        value: s.tipPool,
-        onChanged: (on) => _update(ref, (s) => s.copyWith(tipPool: on)),
-      ),
-      SwitchListTile(
-        secondary: const SettingsTileIcon(Icons.groups),
-        title: Text(l10n.teamPlannerSwitch),
-        subtitle: Text(l10n.teamPlannerSubtitle),
-        value: s.teamPlanner,
-        onChanged: (on) => _update(ref, (s) => s.copyWith(teamPlanner: on)),
-      ),
-    ]);
-  }
+  Widget build(BuildContext context) =>
+      const SettingsSection(null, [FeatureSwitches()]);
 }
 
 class _GeneralPage extends ConsumerWidget {
@@ -673,53 +627,6 @@ class _SyncNowTileState extends ConsumerState<_SyncNowTile> {
             )
           : null,
       onTap: _syncing ? null : _syncNow,
-    );
-  }
-}
-
-class _SeedSwatch extends StatelessWidget {
-  const _SeedSwatch({
-    required this.seed,
-    required this.restaurant,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final ThemeSeed seed;
-
-  /// Names the red (see [themeSeedLabel]).
-  final String restaurant;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = seedColors[seed];
-    return Tooltip(
-      message: themeSeedLabel(seed, context.l10n, restaurant: restaurant),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: color ?? context.colors.surface,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: selected
-                  ? context.colors.onSurface
-                  : context.colors.outline,
-              width: selected ? 3 : 1,
-            ),
-          ),
-          child: Icon(
-            selected ? Icons.check : (color == null ? Icons.wallpaper : null),
-            color: color == null ? context.colors.onSurface : Colors.white,
-            size: 20,
-          ),
-        ),
-      ),
     );
   }
 }

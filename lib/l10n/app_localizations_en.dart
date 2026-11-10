@@ -1385,4 +1385,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get openShiftsBody =>
       'Switch off the shifts when it\'s closed. They won\'t show on Plan. You can change this any time in Settings.';
+
+  @override
+  String get extrasTitle => 'What else the app can do';
+
+  @override
+  String get extrasBody => 'You can change all of this later in Settings.';
+
+  @override
+  String get themeMode => 'Mode';
 }

@@ -2365,6 +2365,24 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Schalte die Schichten aus, in denen geschlossen ist. Sie erscheinen dann nicht im Plan. Du kannst das jederzeit in den Einstellungen ändern.'**
   String get openShiftsBody;
+
+  /// No description provided for @extrasTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Was die App noch kann'**
+  String get extrasTitle;
+
+  /// No description provided for @extrasBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Du kannst das alles später in den Einstellungen ändern.'**
+  String get extrasBody;
+
+  /// No description provided for @themeMode.
+  ///
+  /// In de, this message translates to:
+  /// **'Modus'**
+  String get themeMode;
 }
 
 class _AppLocalizationsDelegate
