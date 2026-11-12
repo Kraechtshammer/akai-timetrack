@@ -42,6 +42,10 @@ bool isMarked(int marks, DateTime day, TeamShift shift) =>
 
 enum Availability { available, noAnswer, unavailable }
 
+/// What can be wrong with a person in the plan, most serious first. Each
+/// has its own icon and colour in the UI (docs/02-design.md §7).
+enum TeamWarning { cantWork, overLimit, noAnswer, aboveWeekShare }
+
 /// What an answer says about one shift. Closed shifts are never available.
 bool answerAllows(AnswerMode mode, int marks, DateTime day, TeamShift shift) {
   final marked = isMarked(marks, day, shift);
@@ -209,6 +213,21 @@ class RosterWeek {
             answerAllows(answer.mode, answer.marks, slot.day, slot.shift)
         ? Availability.available
         : Availability.unavailable;
+  }
+
+  /// The warnings of a person, most serious first: their monthly hours,
+  /// and with [slot] also what their answer says about that shift.
+  List<TeamWarning> warningsOf(String memberId, {TeamSlot? slot}) {
+    final availability = slot == null
+        ? Availability.available
+        : this.availability(memberId, slot);
+    final hours = hoursState(memberId);
+    return [
+      if (availability == Availability.unavailable) TeamWarning.cantWork,
+      if (hours == HoursState.overLimit) TeamWarning.overLimit,
+      if (availability == Availability.noAnswer) TeamWarning.noAnswer,
+      if (hours == HoursState.aboveWeekShare) TeamWarning.aboveWeekShare,
+    ];
   }
 
   int shiftCount(String memberId) =>

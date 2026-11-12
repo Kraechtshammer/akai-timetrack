@@ -77,6 +77,7 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
     ];
     final l10n = context.l10n;
     final colors = context.colors;
+    final noCore = noCoreStyle(context);
     final roster = ref.services.roster;
     final settings = ref.settings;
     final normalStart = settings.teamStarts.of(slot.shift);
@@ -101,8 +102,12 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
       // the person were in it already (the developer found it confusing).
       final hours = ticked ? data.hoursState(m.id) : HoursState.ok;
       final hoursStyle = hoursStateStyle(context, hours);
-      final unavailable =
-          ticked && data.availability(m.id, slot) != Availability.available;
+      final warnings = ticked
+          ? data.warningsOf(m.id, slot: slot)
+          : const <TeamWarning>[];
+      final warning = warnings.isEmpty
+          ? null
+          : teamWarningStyle(context, warnings.first);
       return Opacity(
         opacity: dimmed && !ticked ? 0.6 : 1,
         child: CheckboxListTile(
@@ -117,19 +122,13 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
               Flexible(child: MemberName(m)),
               // Tap the icon for the explanation; the rest of the row
               // ticks.
-              if (unavailable || hoursStyle != null)
+              if (warning != null)
                 IconButton(
                   visualDensity: VisualDensity.compact,
                   tooltip: l10n.teamWarnWhy,
                   onPressed: () =>
                       showMemberWarnings(context, data, m, slot: slot),
-                  icon: unavailable || hours == HoursState.overLimit
-                      ? Icon(Icons.warning_amber, size: 20, color: colors.error)
-                      : Icon(
-                          hoursStyle!.icon,
-                          size: 20,
-                          color: hoursStyle.color,
-                        ),
+                  icon: Icon(warning.icon, size: 20, color: warning.color),
                 ),
             ],
           ),
@@ -172,6 +171,24 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
         ),
       );
     }
+
+    // A small heading inside the list: the people below it have not
+    // answered. Always open, unlike "Can't work".
+    Widget heading(String title) => Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
+      child: Row(
+        spacing: 12,
+        children: [
+          Text(
+            title,
+            style: context.text.labelMedium?.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+          Expanded(child: Divider(color: colors.outlineVariant)),
+        ],
+      ),
+    );
 
     Widget section(String title, List<TeamMember> people) => people.isEmpty
         ? const SizedBox.shrink()
@@ -230,12 +247,12 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
               child: Row(
                 spacing: 6,
                 children: [
-                  Icon(Icons.warning_amber, size: 18, color: colors.error),
+                  Icon(noCore.icon, size: 18, color: noCore.color),
                   Expanded(
                     child: Text(
                       l10n.teamNoCore,
                       style: context.text.bodyMedium?.copyWith(
-                        color: colors.error,
+                        color: noCore.color,
                       ),
                     ),
                   ),
@@ -243,7 +260,10 @@ class _TeamShiftSheetState extends ConsumerState<_TeamShiftSheet> {
               ),
             ),
           for (final m in candidates.available) row(m, dimmed: false),
-          section(l10n.teamNoAnswer, candidates.noAnswer),
+          if (candidates.noAnswer.isNotEmpty) ...[
+            heading(l10n.teamNoAnswer),
+            for (final m in candidates.noAnswer) row(m, dimmed: false),
+          ],
           section(l10n.teamCantWork, candidates.unavailable),
         ],
       ),

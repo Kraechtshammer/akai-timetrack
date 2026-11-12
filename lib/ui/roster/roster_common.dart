@@ -67,7 +67,8 @@ String availabilitySummary(
   );
 }
 
-/// The small star after a core worker's name.
+/// The small star after a core worker's name, in the colour of the text
+/// around it: a coloured star read as one more warning.
 class CoreStar extends StatelessWidget {
   const CoreStar({super.key, this.size = 16, this.color});
 
@@ -78,7 +79,7 @@ class CoreStar extends StatelessWidget {
   Widget build(BuildContext context) => Icon(
     Icons.star_rounded,
     size: size,
-    color: color ?? context.colors.tertiary,
+    color: color ?? DefaultTextStyle.of(context).style.color,
     semanticLabel: context.l10n.teamCore,
   );
 }
@@ -98,27 +99,68 @@ class MemberName extends StatelessWidget {
       Flexible(
         child: Text(member.name, style: style, overflow: TextOverflow.ellipsis),
       ),
-      if (member.core) CoreStar(size: (style?.fontSize ?? 14) + 2),
+      if (member.core)
+        CoreStar(size: (style?.fontSize ?? 14) + 2, color: style?.color),
     ],
   );
 }
 
-/// Icon, colour and label of a monthly-hours warning; null when [state] is ok.
+/// Icon, colour and short label of a planner warning. Every warning has its
+/// own colour, the same in every theme: red, orange, blue and gold, in a
+/// light and a dark tone.
+({IconData icon, Color color, String label}) teamWarningStyle(
+  BuildContext context,
+  TeamWarning warning,
+) {
+  final dark = context.colors.brightness == Brightness.dark;
+  final l10n = context.l10n;
+  return switch (warning) {
+    TeamWarning.cantWork => (
+      icon: Icons.event_busy_outlined,
+      // Not the theme's error colour: in dark mode that is a pale pink,
+      // weaker than the orange of the milder warning.
+      color: dark ? const Color(0xFFFF5449) : const Color(0xFFD32F2F),
+      label: l10n.teamCantWork,
+    ),
+    TeamWarning.overLimit => (
+      icon: Icons.warning_amber,
+      color: dark ? const Color(0xFFFFA24C) : const Color(0xFFC25E00),
+      label: l10n.teamOverLimit,
+    ),
+    TeamWarning.noAnswer => (
+      icon: Icons.help_outline,
+      color: dark ? const Color(0xFF8AB4F8) : const Color(0xFF1565C0),
+      label: l10n.teamNoAnswer,
+    ),
+    TeamWarning.aboveWeekShare => (
+      icon: Icons.trending_up,
+      color: _gold(dark),
+      label: l10n.teamAboveWeekShare,
+    ),
+  };
+}
+
+Color _gold(bool dark) =>
+    dark ? const Color(0xFFE2C54B) : const Color(0xFF856A00);
+
+/// Icon and colour of "No core worker", a warning of a shift: the core star
+/// without its filling, in gold (a warning, not a failure).
+({IconData icon, Color color}) noCoreStyle(BuildContext context) => (
+  icon: Icons.star_outline_rounded,
+  color: _gold(context.colors.brightness == Brightness.dark),
+);
+
+/// [teamWarningStyle] of a monthly-hours warning; null when [state] is ok.
 ({IconData icon, Color color, String label})? hoursStateStyle(
   BuildContext context,
   HoursState state,
 ) => switch (state) {
   HoursState.ok => null,
-  HoursState.aboveWeekShare => (
-    icon: Icons.info_outline,
-    color: context.colors.tertiary,
-    label: context.l10n.teamAboveWeekShare,
+  HoursState.aboveWeekShare => teamWarningStyle(
+    context,
+    TeamWarning.aboveWeekShare,
   ),
-  HoursState.overLimit => (
-    icon: Icons.warning_amber,
-    color: context.colors.error,
-    label: context.l10n.teamOverLimit,
-  ),
+  HoursState.overLimit => teamWarningStyle(context, TeamWarning.overLimit),
 };
 
 /// "noch 12,5 h" or "2,0 h zu viel" for minutes left under a monthly limit.
@@ -139,20 +181,22 @@ Future<void> showMemberWarnings(
   final locale = context.locale;
   String h(int minutes) => formatHours(minutes, locale);
 
-  Widget line(IconData icon, Color color, String text) => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    spacing: 12,
-    children: [
-      Icon(icon, size: 20, color: color),
-      Expanded(child: Text(text)),
-    ],
-  );
+  Widget line(TeamWarning warning, String text) {
+    final style = teamWarningStyle(context, warning);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 12,
+      children: [
+        Icon(style.icon, size: 20, color: style.color),
+        Expanded(child: Text(text)),
+      ],
+    );
+  }
 
   final availability = slot == null
       ? Availability.available
       : week.availability(member.id, slot);
   final hours = week.weekHoursOf(member.id);
-  final style = hours == null ? null : hoursStateStyle(context, hours.state);
   return showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
@@ -164,13 +208,14 @@ Future<void> showMemberWarnings(
           spacing: 16,
           children: [
             if (availability == Availability.noAnswer)
-              line(Icons.warning_amber, colors.error, l10n.teamWarnNoAnswer),
+              line(TeamWarning.noAnswer, l10n.teamWarnNoAnswer),
             if (availability == Availability.unavailable)
-              line(Icons.warning_amber, colors.error, l10n.teamWarnCantWork),
-            if (hours != null && style != null) ...[
+              line(TeamWarning.cantWork, l10n.teamWarnCantWork),
+            if (hours != null && hours.state != HoursState.ok) ...[
               line(
-                style.icon,
-                style.color,
+                hours.state == HoursState.overLimit
+                    ? TeamWarning.overLimit
+                    : TeamWarning.aboveWeekShare,
                 hours.state == HoursState.overLimit
                     ? l10n.teamWarnOverLimit(
                         DateFormat.MMMM(locale).format(hours.month),

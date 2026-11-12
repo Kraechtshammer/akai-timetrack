@@ -11,7 +11,6 @@ import '../../core/format.dart';
 import '../../core/time.dart';
 import '../../data/database.dart';
 import '../../domain/roster.dart';
-import '../../domain/team_hours.dart';
 import '../common.dart';
 import 'answer_screen.dart';
 import 'hours_screen.dart';
@@ -318,6 +317,7 @@ class _SlotRow extends ConsumerWidget {
         ? colors.tertiary
         : colors.primary;
     final byMember = {for (final a in assignments) a.memberId: a};
+    final noCore = noCoreStyle(context);
 
     return InkWell(
       onTap: () =>
@@ -366,10 +366,11 @@ class _SlotRow extends ConsumerWidget {
                     _PersonChip(
                       member: m,
                       start: byMember[m.id]?.startMinutes,
-                      warn:
-                          week.availability(m.id, slot) !=
-                              Availability.available ||
-                          week.hoursState(m.id) == HoursState.overLimit,
+                      // "Above the week's share" would be too noisy here.
+                      warnings: [
+                        for (final w in week.warningsOf(m.id, slot: slot))
+                          if (w != TeamWarning.aboveWeekShare) w,
+                      ],
                     ),
                 ],
               ),
@@ -377,11 +378,11 @@ class _SlotRow extends ConsumerWidget {
               Row(
                 spacing: 4,
                 children: [
-                  Icon(Icons.warning_amber, size: 16, color: colors.error),
+                  Icon(noCore.icon, size: 16, color: noCore.color),
                   Flexible(
                     child: Text(
                       l10n.teamNoCore,
-                      style: text.bodySmall?.copyWith(color: colors.error),
+                      style: text.bodySmall?.copyWith(color: noCore.color),
                     ),
                   ),
                 ],
@@ -397,12 +398,12 @@ class _PersonChip extends StatelessWidget {
   const _PersonChip({
     required this.member,
     required this.start,
-    required this.warn,
+    required this.warnings,
   });
 
   final TeamMember member;
   final Minutes? start;
-  final bool warn;
+  final List<TeamWarning> warnings;
 
   @override
   Widget build(BuildContext context) {
@@ -428,7 +429,8 @@ class _PersonChip extends StatelessWidget {
             ),
           ),
           if (start != null) Text(minutesToHhmm(start!), style: small),
-          if (warn) Icon(Icons.warning_amber, size: 16, color: colors.error),
+          for (final w in warnings.map((w) => teamWarningStyle(context, w)))
+            Icon(w.icon, size: 16, color: w.color, semanticLabel: w.label),
         ],
       ),
     );
@@ -524,7 +526,9 @@ class _PerPersonCard extends StatelessWidget {
     return week.answerOf(m.id) == null
         ? Text(
             l10n.teamNoAnswer,
-            style: context.text.bodySmall?.copyWith(color: colors.error),
+            style: context.text.bodySmall?.copyWith(
+              color: teamWarningStyle(context, TeamWarning.noAnswer).color,
+            ),
           )
         : week.isAway(m.id)
         ? Text(

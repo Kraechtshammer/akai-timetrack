@@ -235,6 +235,52 @@ void main() {
       expect(w.monthMinutes('A', nov9), 330);
     });
 
+    test('warnings of a person, most serious first', () {
+      final members = [person('A', limit: 600), person('B')];
+      final month = [evening('A', nov2)];
+      final assignments = [evening('A', nov9)];
+      final w = week(members, month: month, assignments: assignments);
+      final tueEvening = TeamSlot(addDays(nov9, 1), TeamShift.evening);
+      expect(w.warningsOf('A'), [TeamWarning.overLimit]);
+      expect(w.warningsOf('A', slot: monEvening), [TeamWarning.overLimit]);
+      // Tuesday is closed, so nobody can work it.
+      expect(w.warningsOf('A', slot: tueEvening), [
+        TeamWarning.cantWork,
+        TeamWarning.overLimit,
+      ]);
+      expect(w.warningsOf('B', slot: monEvening), isEmpty);
+
+      final unanswered = RosterWeek(
+        weekStart: nov9,
+        members: members,
+        answers: const [],
+        assignments: assignments,
+        needs: const [],
+        defaults: const StaffNeeds([
+          0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+        ]),
+        monthAssignments: [...month, ...assignments],
+        settings: settings,
+      );
+      expect(unanswered.warningsOf('A', slot: monEvening), [
+        TeamWarning.overLimit,
+        TeamWarning.noAnswer,
+      ]);
+      expect(unanswered.warningsOf('B', slot: monEvening), [
+        TeamWarning.noAnswer,
+      ]);
+      // Without a shift, the answer is not looked at.
+      expect(unanswered.warningsOf('B'), isEmpty);
+    });
+
+    test('above the week\'s share is the mildest warning', () {
+      final w = week(
+        [person('A', limit: 12 * 60)],
+        assignments: [evening('A', nov9), evening('A', addDays(nov9, 1))],
+      );
+      expect(w.warningsOf('A', slot: monEvening), [TeamWarning.aboveWeekShare]);
+    });
+
     test('Fill never goes over a monthly limit', () {
       final w = week([person('A', limit: 600)], month: [evening('A', nov2)]);
       final result = w.fill();
