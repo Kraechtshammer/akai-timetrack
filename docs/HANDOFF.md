@@ -1,6 +1,6 @@
 # Handoff: TimeTrack v1 implementation
 
-State as of 2026-11-10; the version is now 1.8.1. Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
+State as of 2026-11-12; the version is now 1.8.2. Read this together with [01-research.md](01-research.md), [02-design.md](02-design.md) (its §16 lists what changed during implementation) and [03-dev-setup.md](03-dev-setup.md).
 
 ## Where things stand
 
@@ -247,7 +247,7 @@ The developer designed new app icons, to move away from the restaurant's sign ov
 
 - The "Above the week's share" explanation no longer states the exact extra that is fine; the share is in whole hours (developer's wish).
 - The shift sheet shows the hours warnings only for people in the shift (developer's wish).
-- Since 2026-11-12 every planner warning has its own icon and colour (`teamWarningStyle`, `02-design.md` §7), and the shift sheet lists the people without an answer under a small heading instead of a collapsed section (developer's wish; "No answer yet" is blue with a question mark, no longer a red warning). Not yet released, and so far only built for the emulator.
+- Since 2026-11-12 every planner warning has its own icon and colour (`teamWarningStyle`, `02-design.md` §7), and the shift sheet lists the people without an answer under a small heading instead of a collapsed section (developer's wish; "No answer yet" is blue with a question mark, no longer a red warning). Released as 1.8.2; checked by the developer on the emulator only, not on a phone.
 - **Week switcher jumps back:** on any week other than the home one (this week on Plan and Pay, next week on Team, this month on Export), a small tonal double-arrow button sits next to the centred week, on the side the home week lies. Replaces the calendar icon in the Plan and Pay headers and the Team tab's "Next week" text button. A label under the dates was tried first and dropped. `WeekSwitcher.onHome` / `homeIsBefore` in `ui/common.dart`. Checked: analyze clean, tests pass, installed on the emulator; the developer checked it on the emulator.
 
 ## Small improvements on 2026-11-10 (released as 1.8.1)
