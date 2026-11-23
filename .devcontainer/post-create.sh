@@ -17,6 +17,8 @@ step "Configuring Flutter for Android only" flutter config --no-enable-linux-des
 step "Fetching Flutter packages" flutter pub get
 # Commit subjects need a type prefix (Feature:, Bugfix:, ...) for the release notes.
 step "Enabling the repo's git hooks" git config core.hooksPath .githooks
+# Debug builds keep their signature across rebuilds, see the script.
+step "Keeping the debug signing key on the volume" bash .devcontainer/debug-key.sh
 
 if [ ${#failed[@]} -gt 0 ]; then
   echo >&2
