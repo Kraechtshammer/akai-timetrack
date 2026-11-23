@@ -56,3 +56,4 @@ core.[0-9]*
 
 # Release signing key, base64 copy for the GitHub secret
 *.jks.base64
+/android/build/

@@ -7,6 +7,7 @@ analyzer:
     - build/**
     - android/**
     - lib/**/*.g.dart
+    - lib/l10n/app_localizations*.dart
     - packages/**/android/**
 
 linter:
