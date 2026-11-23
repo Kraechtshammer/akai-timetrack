@@ -19,7 +19,7 @@ The app's UI is German first, English second. Docs, code comments and release no
 | `branding/app-icon.svg` | Master of the AKAI sign icon (the restaurant's sign), one of the selectable designs | |
 | `branding/icons/` | Masters of the cloche (the default icon) and the two secret penguin icons. `node branding/icons/generate.js` writes the SVGs and the app's vector drawables for them | [android/CLAUDE.md](android/CLAUDE.md), [docs/HANDOFF.md](docs/HANDOFF.md) eighth session |
 | `scripts/` | `build-apk.sh` (APK into `dist/`), `install-apk.sh`, `release-notes.sh` (release notes from commit prefixes), `emulator.sh`, `emulator-test-calendar.sh` (local test calendar), `update_test_server.dart` (fake release for testing the in-app update), `windows/start-adb-server.cmd` | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
-| `.devcontainer/` | The dev container: Flutter 3.47.9, Android SDK, JDK 17, emulator, adb wrapper | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
+| `.devcontainer/` | The dev container: Flutter 3.50.1, Android SDK, JDK 21, emulator, adb wrapper | [docs/03-dev-setup.md](docs/03-dev-setup.md) |
 | `.github/workflows/` | `ci.yml` (analyze + tests on main and PRs), `release.yml` (signed APK and GitHub release on `v*` tags) | 03-dev-setup.md §9 |
 | `.githooks/` | `commit-msg`: rejects commit subjects without a type prefix | 03-dev-setup.md §9 |
 | `.vscode/tasks.json` | Tasks: analyze, test, build APKs, install, emulator start/stop, device pairing, logs | |

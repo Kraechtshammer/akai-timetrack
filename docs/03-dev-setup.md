@@ -5,7 +5,7 @@ Everything needed to build the app (Flutter, Android SDK, Java, Claude Code) liv
 ```
 Windows                                   Dev container (Linux)
 ──────────────────────────────            ───────────────────────────────────
-VS Code (+ Dev Containers ext.)  ◄──────► Flutter, Android SDK, JDK 17,
+VS Code (+ Dev Containers ext.)  ◄──────► Flutter, Android SDK, JDK 21,
 Docker (Engine in WSL 2,                  Dart/Flutter + Claude Code extensions
         or Docker Desktop)
 adb server  (start-adb-server.cmd) ◄───── adb client (wrapper picks the server)

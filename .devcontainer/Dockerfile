@@ -3,12 +3,12 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
 # Pinned for reproducible builds. To upgrade, change the version and rebuild the container.
 # Current versions: https://docs.flutter.dev/release/archive
-ARG FLUTTER_VERSION=3.47.9
-ARG ANDROID_CMDLINE_TOOLS=13114758
+ARG FLUTTER_VERSION=3.50.1
+ARG ANDROID_CMDLINE_TOOLS=16111833
 # The app compiles against 37 (android/app/build.gradle.kts; the SDK package is "android-37.0"),
 # the two local plugins against 36, and a pub plugin against 35.
-ARG ANDROID_PLATFORMS="android-35 android-36 android-37.0"
-ARG ANDROID_BUILD_TOOLS=36.0.0
+ARG ANDROID_PLATFORMS="android-35 android-36 android-37.0 android-37.2"
+ARG ANDROID_BUILD_TOOLS=37.0.0
 
 ENV ANDROID_HOME=/opt/android-sdk \
     ANDROID_SDK_ROOT=/opt/android-sdk \
@@ -18,7 +18,7 @@ ENV PATH=/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:/home/vscode/.pub-
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      openjdk-17-jdk-headless unzip xz-utils zip curl git jq ca-certificates \
+      openjdk-21-jdk-headless unzip xz-utils zip curl git jq ca-certificates \
  && rm -rf /var/lib/apt/lists/* \
  && mkdir -p /opt/android-sdk /opt/flutter \
  && chown -R vscode:vscode /opt/android-sdk /opt/flutter
